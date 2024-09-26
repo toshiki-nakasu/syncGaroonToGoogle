@@ -1,4 +1,6 @@
 class GaroonEventService {
+  constructor() {}
+
   paramToString(params) {
     let retString = '';
     for (const key in params) {
@@ -10,6 +12,10 @@ class GaroonEventService {
     return retString;
   }
 
+  paddingZero(value, length = 2) {
+    return ('0' + value).slice(-length);
+  }
+
   /**
    * DateTimeFormat: yyyy-MM-ddTHH:mm:ss+hh:mm
    */
@@ -17,19 +23,19 @@ class GaroonEventService {
     return (
       d.getFullYear() +
       '-' +
-      ('0' + (d.getMonth() + 1)).slice(-2) +
+      this.paddingZero(d.getMonth() + 1) +
       '-' +
-      ('0' + d.getDate()).slice(-2) +
+      this.paddingZero(d.getDate()) +
       'T' +
-      ('0' + d.getHours()).slice(-2) +
+      this.paddingZero(d.getHours()) +
       ':' +
-      ('0' + d.getMinutes()).slice(-2) +
+      this.paddingZero(d.getMinutes()) +
       ':' +
-      ('0' + d.getSeconds()).slice(-2) +
+      this.paddingZero(d.getSeconds()) +
       (d.getTimezoneOffset() <= 0 ? '+' : '-') +
-      ('0' + Math.floor(Math.abs(d.getTimezoneOffset()) / 60)).slice(-2) +
+      this.paddingZero(Math.floor(Math.abs(d.getTimezoneOffset()) / 60)) +
       ':' +
-      ('0' + (Math.abs(d.getTimezoneOffset()) % 60)).slice(-2)
+      this.paddingZero(Math.abs(d.getTimezoneOffset()) % 60)
     );
   }
 

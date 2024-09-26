@@ -4,6 +4,7 @@ const TAG_GAROON_SYNC_DATETIME = 'GAROON_SYNC_DATETIME';
 let properties;
 let garoonUser;
 let syncTargetTerm;
+let gCal;
 
 let garoonEventService;
 let gCalEventService;
@@ -24,9 +25,9 @@ function initialize() {
   ).convertSyncTargetTerm();
 
   garoonEventService = new GaroonEventService();
-  gCalEventService = new GCalEventService(
-    properties.getProperty('CalendarName'),
-  );
+  gCalEventService = new GCalEventService();
+  gCal = new GCal(properties.getProperty('CalendarName'));
+
   gCalSyncService = new GCalSyncService();
   garoonSyncService = new GaroonSyncService();
 }
@@ -38,8 +39,8 @@ function syncGaroonToGCal() {
   gCalSyncService.syncFromGaroon(garoonEvents, gCalEvents);
 }
 
-function syncGCalToGaroon() {
-  // initialize();
-  // let garoonEvents = garoonEventService.getEvent(garoonUser, syncTargetTerm);
-  // garoonSyncService.syncFromGoogle();
+function syncGCalToGaroon(gCalEvent) {
+  initialize();
+  let garoonEvents = garoonEventService.getEvent(garoonUser, syncTargetTerm);
+  garoonSyncService.syncFromGoogle();
 }

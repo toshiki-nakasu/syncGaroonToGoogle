@@ -25,6 +25,7 @@ class GCalSyncService {
       );
       if (gCalEvent) {
         if (gCalEventService.isLatestEvent(gCalEvent, garoonEvent)) {
+          // TODO タグがないものは消さない！！
           gCalEvent.deleteEvent();
           console.info('Delete GCal event: ' + 'update event');
         } else {
