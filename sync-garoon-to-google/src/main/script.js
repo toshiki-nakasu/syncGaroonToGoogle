@@ -39,7 +39,7 @@ function syncGaroonToGCal() {
   gCalSyncService.syncFromGaroon(garoonEvents, gCalEvents);
 }
 
-function syncGCalToGaroon(gCalEvent) {
+function syncGCalToGaroon() {
   initialize();
   let garoonEvents = garoonEventService.getEvent(garoonUser, syncTargetTerm);
   garoonSyncService.syncFromGoogle();

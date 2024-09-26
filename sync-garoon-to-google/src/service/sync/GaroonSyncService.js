@@ -3,8 +3,7 @@ class GaroonSyncService {
 
   syncFromGoogle() {
     console.info('Sync GCal Event: ' + 'START');
-    const gCalEvents = gCal.onCalendarEdit();
-    console.log(JSON.stringify(gCalEvents));
+    const gCalEvents = gCal.onCalendarEdit(syncTargetTerm);
 
     console.info('Sync GCal Event: ' + 'END');
   }

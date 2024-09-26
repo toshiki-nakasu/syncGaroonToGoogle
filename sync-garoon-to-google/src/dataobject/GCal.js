@@ -2,11 +2,19 @@ class GCal {
   constructor(calendarName) {
     this.calendar = this.getOrCreateGCal(calendarName);
     this.id = this.calendar.getId();
-    this.nextSyncToken = Calendar.Events.list(this.id).nextSyncToken;
+    this.setNextSyncToken(Calendar.Events.list(this.id).nextSyncToken);
   }
 
   getGCal() {
     return this.calendar;
+  }
+
+  getNextSyncToken() {
+    return properties.getProperty('nextSyncToken');
+  }
+
+  setNextSyncToken(token) {
+    PropertiesService.getScriptProperties().setProperty('nextSyncToken', token);
   }
 
   createCalendar(calendarName) {
@@ -32,13 +40,15 @@ class GCal {
     return retGCal;
   }
 
-  onCalendarEdit() {
+  onCalendarEdit(term) {
     const option = {
-      syncToken: this.nextSyncToken,
+      syncToken: this.getNextSyncToken(),
     };
 
     const gCalEvents = Calendar.Events.list(this.id, option);
-    this.nextSyncToken = gCalEvents.nextSyncToken;
-    return gCalEvents;
+    this.setNextSyncToken(gCalEvents.nextSyncToken);
+    // TODO itemに格納されてない...
+    console.log(gCalEvents.items);
+    return gCalEvents.items;
   }
 }
