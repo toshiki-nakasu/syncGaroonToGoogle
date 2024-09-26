@@ -20,6 +20,7 @@ class GCalEventService {
   }
 
   createEvent(garoonEventItem, garoonUniqueEventID) {
+    // TODO メンバーを入れたい
     let retGCalEvent;
     if (garoonEventItem.isAllDay) {
       retGCalEvent = gCal.calendar.createAllDayEvent(
