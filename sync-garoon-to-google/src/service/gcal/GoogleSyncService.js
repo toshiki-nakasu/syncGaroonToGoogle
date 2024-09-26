@@ -2,9 +2,11 @@ class GoogleSyncService {
   constructor() { }
 
   syncFromGaroon(garoonEvents, gCalEvents) {
+    console.info("Sync Garoon Event: " + "START");
     this.createOrUpdateEvent(garoonEvents, gCalEvents);
     const garoonUniqueEventIds = garoonEvents.map((e) => garoonEventService.getGaroonUniqueEventID(e));
     this.deleteEvent(garoonUniqueEventIds, gCalEvents);
+    console.info("Sync Garoon Event: " + "END");
   }
 
   createOrUpdateEvent(garoonEvents, gCalEvents) {
