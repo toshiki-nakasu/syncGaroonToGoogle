@@ -42,7 +42,9 @@
         "scriptFolder": "${containerWorkspaceFolder}/.devcontainer/script"
     },
     "remoteEnv": {},
-    "portsAttributes": { "3000": { "label": "api", "onAutoForward": "silent" } },
+    "portsAttributes": {
+        "3000": { "label": "api", "onAutoForward": "silent" }
+    },
 
     // ## Container command
     // warning: To use .sh you need mount
@@ -51,7 +53,9 @@
     "onCreateCommand": {
         "Step": "sh ${containerEnv:scriptFolder}/chownVolume.sh developer ${containerWorkspaceFolder}"
     },
-    "postCreateCommand": "sh ${containerWorkspaceFolder}/script/postCreate.sh ${containerWorkspaceFolder}",
+    "postCreateCommand": {
+        "Step": "sh ${containerWorkspaceFolder}/script/postCreate.sh ${containerWorkspaceFolder}"
+    },
 
     // IDE
     "customizations": {
