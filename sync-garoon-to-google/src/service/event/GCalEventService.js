@@ -7,7 +7,7 @@ class GCalEventService {
 
   isScheduleByGaroon(gCalEvents, garoonUniqueEventID) {
     return gCalEvents.find(
-      (e) => e.getTag(TAG_GAROON_UNIQUE_EVENT_ID) === garoonUniqueEventID,
+      (event) => event.getTag(TAG_GAROON_UNIQUE_EVENT_ID) === garoonUniqueEventID,
     );
   }
 
@@ -20,7 +20,6 @@ class GCalEventService {
   }
 
   createEvent(garoonEventItem, garoonUniqueEventID) {
-    // TODO メンバーを入れたい
     let retGCalEvent;
     if (garoonEventItem.isAllDay) {
       retGCalEvent = gCal.calendar.createAllDayEvent(

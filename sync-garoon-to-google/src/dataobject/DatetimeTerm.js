@@ -4,14 +4,6 @@ class DatetimeTerm {
     this.end = end;
   }
 
-  getStart() {
-    return this.start;
-  }
-
-  getEnd() {
-    return this.end;
-  }
-
   convertSyncTargetTerm() {
     let today = new Date();
     let start = new Date();
@@ -23,5 +15,9 @@ class DatetimeTerm {
     end.setDate(today.getDate() + this.end);
     end.setHours(23, 59, 59, 0);
     return new DatetimeTerm(start, end);
+  }
+
+  isInTerm(dateTime) {
+    return this.start <= dateTime && dateTime <= this.end;
   }
 }

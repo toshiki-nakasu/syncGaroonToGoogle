@@ -7,14 +7,37 @@ class GaroonEventItem {
   }
 
   createTitle(garoonEvent) {
-    const eventMenu = garoonEvent.eventMenu ? (garoonEvent.eventMenu + " ") : "";
+    const eventMenu = garoonEvent.eventMenu
+      ? `【${garoonEvent.eventMenu}】`
+      : '';
     return eventMenu + garoonEvent.subject;
+  }
+
+  getAttendee(garoonEvent, userKey = 'name') {
+    let attendee = [];
+    for (const user of garoonEvent.attendees) {
+      attendee.push(user[userKey].replace('　', ' '));
+    }
+
+    return attendee.join(', ');
+  }
+
+  createDescription(garoonEvent) {
+    const description = [
+      '【参加者】',
+      this.getAttendee(garoonEvent),
+      null,
+      '【メモ】',
+      garoonEvent.notes,
+    ];
+
+    return description.join('\r\n');
   }
 
   createOptions(garoonEvent) {
     return {
-      "description": garoonEvent.notes,
-    }
+      description: this.createDescription(garoonEvent),
+    };
   }
 
   createTerm(garoonEvent) {
@@ -25,7 +48,6 @@ class GaroonEventItem {
 
       // 終日予定の終了時刻はガルーンは当日の23:59:59で返ってくるが、Google Calendarは翌日00:00:00にする
       end.setSeconds(end.getSeconds() + 1);
-
     } else {
       if (garoonEvent.isStartOnly) {
         end = new Date(garoonEvent.start.dateTime);

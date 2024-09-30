@@ -1,7 +1,7 @@
-class GCalSyncService {
+class SyncGaroonToGCalService {
   constructor() {}
 
-  syncFromGaroon(garoonEvents, gCalEvents) {
+  sync(garoonEvents, gCalEvents) {
     console.info('Sync Garoon Event: ' + 'START');
     this.createOrUpdateEvent(garoonEvents, gCalEvents);
     const garoonUniqueEventIds = garoonEvents.map((e) =>

@@ -1,7 +1,7 @@
-class GaroonSyncService {
+class SyncGCalToGaroonService {
   constructor() {}
 
-  syncFromGoogle() {
+  sync() {
     console.info('Sync GCal Event: ' + 'START');
     const gCalEvents = gCal.onCalendarEdit(syncTargetTerm);
 
