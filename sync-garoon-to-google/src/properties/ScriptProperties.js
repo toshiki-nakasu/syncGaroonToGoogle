@@ -1,5 +1,6 @@
 function setScriptProperties() {
   PropertiesService.getScriptProperties().setProperties({
+    TimeZone: 'Asia/Tokyo',
     GaroonDomain: 'mamezo-dhd.cybozu.com',
     GaroonUser: 'toshiki-nakasu',
     GaroonPassword: 'Tosi+0022',

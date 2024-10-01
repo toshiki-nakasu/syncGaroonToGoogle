@@ -12,10 +12,9 @@ class TimeTerm {
   }
 
   toDatetimeTerm() {
-    const today = new Date();
     return new DatetimeTerm(
-      this.timeToDate(this.start, today),
-      this.timeToDate(this.end, today),
+      this.timeToDate(this.start, now),
+      this.timeToDate(this.end, now),
     );
   }
 }

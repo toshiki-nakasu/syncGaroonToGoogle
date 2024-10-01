@@ -1,22 +1,27 @@
+const SYNC_TOKEN_PROPERTY_KEY = 'nextSyncToken';
 const TAG_GAROON_UNIQUE_EVENT_ID = 'GAROON_UNIQUE_EVENT_ID';
 const TAG_GAROON_SYNC_DATETIME = 'GAROON_SYNC_DATETIME';
+const API_COOL_TIME = 1000;
 
+let now;
 let properties;
+
 let garoonUser;
 let workTerm;
 let syncTargetTerm;
 let gCal;
 
+let commonEventService;
 let garoonEventService;
 let gCalEventService;
-let syncGaroonToGCalService;
-let syncGCalToGaroonService;
-
-let now;
+let garoonDao;
+let gCalDao;
 
 function initialize() {
+  now = new Date();
   setScriptProperties();
   properties = PropertiesService.getScriptProperties();
+
   garoonUser = new GaroonUser(
     properties.getProperty('GaroonDomain'),
     properties.getProperty('GaroonUser'),
@@ -33,27 +38,34 @@ function initialize() {
     properties.getProperty('SyncDaysAfter'),
   ).convertSyncTargetTerm();
 
-  garoonEventService = new GaroonEventService();
-  gCalEventService = new GCalEventService();
   gCal = new GCal(properties.getProperty('CalendarName'));
 
-  syncGaroonToGCalService = new SyncGaroonToGCalService();
-  syncGCalToGaroonService = new SyncGCalToGaroonService();
-
-  now = new Date();
+  commonEventService = new CommonEventService();
+  garoonEventService = new GaroonEventService();
+  gCalEventService = new GCalEventService();
+  garoonDao = new GaroonDao();
+  gCalDao = new GCalDao();
 }
 
-function syncGaroonToGCal() {
+function test() {
   initialize();
-  if (!workTerm.isInTerm(now)) return;
-  let garoonEvents = garoonEventService.getEvent(garoonUser, syncTargetTerm);
-  let gCalEvents = gCalEventService.getEvent(syncTargetTerm);
-  syncGaroonToGCalService.sync(garoonEvents, gCalEvents);
 }
 
-function syncGCalToGaroon() {
+function sync() {
   initialize();
   if (!workTerm.isInTerm(now)) return;
-  let garoonEvents = garoonEventService.getEvent(garoonUser, syncTargetTerm);
-  syncGCalToGaroonService.sync();
+
+  let garoonAllEvents = garoonEventService.getAllEvent(syncTargetTerm);
+  let gCalAllEvents = gCalEventService.getAllEvent(syncTargetTerm);
+
+  let garoonEditedEvents = garoonEventService.getEditedEvents(
+    garoonAllEvents,
+    gCalAllEvents,
+  );
+
+  let gCalEditedEvents = gCalEventService.getEditedEvents();
+
+  commonEventService.syncGaroonToGCal(garoonEditedEvents, gCalAllEvents);
+  // commonEventService.syncGCalToGaroon(gCalEditedEvents);
+  // TODO 最後にsynctoken最新化して終了すること
 }

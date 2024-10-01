@@ -1,9 +1,16 @@
 class GaroonEventItem {
   constructor(garoonEvent) {
+    this.id = this.createId(garoonEvent);
     this.title = this.createTitle(garoonEvent);
     this.options = this.createOptions(garoonEvent);
     this.term = this.createTerm(garoonEvent);
-    this.isAllDay = garoonEvent.isAllDay;
+    this.updatedAt = garoonEvent.updatedAt;
+    this.isAllDay = garoonEvent.isAllDay ? true : false;
+  }
+
+  createId(garoonEvent) {
+    const repeatId = garoonEvent.repeatId ? '-' + garoonEvent.repeatId : '';
+    return garoonEvent.id + repeatId;
   }
 
   createTitle(garoonEvent) {

@@ -1,35 +1,39 @@
 class GCalEventService {
   constructor() {}
 
-  getEvent(term) {
+  getAllEvent(term) {
+    if (Utility.isNullOrUndefined(gCal.calendar)) gCal.createCalendar();
     return gCal.calendar.getEvents(term.start, term.end);
   }
 
-  isScheduleByGaroon(gCalEvents, garoonUniqueEventID) {
-    return gCalEvents.find(
-      (event) => event.getTag(TAG_GAROON_UNIQUE_EVENT_ID) === garoonUniqueEventID,
-    );
-  }
+  /**
+   * WARN syncToken発行のタイミング要注意
+   */
+  getEditedEvents() {
+    const syncToken = gCal.getNextSyncToken();
+    const option = syncToken
+      ? {
+          syncToken: syncToken,
+        }
+      : {};
 
-  isLatestEvent(gCalEvent, garoonEvent) {
-    const gCalTaggedTime = new Date(
-      gCalEvent.getTag(TAG_GAROON_SYNC_DATETIME),
-    ).getTime();
-    const garoonUpdatedTime = new Date(garoonEvent.updatedAt).getTime();
-    return garoonUpdatedTime > gCalTaggedTime;
+    const gCalEvents = Calendar.Events.list(gCal.id, option);
+    gCal.setNextSyncToken(gCalEvents);
+    // TODO: { create: , delete: , update:  } の形にしたい
+    return gCalEvents.items;
   }
 
   createEvent(garoonEventItem, garoonUniqueEventID) {
-    let retGCalEvent;
+    let gCalEvent;
     if (garoonEventItem.isAllDay) {
-      retGCalEvent = gCal.calendar.createAllDayEvent(
+      gCalEvent = gCal.calendar.createAllDayEvent(
         garoonEventItem.title,
         garoonEventItem.term.start,
         garoonEventItem.term.end,
         garoonEventItem.options,
       );
     } else {
-      retGCalEvent = gCal.calendar.createEvent(
+      gCalEvent = gCal.calendar.createEvent(
         garoonEventItem.title,
         garoonEventItem.term.start,
         garoonEventItem.term.end,
@@ -37,13 +41,11 @@ class GCalEventService {
       );
     }
 
-    this.setTagToEvent(retGCalEvent, garoonUniqueEventID);
-    return retGCalEvent;
+    this.setTagToEvent(gCalEvent, garoonUniqueEventID);
   }
 
   setTagToEvent(gCalEvent, garoonUniqueEventID) {
     gCalEvent.setTag(TAG_GAROON_UNIQUE_EVENT_ID, garoonUniqueEventID);
     gCalEvent.setTag(TAG_GAROON_SYNC_DATETIME, new Date().toISOString());
-    return gCalEvent;
   }
 }
