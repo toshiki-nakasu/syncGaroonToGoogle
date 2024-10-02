@@ -60,9 +60,9 @@ class GaroonEventService {
       }
     }
 
-    console.info('Created count: ' + created.length);
-    console.info('Deleted count: ' + deleted.length);
-    console.info('Updated count: ' + updated.length);
+    console.info('Garoon Event Created count: ' + created.length);
+    console.info('Garoon Event Deleted count: ' + deleted.length);
+    console.info('Garoon Event Updated count: ' + updated.length);
 
     return { create: created, delete: deleted, update: updated };
   }

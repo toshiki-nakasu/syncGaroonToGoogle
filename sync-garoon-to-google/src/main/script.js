@@ -62,12 +62,11 @@ function sync() {
     garoonAllEvents,
     gCalAllEvents,
   );
-
-  // let gCalEditedEvents = gCalEventService.getEditedEvents();
+  let gCalEditedEvents = gCalEventService.getEditedEvents();
 
   commonEventService.syncGaroonToGCal(garoonEditedEvents, gCalAllEvents);
-  // commonEventService.syncGCalToGaroon(gCalEditedEvents);
+  commonEventService.syncGCalToGaroon(gCalEditedEvents);
 
-  // TODO 最後にsynctoken最新化して終了すること
+  // 最後にsynctoken最新化して終了すること
   gCalDao.getNotSyncedEvents();
 }

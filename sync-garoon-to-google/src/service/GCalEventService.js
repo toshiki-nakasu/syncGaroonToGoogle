@@ -39,15 +39,13 @@ class GCalEventService {
         gCalEvent.extendedProperties.shared[TAG_GAROON_UNIQUE_EVENT_ID];
 
       // TODO 最終更新以降の編集がある場合: Garoonのイベント更新, GCalのタグ更新
-
       // TODO GCalから削除された: Garoonもイベント更新 (メンバーが自分のみの場合削除、2名以上の場合は脱退)
-
-      // TODO Garoonの更新とGCalの更新、両方あったときはGaroonを優先したい
+      // TODO Garoonの更新とGCalの更新、両方あったときはGaroonを優先したい (競合対策)
     }
 
-    console.info('Created count: ' + created.length);
-    console.info('Deleted count: ' + deleted.length);
-    console.info('Updated count: ' + updated.length);
+    console.info('GCal Event Created count: ' + created.length);
+    console.info('GCal Event Deleted count: ' + deleted.length);
+    console.info('GCal Event Updated count: ' + updated.length);
 
     return { create: created, delete: deleted, update: updated };
   }

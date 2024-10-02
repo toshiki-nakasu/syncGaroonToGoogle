@@ -31,5 +31,20 @@ class CommonEventService {
     console.info('Sync Garoon To GCal: ' + 'END');
   }
 
-  syncGCalToGaroon(gCalEditedEvents) {}
+  syncGCalToGaroon(gCalEditedEvents) {
+    console.info('Sync GCal To Garoon: ' + 'START');
+    for (const event of gCalEditedEvents.create) {
+      // garoonDao.create(garoonEvent);
+    }
+
+    for (const event of gCalEditedEvents.delete) {
+      // garoonDao.delete(gCalEvent, gCalAllEvents);
+    }
+
+    for (const event of gCalEditedEvents.update) {
+      // garoonDao.update(gCalEvent);
+    }
+
+    console.info('Sync GCal To Garoon: ' + 'END');
+  }
 }
