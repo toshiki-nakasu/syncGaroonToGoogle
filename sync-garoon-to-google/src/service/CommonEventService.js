@@ -17,21 +17,22 @@ class CommonEventService {
   syncGaroonToGCal(garoonEditedEvents, gCalAllEvents) {
     console.info('Sync Garoon To GCal: ' + 'START');
     for (const garoonEvent of garoonEditedEvents.create) {
+      if (Utility.isNullOrUndefined(garoonEvent)) continue;
       gCalDao.create(garoonEvent);
-      Utilities.sleep(API_COOL_TIME);
     }
 
     for (const garoonEvent of garoonEditedEvents.delete) {
+      if (Utility.isNullOrUndefined(garoonEvent)) continue;
       gCalDao.delete(garoonEvent, gCalAllEvents);
-      Utilities.sleep(API_COOL_TIME);
     }
 
-    for (const garoonEvent of garoonEditedEvents.update) {
-      gCalDao.update(garoonEvent, gCalAllEvents);
-      Utilities.sleep(API_COOL_TIME);
+    for (const gCalEvent of garoonEditedEvents.update) {
+      if (Utility.isNullOrUndefined(gCalEvent)) continue;
+      gCalDao.update(gCalEvent, gCalAllEvents);
     }
 
     console.info('Sync Garoon To GCal: ' + 'END');
   }
+
   syncGCalToGaroon(gCalEditedEvents) {}
 }

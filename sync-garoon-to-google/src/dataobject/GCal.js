@@ -23,20 +23,4 @@ class GCal {
   setNextSyncToken(gCalEvents) {
     properties.setProperty(SYNC_TOKEN_PROPERTY_KEY, gCalEvents.nextSyncToken);
   }
-
-  createCalendar() {
-    const option = {
-      timeZone: properties.getProperty('TimeZone'),
-      color: CalendarApp.Color.PURPLE,
-    };
-    this.calendar = CalendarApp.createCalendar(this.name, option);
-    console.info('Createing GCal calendar...');
-    Utilities.sleep(5000);
-
-    this.id = this.calendar.getId();
-    gCalEventService.getEditedEvents();
-    console.warn('Create GCal calendar: ' + 'please notify, color setting');
-  }
-
-  truncate() {}
 }

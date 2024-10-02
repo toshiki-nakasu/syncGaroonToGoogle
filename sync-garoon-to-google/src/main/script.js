@@ -55,8 +55,8 @@ function sync() {
   initialize();
   if (!workTerm.isInTerm(now)) return;
 
-  let garoonAllEvents = garoonEventService.getAllEvent(syncTargetTerm);
-  let gCalAllEvents = gCalEventService.getAllEvent(syncTargetTerm);
+  let garoonAllEvents = garoonEventService.getByTerm(syncTargetTerm);
+  let gCalAllEvents = gCalEventService.getByTerm(syncTargetTerm);
 
   let garoonEditedEvents = garoonEventService.getEditedEvents(
     garoonAllEvents,

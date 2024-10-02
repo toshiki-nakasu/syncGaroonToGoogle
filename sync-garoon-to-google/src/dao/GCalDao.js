@@ -1,5 +1,24 @@
 class GCalDao {
   constructor() {}
+
+  selectByTerm(term) {
+    return gCal.calendar.getEvents(term.start, term.end);
+  }
+
+  createCalendar() {
+    const option = {
+      timeZone: properties.getProperty('TimeZone'),
+      color: CalendarApp.Color.PURPLE,
+    };
+    this.calendar = CalendarApp.createCalendar(this.name, option);
+    console.info('Createing GCal calendar...');
+    Utilities.sleep(API_COOL_TIME * 5);
+
+    this.id = this.calendar.getId();
+    gCalEventService.getEditedEvents();
+    console.warn('Create GCal calendar: ' + 'please notify, color setting');
+  }
+
   create(garoonEvent) {
     let gCalEvent;
     if (garoonEvent.isAllDay) {
@@ -20,6 +39,7 @@ class GCalDao {
 
     gCalEventService.setTagToEvent(gCalEvent, garoonEvent.id);
     Logger.log('Create GCal event: ' + garoonEvent.id);
+    Utilities.sleep(API_COOL_TIME);
   }
 
   update(garoonEvent, gCalAllEvents) {
@@ -27,15 +47,11 @@ class GCalDao {
     this.create(garoonEvent);
   }
 
-  delete(garoonEvent, gCalAllEvents) {
-    const gCalEvents = gCalAllEvents.map((event) => {
-      const tagUniqueEventID = event.getTag(TAG_GAROON_UNIQUE_EVENT_ID);
-      if (tagUniqueEventID === garoonEvent.id) return event;
-    });
-
-    for (const gCalEvent of gCalEvents) {
-      gCalEvent.deleteEvent();
-      Logger.log('Delete GCal event: ' + garoonEvent.id);
-    }
+  delete(gCalEvent) {
+    gCalEvent.deleteEvent();
+    Logger.log(
+      'Delete GCal event: ' + gCalEvent.getTag(TAG_GAROON_UNIQUE_EVENT_ID),
+    );
+    Utilities.sleep(API_COOL_TIME);
   }
 }

@@ -1,12 +1,37 @@
 class GaroonDao {
   constructor() {}
 
-  // TODO 更新対象のカレンダー, eventTypeのチェック
-  // TODO uniqueIdなし: Garoonに新規作成, 作成元のGCalにタグ付け
-  // TODO uniqueIdあり、かつ最終更新以降の編集がない場合: skip
-  // TODO uniqueIdあり、かつ最終更新以降の編集がある場合: Garoonのイベント更新, GCalのタグ更新
-  // TODO uniqueIdあり、かつGCalから削除された: Garoonもイベント更新 (メンバーが自分のみの場合削除、2名以上の場合は脱退)
+  selectByTerm(term) {
+    const apiUri = this.createApiUri(garoonUser.domain, term);
+    const apiHeader = this.createApiHeader(garoonUser);
+    const response = UrlFetchApp.fetch(apiUri, {
+      method: 'get',
+      headers: apiHeader,
+    });
+    return response;
+  }
+
   create() {}
   update() {}
   delete() {}
+
+  createApiUri(domain, term) {
+    let apiBaseURI = 'https://' + domain + '/g/api/v1/schedule/events';
+    let apiParams = {
+      rangeStart: encodeURIComponent(Utility.formatISODateTime(term.start)),
+      rangeEnd: encodeURIComponent(Utility.formatISODateTime(term.end)),
+      orderBy: 'start%20asc',
+      limit: 200,
+    };
+    return apiBaseURI + '?' + Utility.paramToString(apiParams);
+  }
+
+  createApiHeader(garoonUser) {
+    return {
+      'Content-Type': 'application/json',
+      'X-Cybozu-Authorization': Utilities.base64Encode(
+        garoonUser.id + ':' + garoonUser.password,
+      ),
+    };
+  }
 }

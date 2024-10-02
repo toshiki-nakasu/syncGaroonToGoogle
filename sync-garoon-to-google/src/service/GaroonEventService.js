@@ -1,7 +1,7 @@
 class GaroonEventService {
   constructor() {}
 
-  findEventById(garoonEvents, uniqueEventId) {
+  findEventByUniqueEventId(garoonEvents, uniqueEventId) {
     let retEvent = null;
 
     const eventMap = garoonEvents.map((event) => {
@@ -12,13 +12,8 @@ class GaroonEventService {
     return retEvent;
   }
 
-  getAllEvent(term) {
-    const apiUri = this.createApiUri(garoonUser.domain, term);
-    const apiHeader = this.createApiHeader(garoonUser);
-    const response = UrlFetchApp.fetch(apiUri, {
-      method: 'get',
-      headers: apiHeader,
-    });
+  getByTerm(term) {
+    const response = garoonDao.selectByTerm(term);
     return JSON.parse(response.getContentText('UTF-8')).events.map(
       (event) => new GaroonEventItem(event),
     );
@@ -51,10 +46,13 @@ class GaroonEventService {
       // 手動でGCalで作成されたものはskip
       if (!Utility.isNullOrUndefined(tagUniqueEventID)) continue;
 
-      garoonEvent = this.findEventById(garoonEvents, tagUniqueEventID);
+      garoonEvent = this.findEventByUniqueEventId(
+        garoonEvents,
+        tagUniqueEventID,
+      );
 
-      if (!Utility.isNullOrUndefined(garoonEvent)) {
-        deleted.push(garoonEvent);
+      if (Utility.isNullOrUndefined(garoonEvent)) {
+        deleted.push(gCalEvent);
         continue;
       }
 
@@ -64,48 +62,5 @@ class GaroonEventService {
     }
 
     return { create: created, delete: deleted, update: updated };
-  }
-
-  /**
-   * DateTimeFormat: yyyy-MM-ddTHH:mm:ss+hh:mm
-   */
-  formatISODateTime(d) {
-    return (
-      d.getFullYear() +
-      '-' +
-      Utility.paddingZero(d.getMonth() + 1) +
-      '-' +
-      Utility.paddingZero(d.getDate()) +
-      'T' +
-      Utility.paddingZero(d.getHours()) +
-      ':' +
-      Utility.paddingZero(d.getMinutes()) +
-      ':' +
-      Utility.paddingZero(d.getSeconds()) +
-      (d.getTimezoneOffset() <= 0 ? '+' : '-') +
-      Utility.paddingZero(Math.floor(Math.abs(d.getTimezoneOffset()) / 60)) +
-      ':' +
-      Utility.paddingZero(Math.abs(d.getTimezoneOffset()) % 60)
-    );
-  }
-
-  createApiUri(domain, term) {
-    let apiBaseURI = 'https://' + domain + '/g/api/v1/schedule/events';
-    let apiParams = {
-      rangeStart: encodeURIComponent(this.formatISODateTime(term.start)),
-      rangeEnd: encodeURIComponent(this.formatISODateTime(term.end)),
-      orderBy: 'start%20asc',
-      limit: 200,
-    };
-    return apiBaseURI + '?' + Utility.paramToString(apiParams);
-  }
-
-  createApiHeader(garoonUser) {
-    return {
-      'Content-Type': 'application/json',
-      'X-Cybozu-Authorization': Utilities.base64Encode(
-        garoonUser.id + ':' + garoonUser.password,
-      ),
-    };
   }
 }
