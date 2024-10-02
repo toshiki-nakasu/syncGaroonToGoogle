@@ -59,10 +59,9 @@ class GaroonEventService {
         updated.push([gCalEvent, garoonEvent]);
       }
     }
-
-    console.info('Garoon Event Created count: ' + created.length);
-    console.info('Garoon Event Deleted count: ' + deleted.length);
-    console.info('Garoon Event Updated count: ' + updated.length);
+    console.info(
+      `Garoon Event:\n\tCreated count: ${created.length}\n\tDeleted count: ${deleted.length}\n\tUpdated count: ${updated.length}`,
+    );
 
     return { create: created, delete: deleted, update: updated };
   }

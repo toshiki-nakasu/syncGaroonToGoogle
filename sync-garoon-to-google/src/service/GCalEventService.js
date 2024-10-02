@@ -43,9 +43,9 @@ class GCalEventService {
       // TODO Garoonの更新とGCalの更新、両方あったときはGaroonを優先したい (競合対策)
     }
 
-    console.info('GCal Event Created count: ' + created.length);
-    console.info('GCal Event Deleted count: ' + deleted.length);
-    console.info('GCal Event Updated count: ' + updated.length);
+    console.info(
+      `GCal Event:\n\tCreated count: ${created.length}\n\tDeleted count: ${deleted.length}\n\tUpdated count: ${updated.length}`,
+    );
 
     return { create: created, delete: deleted, update: updated };
   }
