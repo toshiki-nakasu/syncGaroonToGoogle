@@ -53,7 +53,7 @@ class GaroonEventItem {
     if (garoonEvent.isAllDay) {
       end = new Date(garoonEvent.end.dateTime);
 
-      // 終日予定の終了時刻はガルーンは当日の23:59:59で返ってくるが、Google Calendarは翌日00:00:00にする
+      // Garoonからは終日予定の終了時刻は当日の23:59:59で返ってくるが、GCalendarは翌日00:00:00にする
       end.setSeconds(end.getSeconds() + 1);
     } else {
       if (garoonEvent.isStartOnly) {

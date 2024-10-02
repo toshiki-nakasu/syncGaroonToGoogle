@@ -2,49 +2,75 @@ class GCalDao {
   constructor() {}
 
   selectByTerm(term) {
-    return gCal.calendar.getEvents(term.start, term.end);
+    return gCal.getCalendar().getEvents(term.start, term.end);
   }
 
-  createCalendar() {
+  getNotSyncedEvents() {
+    const syncToken = gCal.getNextSyncToken();
+    const option = syncToken
+      ? {
+          syncToken: syncToken,
+        }
+      : {};
+
+    try {
+      const retEvents = Calendar.Events.list(gCal.getId(), option);
+      gCal.setNextSyncToken(retEvents.nextSyncToken);
+      return retEvents.items;
+    } catch (err) {
+      if (410 === err.details.code) {
+        gCal.delNextSyncToken();
+      }
+      throw new Error(err);
+    }
+  }
+
+  createCalendar(name) {
     const option = {
       timeZone: properties.getProperty('TimeZone'),
       color: CalendarApp.Color.PURPLE,
     };
-    this.calendar = CalendarApp.createCalendar(this.name, option);
+    const retCalendar = CalendarApp.createCalendar(name, option);
     console.info('Createing GCal calendar...');
     Utilities.sleep(API_COOL_TIME * 5);
-
-    this.id = this.calendar.getId();
-    gCalEventService.getEditedEvents();
-    console.warn('Create GCal calendar: ' + 'please notify, color setting');
+    console.warn('Created GCal calendar: ' + 'please notify, color setting');
+    return retCalendar;
   }
 
   create(garoonEvent) {
     let gCalEvent;
     if (garoonEvent.isAllDay) {
-      gCalEvent = gCal.calendar.createAllDayEvent(
-        garoonEvent.title,
-        garoonEvent.term.start,
-        garoonEvent.term.end,
-        garoonEvent.options,
-      );
+      gCalEvent = gCal
+        .getCalendar()
+        .createAllDayEvent(
+          garoonEvent.title,
+          garoonEvent.term.start,
+          garoonEvent.term.end,
+          garoonEvent.options,
+        );
     } else {
-      gCalEvent = gCal.calendar.createEvent(
-        garoonEvent.title,
-        garoonEvent.term.start,
-        garoonEvent.term.end,
-        garoonEvent.options,
-      );
+      gCalEvent = gCal
+        .getCalendar()
+        .createEvent(
+          garoonEvent.title,
+          garoonEvent.term.start,
+          garoonEvent.term.end,
+          garoonEvent.options,
+        );
     }
 
-    gCalEventService.setTagToEvent(gCalEvent, garoonEvent.id);
+    gCalEventService.setTagToEvent(
+      gCalEvent,
+      garoonEvent.id,
+      garoonEvent.updatedAt,
+    );
     Logger.log('Create GCal event: ' + garoonEvent.id);
     Utilities.sleep(API_COOL_TIME);
   }
 
-  update(garoonEvent, gCalAllEvents) {
-    this.delete(garoonEvent, gCalAllEvents);
-    this.create(garoonEvent);
+  update(eventArray) {
+    this.delete(eventArray[0]);
+    this.create(eventArray[1]);
   }
 
   delete(gCalEvent) {

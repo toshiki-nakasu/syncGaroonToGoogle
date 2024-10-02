@@ -1,26 +1,54 @@
 class GCal {
   constructor(calendarName) {
-    this.name = calendarName;
-    this.calendar = this.getGCal();
+    this.setName(calendarName);
+    this.setCalendar();
     this.id = this.calendar ? this.calendar.getId() : null;
   }
 
-  getGCal() {
-    let retGCal = null;
+  getName() {
+    return this.name;
+  }
 
-    const gCalendars = CalendarApp.getOwnedCalendarsByName(this.name);
-    if (gCalendars.length) {
-      retGCal = gCalendars[0];
+  setName(name) {
+    this.name = name;
+  }
+
+  getCalendar() {
+    return this.calendar;
+  }
+
+  setCalendar() {
+    let retCalendar;
+    const calendars = CalendarApp.getOwnedCalendarsByName(this.name);
+
+    if (1 <= calendars.length) {
+      retCalendar = calendars[0];
       console.info('Get GCal calendar: ' + 'exist target calendar name');
+    } else {
+      retCalendar = gCalDao.createCalendar(this.name);
+      this.delNextSyncToken();
     }
-    return retGCal;
+
+    this.calendar = retCalendar;
+  }
+
+  getId() {
+    return this.id;
+  }
+
+  setId(id) {
+    this.id = id;
   }
 
   getNextSyncToken() {
     return properties.getProperty(SYNC_TOKEN_PROPERTY_KEY);
   }
 
-  setNextSyncToken(gCalEvents) {
-    properties.setProperty(SYNC_TOKEN_PROPERTY_KEY, gCalEvents.nextSyncToken);
+  setNextSyncToken(nextSyncToken) {
+    properties.setProperty(SYNC_TOKEN_PROPERTY_KEY, nextSyncToken);
+  }
+
+  delNextSyncToken() {
+    properties.deleteProperty(SYNC_TOKEN_PROPERTY_KEY);
   }
 }

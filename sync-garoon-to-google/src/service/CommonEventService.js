@@ -6,29 +6,26 @@ class CommonEventService {
     });
   }
 
-  isLatestGaroonEvent(gCalEvent, garoonEvent) {
-    const gCalTaggedTime = new Date(
-      gCalEvent.getTag(TAG_GAROON_SYNC_DATETIME),
-    ).getTime();
-    const garoonUpdatedTime = new Date(garoonEvent.updatedAt).getTime();
-    return gCalTaggedTime <= garoonUpdatedTime;
+  isUpdatedGaroonEvent(gCalEvent, garoonEvent) {
+    const gCalTaggedTime =
+      new Date(gCalEvent.getTag(TAG_GAROON_SYNC_DATETIME)) / 1000;
+    const garoonUpdatedTime = new Date(garoonEvent.updatedAt) / 1000;
+
+    return gCalTaggedTime < garoonUpdatedTime;
   }
 
   syncGaroonToGCal(garoonEditedEvents, gCalAllEvents) {
     console.info('Sync Garoon To GCal: ' + 'START');
     for (const garoonEvent of garoonEditedEvents.create) {
-      if (Utility.isNullOrUndefined(garoonEvent)) continue;
       gCalDao.create(garoonEvent);
     }
 
     for (const garoonEvent of garoonEditedEvents.delete) {
-      if (Utility.isNullOrUndefined(garoonEvent)) continue;
       gCalDao.delete(garoonEvent, gCalAllEvents);
     }
 
-    for (const gCalEvent of garoonEditedEvents.update) {
-      if (Utility.isNullOrUndefined(gCalEvent)) continue;
-      gCalDao.update(gCalEvent, gCalAllEvents);
+    for (const eventArray of garoonEditedEvents.update) {
+      gCalDao.update(eventArray);
     }
 
     console.info('Sync Garoon To GCal: ' + 'END');

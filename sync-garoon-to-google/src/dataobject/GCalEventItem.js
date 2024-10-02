@@ -1,9 +1,12 @@
 class GCalEventItem {
-  constructor(gCalEvent) { }
+  constructor(gCalEvent) {}
 
-  createTitle() { }
+  createTitle() {}
 
-  createOptions() { }
+  createOptions() {}
 
-  createTerm() { }
+  createTerm() {}
+
+  getTag() {}
+  setTag() {}
 }

@@ -38,13 +38,13 @@ function initialize() {
     properties.getProperty('SyncDaysAfter'),
   ).convertSyncTargetTerm();
 
-  gCal = new GCal(properties.getProperty('CalendarName'));
-
   commonEventService = new CommonEventService();
   garoonEventService = new GaroonEventService();
   gCalEventService = new GCalEventService();
   garoonDao = new GaroonDao();
   gCalDao = new GCalDao();
+
+  gCal = new GCal(properties.getProperty('CalendarName'));
 }
 
 function test() {
@@ -63,9 +63,11 @@ function sync() {
     gCalAllEvents,
   );
 
-  let gCalEditedEvents = gCalEventService.getEditedEvents();
+  // let gCalEditedEvents = gCalEventService.getEditedEvents();
 
   commonEventService.syncGaroonToGCal(garoonEditedEvents, gCalAllEvents);
   // commonEventService.syncGCalToGaroon(gCalEditedEvents);
+
   // TODO 最後にsynctoken最新化して終了すること
+  gCalDao.getNotSyncedEvents();
 }

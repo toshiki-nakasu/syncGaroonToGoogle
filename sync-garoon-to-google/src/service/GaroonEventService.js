@@ -4,11 +4,11 @@ class GaroonEventService {
   findEventByUniqueEventId(garoonEvents, uniqueEventId) {
     let retEvent = null;
 
-    const eventMap = garoonEvents.map((event) => {
-      if (event.id === uniqueEventId) return event;
+    const events = garoonEvents.filter((event) => {
+      return event.id === uniqueEventId;
     });
 
-    if (!Utility.isNullOrUndefined(eventMap.length)) retEvent = eventMap[0];
+    if (1 <= events.length) retEvent = events[0];
     return retEvent;
   }
 
@@ -20,9 +20,8 @@ class GaroonEventService {
   }
 
   getCreatedEvents(garoonEvents, gCalEvents) {
-    return garoonEvents.map((garoonEvent) => {
-      if (!commonEventService.isScheduleByGaroon(gCalEvents, garoonEvent.id))
-        return garoonEvent;
+    return garoonEvents.filter((garoonEvent) => {
+      return !commonEventService.isScheduleByGaroon(gCalEvents, garoonEvent.id);
     });
   }
 
@@ -44,7 +43,7 @@ class GaroonEventService {
       tagUniqueEventID = gCalEvent.getTag(TAG_GAROON_UNIQUE_EVENT_ID);
 
       // 手動でGCalで作成されたものはskip
-      if (!Utility.isNullOrUndefined(tagUniqueEventID)) continue;
+      if (Utility.isNullOrUndefined(tagUniqueEventID)) continue;
 
       garoonEvent = this.findEventByUniqueEventId(
         garoonEvents,
@@ -56,10 +55,14 @@ class GaroonEventService {
         continue;
       }
 
-      if (!commonEventService.isLatestGaroonEvent(gCalEvent, garoonEvent)) {
-        updated.push(garoonEvent);
+      if (commonEventService.isUpdatedGaroonEvent(gCalEvent, garoonEvent)) {
+        updated.push([gCalEvent, garoonEvent]);
       }
     }
+
+    console.info('Created count: ' + created.length);
+    console.info('Deleted count: ' + deleted.length);
+    console.info('Updated count: ' + updated.length);
 
     return { create: created, delete: deleted, update: updated };
   }
