@@ -64,4 +64,19 @@ class GaroonEventItem {
     }
     return new DatetimeTerm(start, end);
   }
+
+  isCreatedGCal(gCalEvents) {
+    return gCalEvents.find((gCalevent) => {
+      if (gCalevent.getTag(TAG_GAROON_UNIQUE_EVENT_ID) === this.id)
+        return gCalevent;
+    });
+  }
+
+  isUpdated(gCalEvent) {
+    const gCalTaggedTime =
+      new Date(gCalEvent.getTag(TAG_GAROON_SYNC_DATETIME)) / 1000;
+    const garoonUpdatedTime = new Date(this.updatedAt) / 1000;
+
+    return gCalTaggedTime < garoonUpdatedTime;
+  }
 }

@@ -5,24 +5,29 @@ class GCalDao {
     return gCal.getCalendar().getEvents(term.start, term.end);
   }
 
-  getNotSyncedEvents() {
+  getNotSyncedEvents(isFullSync = false) {
+    let retEvents = [];
     const syncToken = gCal.getNextSyncToken();
-    const option = syncToken
-      ? {
-          syncToken: syncToken,
-        }
-      : {};
 
-    try {
-      const retEvents = Calendar.Events.list(gCal.getId(), option);
-      gCal.setNextSyncToken(retEvents.nextSyncToken);
-      return retEvents.items;
-    } catch (err) {
-      if (410 === err.details.code) {
-        gCal.delNextSyncToken();
-      }
-      throw new Error(err);
+    let option = {};
+    if (Utility.isNullOrUndefined(syncToken) || isFullSync) {
+      option.singleEvents = true;
+    } else {
+      option.syncToken = syncToken;
     }
+
+    let response;
+    let nextPageToken;
+    do {
+      option.nextPageToken = nextPageToken;
+      response = Calendar.Events.list(gCal.getId(), option);
+      retEvents = retEvents.concat(response.items);
+
+      nextPageToken = response.nextPageToken;
+    } while (nextPageToken);
+
+    gCal.setNextSyncToken(response.nextSyncToken);
+    return retEvents;
   }
 
   createCalendar(name) {

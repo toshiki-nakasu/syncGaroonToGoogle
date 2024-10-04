@@ -21,7 +21,10 @@ class GaroonEventService {
 
   getCreatedEvents(garoonEvents, gCalEvents) {
     return garoonEvents.filter((garoonEvent) => {
-      return !commonEventService.isScheduleByGaroon(gCalEvents, garoonEvent.id);
+      return !gCalEvents.find((gCalevent) => {
+        if (gCalevent.getTag(TAG_GAROON_UNIQUE_EVENT_ID) === garoonEvent.id)
+          return gCalevent;
+      });
     });
   }
 
@@ -55,7 +58,7 @@ class GaroonEventService {
         continue;
       }
 
-      if (commonEventService.isUpdatedGaroonEvent(gCalEvent, garoonEvent)) {
+      if (garoonEvent.isUpdated(gCalEvent)) {
         updated.push([gCalEvent, garoonEvent]);
       }
     }

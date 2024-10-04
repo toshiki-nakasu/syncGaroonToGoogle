@@ -11,7 +11,7 @@ let workTerm;
 let syncTargetTerm;
 let gCal;
 
-let commonEventService;
+let syncEventService;
 let garoonEventService;
 let gCalEventService;
 let garoonDao;
@@ -38,7 +38,7 @@ function initialize() {
     properties.getProperty('SyncDaysAfter'),
   ).convertSyncTargetTerm();
 
-  commonEventService = new CommonEventService();
+  syncEventService = new SyncEventService();
   garoonEventService = new GaroonEventService();
   gCalEventService = new GCalEventService();
   garoonDao = new GaroonDao();
@@ -55,18 +55,18 @@ function sync() {
   initialize();
   if (!workTerm.isInTerm(now)) return;
 
-  let garoonAllEvents = garoonEventService.getByTerm(syncTargetTerm);
-  let gCalAllEvents = gCalEventService.getByTerm(syncTargetTerm);
+  const garoonAllEvents = garoonEventService.getByTerm(syncTargetTerm);
+  const gCalAllEvents = gCalEventService.getByTerm(syncTargetTerm);
 
-  let garoonEditedEvents = garoonEventService.getEditedEvents(
+  const garoonEditedEvents = garoonEventService.getEditedEvents(
     garoonAllEvents,
     gCalAllEvents,
   );
-  let gCalEditedEvents = gCalEventService.getEditedEvents();
+  const gCalEditedEvents = gCalEventService.getEditedEvents(garoonAllEvents);
 
-  commonEventService.syncGaroonToGCal(garoonEditedEvents, gCalAllEvents);
-  commonEventService.syncGCalToGaroon(gCalEditedEvents);
+  syncEventService.syncGaroonToGCal(garoonEditedEvents, gCalAllEvents);
+  syncEventService.syncGCalToGaroon(gCalEditedEvents, garoonAllEvents);
 
   // 最後にsynctoken最新化して終了すること
-  gCalDao.getNotSyncedEvents();
+  gCalDao.getNotSyncedEvents(true);
 }

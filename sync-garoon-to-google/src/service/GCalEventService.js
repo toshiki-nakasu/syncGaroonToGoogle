@@ -16,16 +16,19 @@ class GCalEventService {
     return gCalDao.selectByTerm(term);
   }
 
-  getEditedEvents() {
+  getEditedEvents(garoonEvents) {
     let created = [];
     let deleted = [];
     let updated = [];
 
     const gCalEvents = gCalDao.getNotSyncedEvents();
 
+    let tagUniqueEventID;
+    let garoonEvent;
     for (const gCalEvent of gCalEvents) {
       if (gCalEvent.status === 'cancelled') {
         deleted.push(gCalEvent);
+        // TODO GCalから削除された: Garoonもイベント更新 (メンバーが自分のみの場合削除、2名以上の場合は脱退)
         continue;
       }
 
@@ -35,12 +38,16 @@ class GCalEventService {
         continue;
       }
 
-      const tagUniqueEventID =
-        gCalEvent.extendedProperties.shared[TAG_GAROON_UNIQUE_EVENT_ID];
-
       // TODO 最終更新以降の編集がある場合: Garoonのイベント更新, GCalのタグ更新
-      // TODO GCalから削除された: Garoonもイベント更新 (メンバーが自分のみの場合削除、2名以上の場合は脱退)
       // TODO Garoonの更新とGCalの更新、両方あったときはGaroonを優先したい (競合対策)
+      // TODO 新規作成・更新・削除が同時に行われたとき、どう返ってくる？
+      tagUniqueEventID =
+        gCalEvent.extendedProperties.shared[TAG_GAROON_UNIQUE_EVENT_ID];
+      garoonEvent = garoonEventService.findEventByUniqueEventId(
+        garoonEvents,
+        tagUniqueEventID,
+      );
+      updated.push([garoonEvent, gCalEvent]);
     }
 
     console.info(
