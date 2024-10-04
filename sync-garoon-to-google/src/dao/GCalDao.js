@@ -1,16 +1,28 @@
 class GCalDao {
   constructor() {}
 
-  selectByTerm(term) {
+  createCalendar(name) {
+    const option = {
+      timeZone: properties.getProperty('TimeZone'),
+      color: CalendarApp.Color.PURPLE,
+    };
+    const retCalendar = CalendarApp.createCalendar(name, option);
+    console.info('Createing GCal calendar...');
+    Utilities.sleep(API_COOL_TIME * 5);
+    console.warn('Created GCal calendar: ' + 'please notify, color setting');
+    return retCalendar;
+  }
+
+  selectEventByTerm(term) {
     return gCal.getCalendar().getEvents(term.start, term.end);
   }
 
-  getNotSyncedEvents(isFullSync = false) {
+  getNotSyncedEvents(fullSync = false) {
     let retEvents = [];
     const syncToken = gCal.getNextSyncToken();
 
     let option = {};
-    if (Utility.isNullOrUndefined(syncToken) || isFullSync) {
+    if (Utility.isNullOrUndefined(syncToken) || fullSync) {
       option.singleEvents = true;
     } else {
       option.syncToken = syncToken;
@@ -30,55 +42,37 @@ class GCalDao {
     return retEvents;
   }
 
-  createCalendar(name) {
-    const option = {
-      timeZone: properties.getProperty('TimeZone'),
-      color: CalendarApp.Color.PURPLE,
-    };
-    const retCalendar = CalendarApp.createCalendar(name, option);
-    console.info('Createing GCal calendar...');
-    Utilities.sleep(API_COOL_TIME * 5);
-    console.warn('Created GCal calendar: ' + 'please notify, color setting');
-    return retCalendar;
-  }
-
-  create(garoonEvent) {
+  createEvent(garoonEvent) {
     let gCalEvent;
+    const title = garoonEventService.createTitle(garoonEvent);
+    const term = garoonEventService.createTerm(garoonEvent);
+    const option = garoonEventService.createOptions(garoonEvent);
+
     if (garoonEvent.isAllDay) {
       gCalEvent = gCal
         .getCalendar()
-        .createAllDayEvent(
-          garoonEvent.title,
-          garoonEvent.term.start,
-          garoonEvent.term.end,
-          garoonEvent.options,
-        );
+        .createAllDayEvent(title, term.start, term.end, option);
     } else {
       gCalEvent = gCal
         .getCalendar()
-        .createEvent(
-          garoonEvent.title,
-          garoonEvent.term.start,
-          garoonEvent.term.end,
-          garoonEvent.options,
-        );
+        .createEvent(title, term.start, term.end, option);
     }
 
     gCalEventService.setTagToEvent(
       gCalEvent,
-      garoonEvent.id,
+      garoonEvent.uniqueId,
       garoonEvent.updatedAt,
     );
-    Logger.log('Create GCal event: ' + garoonEvent.id);
+    Logger.log('Create GCal event: ' + garoonEvent.uniqueId);
     Utilities.sleep(API_COOL_TIME);
   }
 
-  update(eventArray) {
-    this.delete(eventArray[0]);
-    this.create(eventArray[1]);
+  updateEvent(eventArray) {
+    this.deleteEvent(eventArray[0]);
+    this.createEvent(eventArray[1]);
   }
 
-  delete(gCalEvent) {
+  deleteEvent(gCalEvent) {
     gCalEvent.deleteEvent();
     Logger.log(
       'Delete GCal event: ' + gCalEvent.getTag(TAG_GAROON_UNIQUE_EVENT_ID),

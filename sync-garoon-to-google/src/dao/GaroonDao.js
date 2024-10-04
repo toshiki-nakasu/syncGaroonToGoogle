@@ -1,37 +1,33 @@
 class GaroonDao {
   constructor() {}
 
-  selectByTerm(term) {
-    const apiUri = this.createApiUri(garoonUser.domain, term);
-    const apiHeader = this.createApiHeader(garoonUser);
-    const response = UrlFetchApp.fetch(apiUri, {
-      method: 'get',
-      headers: apiHeader,
+  selectEventByTerm(queryParam) {
+    const queryUri =
+      garoonEventService.createApiUri() +
+      '?' +
+      Utility.paramToString(queryParam);
+    const response = UrlFetchApp.fetch(queryUri, {
+      method: 'GET',
+      headers: garoonEventService.createApiHeader(),
     });
-    return response;
+    return JSON.parse(response.getContentText('UTF-8')).events;
   }
 
-  create() {}
-  update() {}
-  delete() {}
-
-  createApiUri(domain, term) {
-    let apiBaseURI = 'https://' + domain + '/g/api/v1/schedule/events';
-    let apiParams = {
-      rangeStart: encodeURIComponent(Utility.formatISODateTime(term.start)),
-      rangeEnd: encodeURIComponent(Utility.formatISODateTime(term.end)),
-      orderBy: 'start%20asc',
-      limit: 200,
-    };
-    return apiBaseURI + '?' + Utility.paramToString(apiParams);
+  /**
+   * 繰り返し予定、仮予定は登録できません
+   */
+  createEvent(requestBody) {
+    console.log(requestBody);
+    console.log(garoonEventService.createApiHeader());
+    console.log(garoonEventService.createApiUri());
+    const response = UrlFetchApp.fetch(garoonEventService.createApiUri(), {
+      method: 'POST',
+      headers: garoonEventService.createApiHeader(),
+      body: JSON.stringify(requestBody),
+    });
+    return JSON.parse(response.getContentText('UTF-8'));
   }
 
-  createApiHeader(garoonUser) {
-    return {
-      'Content-Type': 'application/json',
-      'X-Cybozu-Authorization': Utilities.base64Encode(
-        garoonUser.id + ':' + garoonUser.password,
-      ),
-    };
-  }
+  updateEvent() {}
+  deleteEvent() {}
 }

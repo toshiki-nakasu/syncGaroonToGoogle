@@ -7,6 +7,8 @@ let now;
 let properties;
 
 let garoonUser;
+let garoonProfile;
+
 let workTerm;
 let syncTargetTerm;
 let gCal;
@@ -24,8 +26,13 @@ function initialize() {
 
   garoonUser = new GaroonUser(
     properties.getProperty('GaroonDomain'),
-    properties.getProperty('GaroonUser'),
-    properties.getProperty('GaroonPassword'),
+    properties.getProperty('GaroonUserName'),
+    properties.getProperty('GaroonUserPassword'),
+  );
+
+  garoonProfile = new GaroonProfile(
+    properties.getProperty('GaroonProfileType'),
+    properties.getProperty('GaroonProfileCode'),
   );
 
   workTerm = new TimeTerm(
@@ -36,11 +43,12 @@ function initialize() {
   syncTargetTerm = new DatetimeTerm(
     properties.getProperty('SyncDaysBefore'),
     properties.getProperty('SyncDaysAfter'),
-  ).convertSyncTargetTerm();
+  ).toSyncTargetTerm();
 
-  syncEventService = new SyncEventService();
   garoonEventService = new GaroonEventService();
   gCalEventService = new GCalEventService();
+  syncEventService = new SyncEventService();
+
   garoonDao = new GaroonDao();
   gCalDao = new GCalDao();
 
@@ -49,6 +57,17 @@ function initialize() {
 
 function test() {
   initialize();
+  // attendees: [{ type: 'USER', code: 'toshiki-nakasu' }],
+  const requestBody = {
+    eventType: 'REGULAR',
+    start: {
+      dateTime: '2024-10-04T07:00:00Z',
+      timeZone: 'Asia/Tokyo',
+    },
+    end: { dateTime: '2024-10-04T07:30:00Z', timeZone: 'Asia/Tokyo' },
+    attendees: [{ type: 'USER', id: '297' }],
+  };
+  garoonDao.createEvent(requestBody);
 }
 
 function sync() {
@@ -68,5 +87,5 @@ function sync() {
   syncEventService.syncGCalToGaroon(gCalEditedEvents, garoonAllEvents);
 
   // 最後にsynctoken最新化して終了すること
-  gCalDao.getNotSyncedEvents(true);
+  gCalEventService.getNotSyncedEvents(true);
 }

@@ -25,3 +25,4 @@ clasp open
 
 - typescriptはclasp使ってgsコンパイルする
 - exportに対応していない
+- GCal -> Garoon: 繰り返し予定に未対応

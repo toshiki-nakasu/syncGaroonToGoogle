@@ -13,7 +13,11 @@ class GCalEventService {
   }
 
   getByTerm(term) {
-    return gCalDao.selectByTerm(term);
+    return gCalDao.selectEventByTerm(term);
+  }
+
+  getNotSyncedEvents(fullSync = false) {
+    return gCalDao.getNotSyncedEvents(fullSync);
   }
 
   getEditedEvents(garoonEvents) {
@@ -21,7 +25,7 @@ class GCalEventService {
     let deleted = [];
     let updated = [];
 
-    const gCalEvents = gCalDao.getNotSyncedEvents();
+    const gCalEvents = this.getNotSyncedEvents();
 
     let tagUniqueEventID;
     let garoonEvent;
@@ -89,5 +93,66 @@ class GCalEventService {
   setTagToEvent(gCalEvent, garoonUniqueEventID, garoonUpdatedAt) {
     gCalEvent.setTag(TAG_GAROON_UNIQUE_EVENT_ID, garoonUniqueEventID);
     gCalEvent.setTag(TAG_GAROON_SYNC_DATETIME, garoonUpdatedAt);
+  }
+
+  createEventMenu(gCalEvent) {
+    let retEventMenu = null;
+    const splitTitle = gCalEvent.summary.split('】');
+    if (2 <= splitTitle.length) {
+      retEventMenu = splitTitle.split('【')[0];
+    }
+
+    return retEventMenu;
+  }
+
+  createSubject(gCalEvent) {
+    let retSubject = gCalEvent.summary;
+    const splitTitle = retSubject.split('】');
+    if (2 <= splitTitle.length) {
+      retSubject = splitTitle.split('【')[1];
+    }
+
+    return retSubject;
+  }
+
+  createNotes(gCalEvent) {
+    let retNotes = null;
+    if (!Utility.isNullOrUndefined(gCalEvent.description))
+      retNotes = gCalEvent.description;
+    return retNotes;
+  }
+
+  checkAllDay(gCalEvent) {
+    return gCalEvent.start.hasOwnProperty('date');
+  }
+
+  createTerm(gCalEvent) {
+    let retObj;
+    let start = gCalEvent.start;
+    let end = gCalEvent.end;
+
+    if (this.isAllDay) {
+      start = new Date(start.date);
+      end = new Date(end.date);
+      end.setSeconds(end.getSeconds() - 1);
+
+      retObj = new DatetimeTerm(start, end);
+    } else {
+      start = new Date(start.dateTime);
+      end = new Date(end.dateTime);
+
+      retObj = {
+        start: {
+          dateTime: Utility.formatISODateTime(start),
+          timeZone: gCalEvent.start.timeZone,
+        },
+        end: {
+          dateTime: Utility.formatISODateTime(end),
+          timeZone: gCalEvent.end.timeZone,
+        },
+      };
+    }
+
+    return retObj;
   }
 }

@@ -4,15 +4,15 @@ class DatetimeTerm {
     this.end = end;
   }
 
-  convertSyncTargetTerm() {
+  toSyncTargetTerm() {
     let today = now.getDate();
     let start = new Date();
     let end = new Date();
 
-    start.setDate(today - this.start);
+    start.setDate(today - Number(this.start));
     start.setHours(0, 0, 0, 0);
 
-    end.setDate(today + this.end);
+    end.setDate(today + Number(this.start));
     end.setHours(23, 59, 59, 0);
     return new DatetimeTerm(start, end);
   }

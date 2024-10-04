@@ -5,7 +5,7 @@ class Utility {
       if ('' !== retString) {
         retString += '&';
       }
-      retString += key + '=' + params[key];
+      retString += key + '=' + encodeURIComponent(params[key]);
     }
     return retString;
   }

@@ -1,0 +1,34 @@
+{
+    "created": "2024-10-04T05:11:53.000Z",
+    "creator": {
+        "email": "toshiki-nakasu@mamezou.com"
+    },
+    "description": "test-dayo",
+    "end": {
+        "dateTime": "2024-10-03T10:30:00+09:00",
+        "timeZone": "Asia/Tokyo"
+    },
+    "etag": "\"3456038497346000\"",
+    "eventType": "default",
+    "htmlLink": "https://www.google.com/calendar/event?eid=MXF0MTRhbmsyZDlhY3E2NHBkOWdqNTRlbTQgY18xM2ZiZWRkNDg4ZDRlNDM2MDZlYmFmOTM3OWUwZmQzNzk4ZWZiYjE0OTRlYWY4NGMzMDgwZTJlZDFmMGM3MTcxQGc",
+    "iCalUID": "1qt14ank2d9acq64pd9gj54em4@google.com",
+    "id": "1qt14ank2d9acq64pd9gj54em4",
+    "kind": "calendar#event",
+    "organizer": {
+        "displayName": "Garoon",
+        "email": "c_13fbedd488d4e43606ebaf9379e0fd3798efbb1494eaf84c3080e2ed1f0c7171@group.calendar.google.com",
+        "self": true
+    },
+    "reminders": {
+        "useDefault": false
+    },
+    "sequence": 1,
+    "start": {
+        "dateTime": "2024-10-03T10:00:00+09:00",
+        "timeZone": "Asia/Tokyo"
+    },
+    "status": "confirmed",
+    "summary": "test",
+    "transparency": "transparent",
+    "updated": "2024-10-04T05:20:48.673Z"
+}

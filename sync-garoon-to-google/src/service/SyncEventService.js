@@ -1,16 +1,18 @@
 class SyncEventService {
+  constructor() {}
+
   syncGaroonToGCal(garoonEditedEvents, gCalAllEvents) {
     console.info('Sync Garoon To GCal: ' + 'START');
     for (const garoonEvent of garoonEditedEvents.create) {
-      gCalDao.create(garoonEvent);
+      gCalDao.createEvent(garoonEvent);
     }
 
     for (const garoonEvent of garoonEditedEvents.delete) {
-      gCalDao.delete(garoonEvent, gCalAllEvents);
+      gCalDao.deleteEvent(garoonEvent, gCalAllEvents);
     }
 
     for (const eventArray of garoonEditedEvents.update) {
-      gCalDao.update(eventArray);
+      gCalDao.updateEvent(eventArray);
     }
 
     console.info('Sync Garoon To GCal: ' + 'END');
@@ -18,16 +20,21 @@ class SyncEventService {
 
   syncGCalToGaroon(gCalEditedEvents, garoonAllEvents) {
     console.info('Sync GCal To Garoon: ' + 'START');
+
+    let term;
+    let requestBody;
     for (const gCalEvent of gCalEditedEvents.create) {
-      // garoonDao.create(gCalEvent);
+      term = gCalEventService.createTerm(gCalEvent);
+      requestBody = {};
+      // garoonDao.createEvent(requestBody);
     }
 
     for (const gCalEvent of gCalEditedEvents.delete) {
-      // garoonDao.delete(gCalEvent, garoonAllEvents);
+      // garoonDao.deleteEvent(gCalEvent, garoonAllEvents);
     }
 
     for (const gCalEvent of gCalEditedEvents.update) {
-      // garoonDao.update(gCalEvent);
+      // garoonDao.updateEvent(gCalEvent);
     }
 
     console.info('Sync GCal To Garoon: ' + 'END');

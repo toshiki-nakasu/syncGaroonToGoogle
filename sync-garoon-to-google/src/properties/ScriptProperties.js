@@ -1,13 +1,18 @@
 function setScriptProperties() {
   PropertiesService.getScriptProperties().setProperties({
     TimeZone: 'Asia/Tokyo',
+    CalendarName: 'Garoon',
+
     GaroonDomain: 'mamezo-dhd.cybozu.com',
-    GaroonUser: 'toshiki-nakasu',
-    GaroonPassword: 'Tosi+0022',
+    GaroonUserName: 'toshiki-nakasu',
+    GaroonUserPassword: 'Tosi+0022',
+
+    GaroonProfileType: 'USER',
+    GaroonProfileCode: 'toshiki-nakasu',
+
     WorkTimeStart: '08:00:00',
     WorkTimeEnd: '21:00:00',
-    SyncDaysBefore: '30',
-    SyncDaysAfter: '90',
-    CalendarName: 'Garoon',
+    SyncDaysBefore: '60',
+    SyncDaysAfter: '180',
   });
 }

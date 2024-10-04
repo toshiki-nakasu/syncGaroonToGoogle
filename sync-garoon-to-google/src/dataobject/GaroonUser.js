@@ -1,17 +1,17 @@
 class GaroonUser {
-  constructor(domain, id, password) {
+  constructor(domain, userName, userPassword) {
     this.domain = domain;
-    this.id = id;
-    this.password = password;
+    this.userName = userName;
+    this.userPassword = userPassword;
   }
 
   getDomain() {
     return this.domain;
   }
-  getId() {
-    return this.id;
+  getUserName() {
+    return this.userName;
   }
-  getPassword() {
-    return this.password;
+  getUserPassword() {
+    return this.userPassword;
   }
 }
