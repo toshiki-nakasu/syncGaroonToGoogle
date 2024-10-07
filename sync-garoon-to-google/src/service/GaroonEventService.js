@@ -12,9 +12,13 @@ class GaroonEventService {
     return retEvent;
   }
 
-  addUniqueId(garoonEvent) {
+  createUniqueId(garoonEvent) {
     const repeatId = garoonEvent.repeatId ? '-' + garoonEvent.repeatId : '';
-    garoonEvent.uniqueId = garoonEvent.id + repeatId;
+    return garoonEvent.id + repeatId;
+  }
+
+  addUniqueId(garoonEvent) {
+    garoonEvent.uniqueId = this.createUniqueId(garoonEvent);
     return garoonEvent;
   }
 
@@ -167,5 +171,22 @@ class GaroonEventService {
 
   getIsAllDay(garoonEvent) {
     return garoonEvent.isAllDay ? true : false;
+  }
+
+  createEvent(gCalEvent) {
+    const term = gCalEventService.createTerm(gCalEvent);
+    const requestBody = {
+      eventType: 'REGULAR',
+      eventMenu: gCalEventService.createEventMenu(gCalEvent),
+      subject: gCalEventService.createSubject(gCalEvent),
+      notes: gCalEventService.createNotes(gCalEvent),
+      start: term.start,
+      end: term.end,
+      isAllDay: gCalEventService.checkAllDay(gCalEvent),
+      attendees: [
+        { type: 'USER', code: properties.getProperty('GaroonUserName') },
+      ],
+    };
+    return garoonDao.createEvent(requestBody);
   }
 }

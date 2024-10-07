@@ -32,19 +32,14 @@ class GCalEventService {
     for (const gCalEvent of gCalEvents) {
       if (gCalEvent.status === 'cancelled') {
         deleted.push(gCalEvent);
-        // TODO GCalから削除された: Garoonもイベント更新 (メンバーが自分のみの場合削除、2名以上の場合は脱退)
         continue;
       }
 
       if (!gCalEvent.hasOwnProperty('extendedProperties')) {
         created.push(gCalEvent);
-        // TODO 作成元のGCalにタグ付け
         continue;
       }
 
-      // TODO 最終更新以降の編集がある場合: Garoonのイベント更新, GCalのタグ更新
-      // TODO Garoonの更新とGCalの更新、両方あったときはGaroonを優先したい (競合対策)
-      // TODO 新規作成・更新・削除が同時に行われたとき、どう返ってくる？
       tagUniqueEventID =
         gCalEvent.extendedProperties.shared[TAG_GAROON_UNIQUE_EVENT_ID];
       garoonEvent = garoonEventService.findEventByUniqueEventId(
@@ -59,6 +54,42 @@ class GCalEventService {
     );
 
     return { create: created, delete: deleted, update: updated };
+  }
+
+  isAllDay(gCalEvent) {
+    let retIsAllDay = false;
+    // TODO 時刻がない予定であればtrueにする
+    return retIsAllDay;
+  }
+
+  createTerm(gCalEvent) {
+    let retObj;
+    let start = gCalEvent.start;
+    let end = gCalEvent.end;
+
+    if (this.isAllDay()) {
+      start = new Date(start.date);
+      end = new Date(end.date);
+      end.setSeconds(end.getSeconds() - 1);
+
+      retObj = new DatetimeTerm(start, end);
+    } else {
+      start = new Date(start.dateTime);
+      end = new Date(end.dateTime);
+
+      retObj = {
+        start: {
+          dateTime: Utility.formatISODateTime(start),
+          timeZone: gCalEvent.start.timeZone,
+        },
+        end: {
+          dateTime: Utility.formatISODateTime(end),
+          timeZone: gCalEvent.end.timeZone,
+        },
+      };
+    }
+
+    return retObj;
   }
 
   createEvent(garoonEventItem, garoonUniqueEventID) {
@@ -99,7 +130,7 @@ class GCalEventService {
     let retEventMenu = null;
     const splitTitle = gCalEvent.summary.split('】');
     if (2 <= splitTitle.length) {
-      retEventMenu = splitTitle.split('【')[0];
+      retEventMenu = splitTitle[0].split('【')[0];
     }
 
     return retEventMenu;
@@ -109,7 +140,7 @@ class GCalEventService {
     let retSubject = gCalEvent.summary;
     const splitTitle = retSubject.split('】');
     if (2 <= splitTitle.length) {
-      retSubject = splitTitle.split('【')[1];
+      retSubject = splitTitle[1];
     }
 
     return retSubject;
@@ -124,35 +155,5 @@ class GCalEventService {
 
   checkAllDay(gCalEvent) {
     return gCalEvent.start.hasOwnProperty('date');
-  }
-
-  createTerm(gCalEvent) {
-    let retObj;
-    let start = gCalEvent.start;
-    let end = gCalEvent.end;
-
-    if (this.isAllDay) {
-      start = new Date(start.date);
-      end = new Date(end.date);
-      end.setSeconds(end.getSeconds() - 1);
-
-      retObj = new DatetimeTerm(start, end);
-    } else {
-      start = new Date(start.dateTime);
-      end = new Date(end.dateTime);
-
-      retObj = {
-        start: {
-          dateTime: Utility.formatISODateTime(start),
-          timeZone: gCalEvent.start.timeZone,
-        },
-        end: {
-          dateTime: Utility.formatISODateTime(end),
-          timeZone: gCalEvent.end.timeZone,
-        },
-      };
-    }
-
-    return retObj;
   }
 }

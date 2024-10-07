@@ -63,7 +63,7 @@ class GCalDao {
       garoonEvent.uniqueId,
       garoonEvent.updatedAt,
     );
-    Logger.log('Create GCal event: ' + garoonEvent.uniqueId);
+    console.info('Create GCal event: ' + garoonEvent.uniqueId);
     Utilities.sleep(API_COOL_TIME);
   }
 
@@ -74,7 +74,7 @@ class GCalDao {
 
   deleteEvent(gCalEvent) {
     gCalEvent.deleteEvent();
-    Logger.log(
+    console.info(
       'Delete GCal event: ' + gCalEvent.getTag(TAG_GAROON_UNIQUE_EVENT_ID),
     );
     Utilities.sleep(API_COOL_TIME);

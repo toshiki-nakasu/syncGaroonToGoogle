@@ -57,17 +57,6 @@ function initialize() {
 
 function test() {
   initialize();
-  // attendees: [{ type: 'USER', code: 'toshiki-nakasu' }],
-  const requestBody = {
-    eventType: 'REGULAR',
-    start: {
-      dateTime: '2024-10-04T07:00:00Z',
-      timeZone: 'Asia/Tokyo',
-    },
-    end: { dateTime: '2024-10-04T07:30:00Z', timeZone: 'Asia/Tokyo' },
-    attendees: [{ type: 'USER', id: '297' }],
-  };
-  garoonDao.createEvent(requestBody);
 }
 
 function sync() {
