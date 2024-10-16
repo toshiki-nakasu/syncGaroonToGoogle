@@ -57,6 +57,7 @@ function initialize() {
 
 function test() {
   initialize();
+  garoonEventService.resetPreference();
 }
 
 function sync() {

@@ -22,8 +22,17 @@ class GaroonEventService {
     return garoonEvent;
   }
 
-  createApiUri() {
+  createEventApiUri() {
     return 'https://' + garoonUser.getDomain() + '/g/api/v1/schedule/events';
+  }
+
+  createPresenceApiUri() {
+    return (
+      'https://' +
+      garoonUser.getDomain() +
+      '/g/api/v1/presence/users/code/' +
+      encodeURIComponent(garoonUser.getUserName())
+    );
   }
 
   createApiHeader() {
@@ -188,5 +197,15 @@ class GaroonEventService {
       ],
     };
     return garoonDao.createEvent(requestBody);
+  }
+
+  resetPreference() {
+    const requestBody = {
+      status: {
+        code: '',
+      },
+      notes: '',
+    };
+    return garoonDao.updatePreference(requestBody);
   }
 }
