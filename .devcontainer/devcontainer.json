@@ -50,11 +50,8 @@
     // warning: To use .sh you need mount
     // info: key is output stage
     "overrideCommand": true,
-    "onCreateCommand": {
-        "Step": "sh ${containerEnv:scriptFolder}/chownVolume.sh developer ${containerWorkspaceFolder}"
-    },
     "postCreateCommand": {
-        "Step": "sh ${containerWorkspaceFolder}/script/postCreate.sh ${containerWorkspaceFolder}"
+        "Step": "sh ${containerWorkspaceFolder}/script/postCreate.sh"
     },
 
     // IDE

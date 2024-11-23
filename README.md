@@ -1,25 +1,27 @@
 # syncGaroonToGoogle
 
-## initialize
+## 環境構築
+
+### 設定ファイル
 
 ```bash
-npm install --global @google/clasp
-
-cd sync-garoon-to-google
-clasp login
-# Googleドライブ直下にGAS作成
-clasp create --type api
-# clasp clone [script_id]
-npm init -y
+cp sync-garoon-to-google/src/properties/ScriptProperties.example.js sync-garoon-to-google/src/properties/ScriptProperties.js
+code sync-garoon-to-google/src/properties/ScriptProperties.js
 ```
 
-## publish
+### Gasを構築
 
 ```bash
-clasp login
-clasp push
-clasp open
+sh ./script/function/setupGas.sh
 ```
+
+## Gasにアップロード
+
+```bash
+sh ./script/function/publishGas.sh
+```
+
+---
 
 ## 注意点
 
