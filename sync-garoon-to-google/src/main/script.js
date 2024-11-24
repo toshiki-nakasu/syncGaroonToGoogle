@@ -45,6 +45,7 @@ function initialize() {
     properties.getProperty('SyncDaysAfter'),
   ).toSyncTargetTerm();
 
+  garoonApiService = new GaroonApiService();
   garoonEventService = new GaroonEventService();
   gCalEventService = new GCalEventService();
   syncEventService = new SyncEventService();

@@ -23,7 +23,7 @@ class SyncEventService {
 
     let garoonEvent;
     for (const gCalEvent of gCalEditedEvents.create) {
-      garoonEvent = garoonEventService.createEvent(gCalEvent);
+      garoonEvent = garoonApiService.createEvent(gCalEvent);
 
       // TODO 差分取得結果のオブジェクトのため、setTagが使えない
       // extendedPropertiesにセットしてもオブジェクトにレコードを追加するだけで、GCalには反映されない想定

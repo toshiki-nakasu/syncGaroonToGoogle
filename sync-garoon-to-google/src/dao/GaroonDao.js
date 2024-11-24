@@ -7,12 +7,12 @@ class GaroonDao {
 
   selectEventByTerm(queryParam) {
     const queryUri =
-      garoonEventService.createEventApiUri() +
+    garoonApiService.createEventApiUri() +
       '?' +
       Utility.paramToString(queryParam);
     const option = {
       method: 'GET',
-      headers: garoonEventService.createApiHeader(),
+      headers: garoonApiService.createApiHeader(),
     };
     const response = this.apiAction(queryUri, option);
     return JSON.parse(response.getContentText('UTF-8')).events;
@@ -24,11 +24,11 @@ class GaroonDao {
   createEvent(requestBody) {
     const option = {
       method: 'POST',
-      headers: garoonEventService.createApiHeader(),
+      headers: garoonApiService.createApiHeader(),
       payload: JSON.stringify(requestBody),
     };
     const response = this.apiAction(
-      garoonEventService.createEventApiUri(),
+      garoonApiService.createEventApiUri(),
       option,
     );
     const statusCode = response.getResponseCode();
@@ -49,9 +49,9 @@ class GaroonDao {
   updatePreference(requestBody) {
     const option = {
       method: 'PATCH',
-      headers: garoonEventService.createApiHeader(),
+      headers: garoonApiService.createApiHeader(),
       payload: JSON.stringify(requestBody),
     };
-    this.apiAction(garoonEventService.createPresenceApiUri(), option);
+    this.apiAction(garoonApiService.createPresenceApiUri(), option);
   }
 }
