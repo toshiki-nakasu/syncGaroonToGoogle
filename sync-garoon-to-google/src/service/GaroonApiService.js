@@ -12,6 +12,16 @@ class GaroonApiService {
     );
   }
 
+  resetPreference() {
+    const requestBody = {
+      status: {
+        code: '',
+      },
+      notes: '',
+    };
+    return garoonDao.updatePreference(requestBody);
+  }
+
   createApiHeader() {
     return {
       'Content-Type': 'application/json',

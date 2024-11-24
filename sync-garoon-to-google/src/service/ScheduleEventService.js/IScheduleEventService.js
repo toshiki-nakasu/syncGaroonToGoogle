@@ -5,4 +5,5 @@ class IScheduleEventService {
   getCreatedEvents() {}
   getEditedEvents() {}
   createTerm() {}
+  createEvent() {}
 }

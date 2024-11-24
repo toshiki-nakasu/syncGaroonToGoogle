@@ -58,7 +58,7 @@ function initialize() {
 
 function test() {
   initialize();
-  garoonEventService.resetPreference();
+  garoonApiService.resetPreference();
 }
 
 function sync() {
@@ -78,5 +78,5 @@ function sync() {
   syncEventService.syncGCalToGaroon(gCalEditedEvents, garoonAllEvents);
 
   // 最後にsynctoken最新化して終了すること
-  gCalEventService.getNotSyncedEvents(true);
+  gCalEventService.getCreatedEvents(true);
 }
