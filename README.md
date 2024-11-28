@@ -9,6 +9,12 @@ cp sync-garoon-to-google/src/properties/ScriptProperties.example.js sync-garoon-
 code sync-garoon-to-google/src/properties/ScriptProperties.js
 ```
 
+## アップロードするGoogleアカウントにログイン
+
+```bash
+sh ./script/function/googleLogin.sh
+```
+
 ### Gasを構築
 
 ```bash

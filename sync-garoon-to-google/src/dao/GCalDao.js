@@ -44,9 +44,9 @@ class GCalDao {
 
   createEvent(garoonEvent) {
     let gCalEvent;
-    const title = garoonApiService.createTitle(garoonEvent);
-    const term = garoonApiService.createTerm(garoonEvent);
-    const option = garoonApiService.createOptions(garoonEvent);
+    const title = garoonEventService.createTitle(garoonEvent);
+    const term = garoonEventService.createTerm(garoonEvent);
+    const option = garoonEventService.createOptions(garoonEvent);
 
     if (garoonEvent.isAllDay) {
       gCalEvent = gCal
