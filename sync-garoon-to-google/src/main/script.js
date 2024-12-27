@@ -2,6 +2,7 @@ const SYNC_TOKEN_PROPERTY_KEY = 'nextSyncToken';
 const TAG_GAROON_UNIQUE_EVENT_ID = 'GAROON_UNIQUE_EVENT_ID';
 const TAG_GAROON_SYNC_DATETIME = 'GAROON_SYNC_DATETIME';
 const API_COOL_TIME = 1000;
+const GAROON_TO_GCAL_NOT_SYNC_TAG = 'nosync';
 
 let now;
 let properties;

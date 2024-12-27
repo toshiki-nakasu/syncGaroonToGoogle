@@ -28,10 +28,14 @@ class GaroonEventService {
     };
 
     const events = garoonDao.selectEventByTerm(requestBody);
+    const filteredEvents = [];
     for (let event of events) {
-      event = this.addUniqueId(event);
+      if (!this.isNoSyncEvent(event)) {
+        event = this.addUniqueId(event);
+        filteredEvents.push(event);
+      }
     }
-    return events;
+    return filteredEvents;
   }
 
   getCreatedEvents(garoonEvents, gCalEvents) {
@@ -124,6 +128,10 @@ class GaroonEventService {
   // ------------------------------------------------------------
   // NoOverride
   // ------------------------------------------------------------
+  isNoSyncEvent(garoonEvent) {
+    return garoonEvent.notes.includes('#' + GAROON_TO_GCAL_NOT_SYNC_TAG);
+  }
+
   createUniqueId(garoonEvent) {
     const repeatId = garoonEvent.repeatId ? '-' + garoonEvent.repeatId : '';
     return garoonEvent.id + repeatId;
