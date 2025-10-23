@@ -1,82 +1,259 @@
-class GCalDao {
-  constructor() {}
+/**
+ * @typedef {Object} GCalEvent
+ * @property {string} id - イベントID
+ * @property {string} summary - タイトル
+ * @property {Object} start - 開始日時情報
+ * @property {string} [start.dateTime] - 開始日時(ISO 8601形式)
+ * @property {string} [start.date] - 開始日(終日イベント用)
+ * @property {string} start.timeZone - タイムゾーン
+ * @property {Object} end - 終了日時情報
+ * @property {string} [end.dateTime] - 終了日時(ISO 8601形式)
+ * @property {string} [end.date] - 終了日(終日イベント用)
+ * @property {string} end.timeZone - タイムゾーン
+ * @property {string} [description] - 説明
+ * @property {string} status - ステータス
+ * @property {Object} [extendedProperties] - 拡張プロパティ
+ */
 
+/**
+ * Google Calendar APIへのアクセスを提供するDAOクラス
+ * @extends BaseDao
+ */
+class GCalDao extends BaseDao {
+  /**
+   * @param {GCal} gCal - Google Calendar情報
+   * @param {ConfigManager} config - 設定管理
+   */
+  constructor(gCal, config) {
+    super();
+    this.gCal = gCal;
+    this.config = config;
+    this._garoonEventService = null;
+    this._gCalEventService = null;
+  }
+
+  /**
+   * GaroonEventService を設定（循環参照解決のため）
+   * ServiceContainer の初期化時に呼び出される
+   * @param {GaroonEventService} service - Garoonイベントサービス
+   */
+  set garoonEventService(service) {
+    if (this._garoonEventService !== null) {
+      throw new Error('GaroonEventService is already set. Cannot overwrite.');
+    }
+    this._garoonEventService = service;
+  }
+
+  /**
+   * GaroonEventService を取得（遅延評価）
+   * @returns {GaroonEventService}
+   * @throws {Error} GaroonEventService が未設定の場合
+   */
+  get garoonEventService() {
+    if (this._garoonEventService === null) {
+      throw new Error('GaroonEventService is not initialized.');
+    }
+    return this._garoonEventService;
+  }
+
+  /**
+   * GCalEventService を設定（循環参照解決のため）
+   * ServiceContainer の初期化時に呼び出される
+   * @param {GCalEventService} service - Google Calendarイベントサービス
+   */
+  set gCalEventService(service) {
+    if (this._gCalEventService !== null) {
+      throw new Error('GCalEventService is already set. Cannot overwrite.');
+    }
+    this._gCalEventService = service;
+  }
+
+  /**
+   * GCalEventService を取得（遅延評価）
+   * @returns {GCalEventService}
+   * @throws {Error} GCalEventService が未設定の場合
+   */
+  get gCalEventService() {
+    if (this._gCalEventService === null) {
+      throw new Error('GCalEventService is not initialized.');
+    }
+    return this._gCalEventService;
+  }
+
+  /**
+   * Google Calendarを作成
+   * @param {string} name - カレンダー名
+   * @returns {GoogleAppsScript.Calendar.Calendar} 作成されたカレンダー
+   */
   createCalendar(name) {
-    const option = {
-      timeZone: properties.getProperty('TimeZone'),
-      color: CalendarApp.Color.PURPLE,
-    };
-    const retCalendar = CalendarApp.createCalendar(name, option);
-    console.info('Createing GCal calendar...');
-    Utilities.sleep(API_COOL_TIME * 5);
-    console.warn('Created GCal calendar: ' + 'please notify, color setting');
-    return retCalendar;
+    return this.executeWithErrorHandling(() => {
+      const option = {
+        timeZone: this.config.getTimeZone(),
+        color: CalendarApp.Color.PURPLE,
+      };
+      const retCalendar = CalendarApp.createCalendar(name, option);
+      Logger.info('Creating GCal calendar...');
+      Utilities.sleep(Constants.API_COOL_TIME * 5);
+      Logger.warn('Created GCal calendar - please notify, color setting');
+      return retCalendar;
+    }, 'GCalDao.createCalendar');
   }
 
+  /**
+   * 期間内のGoogle Calendarイベントを取得
+   * @param {DatetimeTerm} term - 検索期間
+   * @returns {GoogleAppsScript.Calendar.CalendarEvent[]} カレンダーイベントの配列
+   */
   selectEventByTerm(term) {
-    return gCal.getCalendar().getEvents(term.start, term.end);
+    return this.executeWithErrorHandling(() => {
+      return this.gCal.getCalendar().getEvents(term.start, term.end);
+    }, 'GCalDao.selectEventByTerm');
   }
 
+  /**
+   * 同期されていないイベントを取得
+   * Sync Tokenを使用した差分取得、またはフルシンクを実行します
+   * @param {boolean} [fullSync=false] - フルシンクを行うかどうか
+   * @returns {GCalEvent[]} 同期されていないイベントの配列
+   */
   getNotSyncedEvents(fullSync = false) {
-    let retEvents = [];
-    const syncToken = gCal.getNextSyncToken();
+    return this.executeWithErrorHandling(
+      () => {
+        let retEvents = [];
+        const syncToken = this.gCal.getNextSyncToken();
+        const maxPages = Constants.MAX_PAGINATION_PAGES;
 
-    let option = {};
-    if (Utility.isNullOrUndefined(syncToken) || fullSync) {
-      option.singleEvents = true;
-    } else {
-      option.syncToken = syncToken;
-    }
+        let option = {};
+        if (Utility.isNullOrUndefined(syncToken) || fullSync) {
+          option.singleEvents = true;
+          // フルシンクの場合は同期対象期間を指定
+          const syncTargetTerm = this.config.getSyncTargetTerm();
+          option.timeMin = syncTargetTerm.start.toISOString();
+          option.timeMax = syncTargetTerm.end.toISOString();
+        } else {
+          option.syncToken = syncToken;
+        }
 
-    let response;
-    let nextPageToken;
-    do {
-      option.nextPageToken = nextPageToken;
-      response = Calendar.Events.list(gCal.getId(), option);
-      retEvents = retEvents.concat(response.items);
+        try {
+          let response;
+          let nextPageToken;
+          let pageCount = 0;
 
-      nextPageToken = response.nextPageToken;
-    } while (nextPageToken);
+          do {
+            if (pageCount >= maxPages) {
+              Logger.warn(
+                `Pagination limit reached (${maxPages} pages, ${retEvents.length} events). Consider adjusting sync period.`,
+              );
+              throw new Error(
+                `Pagination limit exceeded (max: ${maxPages} pages)`,
+              );
+            }
 
-    gCal.setNextSyncToken(response.nextSyncToken);
-    return retEvents;
+            option.pageToken = nextPageToken;
+            response = Calendar.Events.list(this.gCal.getId(), option);
+            retEvents = retEvents.concat(response.items);
+
+            nextPageToken = response.nextPageToken;
+            pageCount++;
+          } while (nextPageToken);
+
+          // nextSyncTokenがある場合のみ保存
+          if (response.nextSyncToken) {
+            this.gCal.setNextSyncToken(response.nextSyncToken);
+          }
+          return retEvents;
+        } catch (error) {
+          // Sync Tokenが無効な場合(410エラー)はTokenを削除してフルシンクで再試行
+          // 無限再帰を防ぐため、既にフルシンク中の場合はエラーをスロー
+          if (this.isSyncTokenError(error) && !fullSync) {
+            Logger.warn('Sync token expired. Switching to full sync...');
+            this.gCal.delNextSyncToken();
+            return this.getNotSyncedEvents(true);
+          }
+          throw error;
+        }
+      },
+      'GCalDao.getNotSyncedEvents',
+      false,
+    ); // Sync Token エラー処理が内部にあるためリトライ無効化
   }
 
+  /**
+   * GaroonイベントからGoogle Calendarイベントを作成
+   * @param {GaroonEvent} garoonEvent - Garoonイベント
+   */
   createEvent(garoonEvent) {
-    let gCalEvent;
-    const title = garoonEventService.createTitle(garoonEvent);
-    const term = garoonEventService.createTerm(garoonEvent);
-    const option = garoonEventService.createOptions(garoonEvent);
+    return this.executeWithErrorHandling(() => {
+      let gCalEvent;
+      const title = this.garoonEventService.createTitle(garoonEvent);
+      const term = this.garoonEventService.createTerm(garoonEvent);
+      const option = this.garoonEventService.createOptions(garoonEvent);
 
-    if (garoonEvent.isAllDay) {
-      gCalEvent = gCal
-        .getCalendar()
-        .createAllDayEvent(title, term.start, term.end, option);
-    } else {
-      gCalEvent = gCal
-        .getCalendar()
-        .createEvent(title, term.start, term.end, option);
-    }
+      if (garoonEvent.isAllDay) {
+        gCalEvent = this.gCal
+          .getCalendar()
+          .createAllDayEvent(title, term.start, term.end, option);
+      } else {
+        gCalEvent = this.gCal
+          .getCalendar()
+          .createEvent(title, term.start, term.end, option);
+      }
 
-    gCalEventService.setTagToEvent(
-      gCalEvent,
-      garoonEvent.uniqueId,
-      garoonEvent.updatedAt,
-    );
-    console.info('Create GCal event: ' + garoonEvent.uniqueId);
-    Utilities.sleep(API_COOL_TIME);
+      this.gCalEventService.setTagToEvent(
+        gCalEvent,
+        garoonEvent.uniqueId,
+        garoonEvent.updatedAt,
+      );
+      Logger.info('Create GCal event: ' + garoonEvent.uniqueId);
+      Utilities.sleep(Constants.API_COOL_TIME);
+    }, 'GCalDao.createEvent');
   }
 
+  /**
+   * Google Calendarイベントを更新
+   * @param {Array} eventArray - [旧イベント, 新イベント]の配列
+   */
   updateEvent(eventArray) {
-    this.deleteEvent(eventArray[0]);
-    this.createEvent(eventArray[1]);
+    return this.executeWithErrorHandling(() => {
+      const [oldEvent, newGaroonEvent] = eventArray;
+
+      // タイトル・期間・説明を更新
+      const title = this.garoonEventService.createTitle(newGaroonEvent);
+      const term = this.garoonEventService.createTerm(newGaroonEvent);
+      const option = this.garoonEventService.createOptions(newGaroonEvent);
+
+      oldEvent.setTitle(title);
+      oldEvent.setDescription(option.description);
+
+      // 終日イベントと時刻指定イベントで処理を分岐
+      if (newGaroonEvent.isAllDay) {
+        oldEvent.setAllDayDates(term.start, term.end);
+      } else {
+        oldEvent.setTime(term.start, term.end);
+      }
+
+      // タグを更新
+      this.gCalEventService.setTagToEvent(
+        oldEvent,
+        newGaroonEvent.uniqueId,
+        newGaroonEvent.updatedAt,
+      );
+
+      Logger.info('Update GCal event: ' + newGaroonEvent.uniqueId);
+      Utilities.sleep(Constants.API_COOL_TIME);
+    }, 'GCalDao.updateEvent');
   }
 
+  /**
+   * Google Calendarイベントを削除
+   * @param {GoogleAppsScript.Calendar.CalendarEvent} gCalEvent - 削除するGCalイベント
+   */
   deleteEvent(gCalEvent) {
-    gCalEvent.deleteEvent();
-    console.info(
-      'Delete GCal event: ' + gCalEvent.getTag(TAG_GAROON_UNIQUE_EVENT_ID),
-    );
-    Utilities.sleep(API_COOL_TIME);
+    return this.executeWithErrorHandling(() => {
+      gCalEvent.deleteEvent();
+      const uniqueId = gCalEvent.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID);
+      Logger.info('Delete GCal event: ' + (uniqueId || 'No ID'));
+      Utilities.sleep(Constants.API_COOL_TIME);
+    }, 'GCalDao.deleteEvent');
   }
 }
