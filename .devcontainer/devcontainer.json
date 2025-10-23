@@ -1,69 +1,55 @@
 {
-    // # devcontainer.json sample
-    // recommend: Do not sort json
-    // ## To create image
     "name": "syncGaroonToGoogle",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:20-bookworm",
     "workspaceFolder": "/workspace",
-    "shutdownAction": "stopCompose",
 
-    // ## From base image
-    "dockerComposeFile": ["./compose.yaml"],
-    "service": "ubuntu",
-    "runServices": [],
-
-    // ## Resources
-    // warning: Can not use Env
     "mounts": [
         {
             "type": "bind",
             "source": "${localWorkspaceFolder}",
-            "target": "${containerWorkspaceFolder}",
-            "consistency": "delegated"
+            "target": "/workspace"
         },
         {
             "type": "volume",
-            "source": "node_modules_volume",
-            "target": "${containerWorkspaceFolder}/sync-garoon-to-google/node_modules"
+            "source": "sync-garoon-to-google-node_modules",
+            "target": "/workspace/sync-garoon-to-google/node_modules"
         }
     ],
+
     "features": {
-        "ghcr.io/devcontainers/features/common-utils:2": {
-            "username": "developer"
-        },
-        "ghcr.io/devcontainers/features/git:1": {},
-        "ghcr.io/devcontainers/features/node:1": {
-            "version": "20"
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "latest"
         }
     },
 
-    // ## Environment
-    "remoteUser": "developer",
+    "remoteUser": "node",
     "containerEnv": {
-        "scriptFolder": "${containerWorkspaceFolder}/.devcontainer/script"
-    },
-    "remoteEnv": {},
-    "portsAttributes": {
-        "3000": { "label": "api", "onAutoForward": "silent" }
+        "TZ": "Asia/Tokyo",
+        "LANG": "ja_JP.UTF-8"
     },
 
-    // ## Container command
-    // warning: To use .sh you need mount
-    // info: key is output stage
-    "overrideCommand": true,
-    "postCreateCommand": {
-        "Step": "sh ${containerWorkspaceFolder}/script/postCreate.sh"
-    },
+    "postCreateCommand": "bash script/postCreate.sh",
+    "postStartCommand": "git config --global --add safe.directory /workspace",
 
-    // IDE
     "customizations": {
         "vscode": {
             "extensions": [
-                // node
-                "dsznajder.es7-react-js-snippets",
-                "PulkitGangwar.nextjs-snippets",
-                "foxundermoon.next-js"
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "runem.lit-plugin",
+                "streetsidesoftware.code-spell-checker",
+                "eamodio.gitlens"
             ],
-            "settings": {}
+            "settings": {
+                "editor.formatOnSave": true,
+                "editor.defaultFormatter": "esbenp.prettier-vscode",
+                "editor.codeActionsOnSave": {
+                    "source.fixAll.eslint": "explicit"
+                },
+                "[javascript]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                }
+            }
         }
     }
 }
