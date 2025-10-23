@@ -28,7 +28,7 @@
         "LANG": "ja_JP.UTF-8"
     },
 
-    "postCreateCommand": "bash script/postCreate.sh",
+    "postCreateCommand": "sudo chown -R node:node /workspace/sync-garoon-to-google/node_modules && bash script/postCreate.sh",
     "postStartCommand": "git config --global --add safe.directory /workspace",
 
     "customizations": {
