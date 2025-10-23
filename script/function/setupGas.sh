@@ -1,8 +1,12 @@
 #!/bin/bash
+set -e
+
 cd sync-garoon-to-google
 
-# Googleドライブ直下にGAS作成
+echo "📝 Creating new Google Apps Script project..."
 clasp create --type api
 
-# 既存をcloneする場合はこちら
-# clasp clone [script_id]
+echo "✅ GAS project created!"
+echo ""
+echo "To clone existing project instead, run:"
+echo "  clasp clone [script_id]"
