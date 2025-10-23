@@ -1,3 +1,18 @@
-**/node_modules/*
+# Dependencies
+**/node_modules/
 package-lock.json
+
+# Configuration
 sync-garoon-to-google/src/properties/ScriptProperties.js
+sync-garoon-to-google/.clasp.json
+
+# Google Apps Script
+.clasprc.json
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

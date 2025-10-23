@@ -1,12 +1,23 @@
 {
     "name": "sync-garoon-to-google",
     "version": "1.0.0",
+    "description": "Sync Garoon schedule to Google Calendar",
     "main": "index.js",
+    "engines": {
+        "node": ">=20.0.0"
+    },
     "scripts": {
+        "setup": "clasp login && clasp create --type api",
+        "clone": "clasp clone",
+        "push": "clasp push",
+        "open": "clasp open",
+        "deploy": "npm run push && npm run open",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
-    "keywords": [],
+    "keywords": ["garoon", "google-calendar", "gas"],
     "author": "",
     "license": "ISC",
-    "description": ""
+    "devDependencies": {
+        "@google/clasp": "^2.4.2"
+    }
 }
