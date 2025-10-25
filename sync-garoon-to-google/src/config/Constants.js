@@ -252,8 +252,7 @@ setup Npm
   // ============================================================
 
   /**
-#   * 
-npm run Setup
+   * キャンセルされたイベントのステータス値
    */
   static get EVENT_STATUS_CANCELLED() {
     return 'cancelled';
