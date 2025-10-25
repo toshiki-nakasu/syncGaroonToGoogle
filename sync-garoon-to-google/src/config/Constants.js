@@ -270,7 +270,7 @@ npm run Setup
   }
 
   /**
-npm run setup 
+   * タイムアウトエラーのキーワード
    */
   static get ERROR_TIMEOUT() {
     return 'Timeout';
