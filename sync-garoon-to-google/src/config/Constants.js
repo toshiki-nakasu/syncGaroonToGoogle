@@ -134,7 +134,8 @@ class Constants {
   }
 
   /**
-npm run setup
+   * プロパティストアに保存する次回同期トークンのキー
+   * Google Calendar API などのインクリメンタル同期で使用
    */
   static get SYNC_TOKEN_PROPERTY_KEY() {
     return 'nextSyncToken';
