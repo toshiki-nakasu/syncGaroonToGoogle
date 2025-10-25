@@ -15,7 +15,7 @@ class Logger {
   }
 
   /**
-   * 現在のログレベルを
+   * 現在のログレベルを取得
    */
   static getCurrentLevel() {
     if (typeof Logger._currentLevel === 'undefined') {
