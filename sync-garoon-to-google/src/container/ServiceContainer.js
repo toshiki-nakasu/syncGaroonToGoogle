@@ -106,6 +106,35 @@ class ServiceContainer {
   }
 
   /**
+   * Garoon関連のみを初期化（軽量版）
+   * プレゼンスリセットなど、Garoonのみにアクセスする処理用
+   * Google Calendar関連の初期化をスキップするため高速に動作します
+   */
+  initializeGaroonOnly() {
+    Logger.info('ServiceContainer: Initializing Garoon dependencies only...');
+
+    // 設定管理
+    this.config = new ConfigManager();
+
+    // Garoonユーザー情報
+    this.garoonUser = new GaroonUser(
+      this.config.getGaroonDomain(),
+      this.config.getGaroonUserName(),
+      this.config.getGaroonUserPassword(),
+    );
+
+    // Garoon APIサービス
+    this.garoonApiService = new GaroonApiService(this.garoonUser);
+
+    // Garoon DAO
+    this.garoonDao = new GaroonDao(this.garoonApiService);
+
+    Logger.info(
+      'ServiceContainer: Garoon dependencies initialized successfully',
+    );
+  }
+
+  /**
    * 現在時刻を取得
    * @returns {Date}
    */

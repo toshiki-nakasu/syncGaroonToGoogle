@@ -4,32 +4,6 @@
  */
 
 /**
- * テスト用関数 - Garoonのプレゼンス情報をリセット
- */
-function test() {
-  try {
-    Logger.info('Test: START');
-
-    const container = new ServiceContainer();
-    container.initialize();
-
-    const garoonDao = container.getGaroonDao();
-    const requestBody = {
-      status: {
-        code: '',
-      },
-      notes: '',
-    };
-    garoonDao.updatePreference(requestBody);
-
-    Logger.info('Test: END');
-  } catch (error) {
-    Logger.error('Test failed', error);
-    throw error;
-  }
-}
-
-/**
  * Garoonの在席情報（プレゼンス）をリセット
  *
  * この関数は、Garoonに登録されている自分の在席情報を初期状態に戻します。
@@ -41,31 +15,18 @@ function test() {
  * - 誤って設定した在席情報を削除したい場合
  *
  * @throws {Error} API呼び出しに失敗した場合
+ * @throws {Error} 認証に失敗した場合
+ * @throws {Error} 必須設定が不足している場合
  */
 function resetPresence() {
   try {
     Logger.info('Reset Presence: START');
 
-    // GCalを初期化せず、Garoon関連のみを初期化
-    const configManager = new ConfigManager();
+    const container = new ServiceContainer();
+    container.initializeGaroonOnly();
 
-    const garoonUser = new GaroonUser(
-      configManager.getGaroonDomain(),
-      configManager.getGaroonUserName(),
-      configManager.getGaroonUserPassword(),
-    );
-
-    const garoonApiService = new GaroonApiService(garoonUser);
-    const garoonDao = new GaroonDao(garoonApiService);
-
-    const requestBody = {
-      status: {
-        code: '', // ステータスコードをリセット
-      },
-      notes: '', // メモをリセット
-    };
-
-    garoonDao.updatePreference(requestBody);
+    const garoonDao = container.getGaroonDao();
+    garoonDao.updatePreference(Constants.GAROON_PRESENCE_RESET_BODY);
 
     Logger.info('Reset Presence: Successfully reset presence information');
     Logger.info('Reset Presence: END');
@@ -140,6 +101,4 @@ function performSync(container) {
   // Garoonの予定をGCalへ同期
   const syncEventService = container.getSyncEventService();
   syncEventService.syncGaroonToGCal(garoonEditedEvents, gCalAllEvents);
-
-  // 同期トークンはgetEditedEvents内のgetNotSyncedEventsで既に更新済み
 }
