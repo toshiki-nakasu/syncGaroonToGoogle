@@ -1,18 +1,50 @@
+/**
+ * Garoonスケジュールイベントサービス
+ * @implements {IScheduleEventService}
+ */
 class GaroonEventService {
-  constructor() {}
+  /**
+   * @param {GaroonDao} garoonDao - Garoon DAO
+   */
+  constructor(garoonDao) {
+    this.garoonDao = garoonDao;
+    // 循環参照のため、遅延評価で設定される
+    this._gCalEventService = null;
+  }
+
+  /**
+   * GCalEventService を設定（循環参照解決のため）
+   * ServiceContainer の初期化時に呼び出される
+   * @param {GCalEventService} gCalEventService - Google Calendar イベントサービス
+   */
+  set gCalEventService(gCalEventService) {
+    if (this._gCalEventService !== null) {
+      throw new Error('GCalEventService is already set. Cannot overwrite.');
+    }
+    this._gCalEventService = gCalEventService;
+  }
+
+  /**
+   * GCalEventService を取得（遅延評価）
+   * @returns {GCalEventService}
+   * @throws {Error} GCalEventService が未設定の場合
+   */
+  get gCalEventService() {
+    if (this._gCalEventService === null) {
+      throw new Error(
+        'GCalEventService is not initialized. Set gCalEventService property first.',
+      );
+    }
+    return this._gCalEventService;
+  }
 
   // ------------------------------------------------------------
   // Override
   // ------------------------------------------------------------
   findEventByUniqueEventId(garoonEvents, uniqueEventId) {
-    let retEvent = null;
-
-    const events = garoonEvents.filter((event) => {
-      return event.uniqueId === uniqueEventId;
-    });
-
-    if (1 <= events.length) retEvent = events[0];
-    return retEvent;
+    return (
+      garoonEvents.find((event) => event.uniqueId === uniqueEventId) || null
+    );
   }
 
   isAllDay(garoonEvent) {
@@ -24,10 +56,10 @@ class GaroonEventService {
       rangeStart: Utility.formatISODateTime(term.start),
       rangeEnd: Utility.formatISODateTime(term.end),
       orderBy: 'start asc',
-      limit: 200,
+      limit: Constants.GAROON_MAX_RESULTS_PER_PAGE,
     };
 
-    const events = garoonDao.selectEventByTerm(requestBody);
+    const events = this.garoonDao.selectEventByTerm(requestBody);
     const filteredEvents = [];
     for (let event of events) {
       if (!this.isNoSyncEvent(event)) {
@@ -42,7 +74,8 @@ class GaroonEventService {
     return garoonEvents.filter((garoonEvent) => {
       return !gCalEvents.find((gCalevent) => {
         if (
-          gCalevent.getTag(TAG_GAROON_UNIQUE_EVENT_ID) === garoonEvent.uniqueId
+          gCalevent.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID) ===
+          garoonEvent.uniqueId
         )
           return gCalevent;
       });
@@ -64,7 +97,7 @@ class GaroonEventService {
     let garoonEvent;
     let tagUniqueEventID;
     for (const gCalEvent of gCalEvents) {
-      tagUniqueEventID = gCalEvent.getTag(TAG_GAROON_UNIQUE_EVENT_ID);
+      tagUniqueEventID = gCalEvent.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID);
 
       // 手動でGCalで作成されたものはskip
       if (Utility.isNullOrUndefined(tagUniqueEventID)) continue;
@@ -83,8 +116,8 @@ class GaroonEventService {
         updated.push([gCalEvent, garoonEvent]);
       }
     }
-    console.info(
-      `Garoon Event:\n\tCreated count: ${created.length}\n\tDeleted count: ${deleted.length}\n\tUpdated count: ${updated.length}`,
+    Logger.info(
+      `Garoon Event: Created count: ${created.length}, Deleted count: ${deleted.length}, Updated count: ${updated.length}`,
     );
 
     return { create: created, delete: deleted, update: updated };
@@ -109,27 +142,29 @@ class GaroonEventService {
   }
 
   createEvent(gCalEvent) {
-    const term = gCalEventService.createTerm(gCalEvent);
+    const term = this.gCalEventService.createTerm(gCalEvent);
     const requestBody = {
       eventType: 'REGULAR',
-      eventMenu: gCalEventService.createEventMenu(gCalEvent),
-      subject: gCalEventService.createSubject(gCalEvent),
-      notes: gCalEventService.createNotes(gCalEvent),
+      eventMenu: this.gCalEventService.createEventMenu(gCalEvent),
+      subject: this.gCalEventService.createSubject(gCalEvent),
+      notes: this.gCalEventService.createNotes(gCalEvent),
       start: term.start,
       end: term.end,
-      isAllDay: gCalEventService.checkAllDay(gCalEvent),
+      isAllDay: this.gCalEventService.checkAllDay(gCalEvent),
       attendees: [
-        { type: 'USER', code: properties.getProperty('GaroonUserName') },
+        { type: 'USER', code: this.garoonDao.garoonUser.getUserName() },
       ],
     };
-    return garoonDao.createEvent(requestBody);
+    return this.garoonDao.createEvent(requestBody);
   }
 
   // ------------------------------------------------------------
   // NoOverride
   // ------------------------------------------------------------
   isNoSyncEvent(garoonEvent) {
-    return garoonEvent.notes.includes('#' + GAROON_TO_GCAL_NOT_SYNC_TAG);
+    return garoonEvent.notes.includes(
+      '#' + Constants.GAROON_TO_GCAL_NOT_SYNC_TAG,
+    );
   }
 
   createUniqueId(garoonEvent) {
@@ -177,10 +212,38 @@ class GaroonEventService {
   }
 
   isUpdated(gCalEvent, garoonEvent) {
-    const gCalTaggedTime =
-      new Date(gCalEvent.getTag(TAG_GAROON_SYNC_DATETIME)) / 1000;
-    const garoonUpdatedTime = new Date(garoonEvent.updatedAt) / 1000;
+    const taggedTimeStr = gCalEvent.getTag(Constants.TAG_GAROON_SYNC_DATETIME);
 
-    return gCalTaggedTime < garoonUpdatedTime;
+    // タグが存在しない、または無効な場合は更新が必要と判定
+    if (
+      Utility.isNullOrUndefined(taggedTimeStr) ||
+      taggedTimeStr.trim() === ''
+    ) {
+      Logger.warn('Sync datetime tag is missing or empty, treating as updated');
+      return true;
+    }
+
+    const gCalTaggedTime = new Date(taggedTimeStr);
+    const garoonUpdatedTime = new Date(garoonEvent.updatedAt);
+
+    // 日付の妥当性チェック
+    if (isNaN(gCalTaggedTime.getTime())) {
+      Logger.warn(
+        `Invalid sync datetime tag: ${taggedTimeStr}, treating as updated`,
+      );
+      return true;
+    }
+
+    if (isNaN(garoonUpdatedTime.getTime())) {
+      Logger.warn(
+        `Invalid Garoon updated time: ${garoonEvent.updatedAt}, skipping update`,
+      );
+      return false;
+    }
+
+    // 秒単位で比較（ミリ秒の誤差を吸収）
+    const gCalSeconds = Math.floor(gCalTaggedTime.getTime() / 1000);
+    const garoonSeconds = Math.floor(garoonUpdatedTime.getTime() / 1000);
+    return gCalSeconds < garoonSeconds;
   }
 }

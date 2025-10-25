@@ -1,32 +1,37 @@
+/**
+ * Google Calendarスケジュールイベントサービス
+ * @implements {IScheduleEventService}
+ */
 class GCalEventService {
-  constructor() {}
+  constructor(gCalDao, garoonEventService) {
+    this.gCalDao = gCalDao;
+    this.garoonEventService = garoonEventService;
+  }
 
   // ------------------------------------------------------------
   // Override
   // ------------------------------------------------------------
   findEventByUniqueEventId(gCalEvents, uniqueEventId) {
-    let retEvent = null;
-
-    const events = gCalEvents.filter((event) => {
-      return event.getTag(TAG_GAROON_UNIQUE_EVENT_ID) === uniqueEventId;
-    });
-
-    if (1 <= events.length) retEvent = events[0];
-    return retEvent;
+    return (
+      gCalEvents.find(
+        (event) =>
+          event.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID) === uniqueEventId,
+      ) || null
+    );
   }
 
   isAllDay(gCalEvent) {
-    let retIsAllDay = false;
-    // TODO 時刻がない予定であればtrueにする
-    return retIsAllDay;
+    // Google Calendarの終日イベントは start.date プロパティを持つ
+    // 時刻指定イベントは start.dateTime プロパティを持つ
+    return gCalEvent.start.hasOwnProperty('date');
   }
 
   getByTerm(term) {
-    return gCalDao.selectEventByTerm(term);
+    return this.gCalDao.selectEventByTerm(term);
   }
 
   getCreatedEvents(fullSync = false) {
-    return gCalDao.getNotSyncedEvents(fullSync);
+    return this.gCalDao.getNotSyncedEvents(fullSync);
   }
 
   getEditedEvents(garoonEvents) {
@@ -39,7 +44,7 @@ class GCalEventService {
     let tagUniqueEventID;
     let garoonEvent;
     for (const gCalEvent of gCalEvents) {
-      if (gCalEvent.status === 'cancelled') {
+      if (gCalEvent.status === Constants.EVENT_STATUS_CANCELLED) {
         deleted.push(gCalEvent);
         continue;
       }
@@ -50,16 +55,18 @@ class GCalEventService {
       }
 
       tagUniqueEventID =
-        gCalEvent.extendedProperties.shared[TAG_GAROON_UNIQUE_EVENT_ID];
-      garoonEvent = garoonEventService.findEventByUniqueEventId(
+        gCalEvent.extendedProperties.shared[
+          Constants.TAG_GAROON_UNIQUE_EVENT_ID
+        ];
+      garoonEvent = this.garoonEventService.findEventByUniqueEventId(
         garoonEvents,
         tagUniqueEventID,
       );
       updated.push([garoonEvent, gCalEvent]);
     }
 
-    console.info(
-      `GCal Event:\n\tCreated count: ${created.length}\n\tDeleted count: ${deleted.length}\n\tUpdated count: ${updated.length}`,
+    Logger.info(
+      `GCal Event: Created count: ${created.length}, Deleted count: ${deleted.length}, Updated count: ${updated.length}`,
     );
 
     return { create: created, delete: deleted, update: updated };
@@ -70,7 +77,7 @@ class GCalEventService {
     let start = gCalEvent.start;
     let end = gCalEvent.end;
 
-    if (this.isAllDay()) {
+    if (this.isAllDay(gCalEvent)) {
       start = new Date(start.date);
       end = new Date(end.date);
       end.setSeconds(end.getSeconds() - 1);
@@ -98,7 +105,7 @@ class GCalEventService {
   createEvent(garoonEventItem, garoonUniqueEventID) {
     let gCalEvent;
     if (garoonEventItem.isAllDay) {
-      gCalEvent = gCal
+      gCalEvent = this.gCalDao.gCal
         .getCalendar()
         .createAllDayEvent(
           garoonEventItem.title,
@@ -107,7 +114,7 @@ class GCalEventService {
           garoonEventItem.options,
         );
     } else {
-      gCalEvent = gCal
+      gCalEvent = this.gCalDao.gCal
         .getCalendar()
         .createEvent(
           garoonEventItem.title,
@@ -128,8 +135,8 @@ class GCalEventService {
   // NoOverride
   // ------------------------------------------------------------
   setTagToEvent(gCalEvent, garoonUniqueEventID, garoonUpdatedAt) {
-    gCalEvent.setTag(TAG_GAROON_UNIQUE_EVENT_ID, garoonUniqueEventID);
-    gCalEvent.setTag(TAG_GAROON_SYNC_DATETIME, garoonUpdatedAt);
+    gCalEvent.setTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID, garoonUniqueEventID);
+    gCalEvent.setTag(Constants.TAG_GAROON_SYNC_DATETIME, garoonUpdatedAt);
   }
 
   createEventMenu(gCalEvent) {
