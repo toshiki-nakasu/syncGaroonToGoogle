@@ -174,7 +174,7 @@ npm run Setup
   }
 
   /**
-   * API呼び出しのリトライ最大
+   * API呼び出しの最大リトライ回数
    */
   static get MAX_RETRY_COUNT() {
     return 3;
