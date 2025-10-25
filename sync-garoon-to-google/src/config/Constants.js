@@ -170,7 +170,8 @@ class Constants {
   }
 
   /**
-npm run Setup
+   * Garoon APIのページネーションで取得できる最大件数
+   * Garoon APIの仕様により1ページあたり最大200件まで取得可能
    */
   static get GAROON_MAX_RESULTS_PER_PAGE() {
     return 200;
