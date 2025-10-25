@@ -206,7 +206,7 @@ npm run Setup
   }
 
   /**
-setup Npm 
+   * サービス利用不可エラーのステータスコード
    */
   static get HTTP_STATUS_SERVICE_UNAVAILABLE() {
     return 503;
