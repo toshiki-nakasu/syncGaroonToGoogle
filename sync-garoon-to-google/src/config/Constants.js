@@ -53,7 +53,7 @@ class Constants {
   }
 
   /**
->
+   * Garoonの同期日時を保存するタグ名
    */
   static get TAG_GAROON_SYNC_DATETIME() {
     return 'GAROON_SYNC_DATETIME';
