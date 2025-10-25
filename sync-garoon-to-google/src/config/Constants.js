@@ -92,8 +92,7 @@ class Constants {
   }
 
   /**
-#npm run Setup 
-npm run setup
+   * Garoonプロファイルコードのプロパティキー
    */
   static get PROPERTY_GAROON_PROFILE_CODE() {
     return 'GaroonProfileCode';
