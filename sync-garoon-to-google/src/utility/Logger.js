@@ -56,7 +56,7 @@ class Logger {
   }
 
   /**
-
+   * 警告ログを出力
    * @param {string} message - ログメッセージ
    * @param {*} [data] - 追加のデータ
    */
