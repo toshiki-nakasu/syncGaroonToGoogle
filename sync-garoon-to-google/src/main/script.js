@@ -30,6 +30,52 @@ function test() {
 }
 
 /**
+ * Garoonの在席情報（プレゼンス）をリセット
+ *
+ * この関数は、Garoonに登録されている自分の在席情報を初期状態に戻します。
+ * ステータスコードとメモの両方が空文字列にリセットされます。
+ *
+ * 使用例:
+ * - 退勤時に在席情報をクリアしたい場合
+ * - 外出・離席などの状態を解除したい場合
+ * - 誤って設定した在席情報を削除したい場合
+ *
+ * @throws {Error} API呼び出しに失敗した場合
+ */
+function resetPresence() {
+  try {
+    Logger.info('Reset Presence: START');
+
+    // GCalを初期化せず、Garoon関連のみを初期化
+    const configManager = new ConfigManager();
+
+    const garoonUser = new GaroonUser(
+      configManager.getGaroonDomain(),
+      configManager.getGaroonUserName(),
+      configManager.getGaroonUserPassword(),
+    );
+
+    const garoonApiService = new GaroonApiService(garoonUser);
+    const garoonDao = new GaroonDao(garoonApiService);
+
+    const requestBody = {
+      status: {
+        code: '', // ステータスコードをリセット
+      },
+      notes: '', // メモをリセット
+    };
+
+    garoonDao.updatePreference(requestBody);
+
+    Logger.info('Reset Presence: Successfully reset presence information');
+    Logger.info('Reset Presence: END');
+  } catch (error) {
+    Logger.error('Reset Presence failed', error);
+    throw error;
+  }
+}
+
+/**
  * 同期処理のメインエントリーポイント
  * Garoonのスケジュールとgoogle Calendarを同期します
  */
