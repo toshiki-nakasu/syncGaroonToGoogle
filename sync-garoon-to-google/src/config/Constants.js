@@ -142,7 +142,8 @@ class Constants {
   }
 
   /**
-   * Garoon→GCal同>
+   * Garoon→GCalの同期対象外とするイベントに付与するタグ
+   * このタグが付与されたGaroonイベントはGoogleカレンダーに同期されません
    */
   static get GAROON_TO_GCAL_NOT_SYNC_TAG() {
     return 'nosync';
