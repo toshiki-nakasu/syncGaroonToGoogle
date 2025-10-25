@@ -26,7 +26,6 @@ class Logger {
   }
 
   /**
-/**
    * @param {number} level - 設定するログレベル
    */
   static setLevel(level) {
@@ -90,7 +89,7 @@ class Logger {
   }
 
   /**
- run setup
+   * タイマーを終了
    * @param {string} label - タイマーラベル
    */
   static timeEnd(label) {
