@@ -60,7 +60,7 @@ class GaroonApiService {
     return {
       'Content-Type': 'application/json',
       'X-Cybozu-Authorization': Utilities.base64Encode(
-        this.garoonUser.getUserName() + ':' + this.garoonUser.getUserPassword(),
+        `${this.garoonUser.getUserName()}:${this.garoonUser.getUserPassword()}`,
       ),
     };
   }

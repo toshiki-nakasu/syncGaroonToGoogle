@@ -84,12 +84,12 @@ function performSync(container) {
   // Garoonから予定を取得
   const garoonEventService = container.getGaroonEventService();
   const garoonAllEvents = garoonEventService.getByTerm(syncTargetTerm);
-  Logger.info('Garoon All Events: ' + garoonAllEvents.length);
+  Logger.info(`Garoon All Events: ${garoonAllEvents.length}`);
 
   // GCalから予定を取得
   const gCalEventService = container.getGCalEventService();
   const gCalAllEvents = gCalEventService.getByTerm(syncTargetTerm);
-  Logger.info('GCal All Events: ' + gCalAllEvents.length);
+  Logger.info(`GCal All Events: ${gCalAllEvents.length}`);
 
   // 編集された予定を取得
   const garoonEditedEvents = garoonEventService.getEditedEvents(

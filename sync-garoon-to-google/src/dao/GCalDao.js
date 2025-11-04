@@ -204,7 +204,7 @@ class GCalDao extends BaseDao {
         garoonEvent.uniqueId,
         garoonEvent.updatedAt,
       );
-      Logger.info('Create GCal event: ' + garoonEvent.uniqueId);
+      Logger.info(`Create GCal event: ${garoonEvent.uniqueId}`);
       Utilities.sleep(Constants.API_COOL_TIME);
     }, 'GCalDao.createEvent');
   }
@@ -239,7 +239,7 @@ class GCalDao extends BaseDao {
         newGaroonEvent.updatedAt,
       );
 
-      Logger.info('Update GCal event: ' + newGaroonEvent.uniqueId);
+      Logger.info(`Update GCal event: ${newGaroonEvent.uniqueId}`);
       Utilities.sleep(Constants.API_COOL_TIME);
     }, 'GCalDao.updateEvent');
   }
@@ -252,7 +252,7 @@ class GCalDao extends BaseDao {
     return this.executeWithErrorHandling(() => {
       gCalEvent.deleteEvent();
       const uniqueId = gCalEvent.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID);
-      Logger.info('Delete GCal event: ' + (uniqueId || 'No ID'));
+      Logger.info(`Delete GCal event: ${uniqueId || 'No ID'}`);
       Utilities.sleep(Constants.API_COOL_TIME);
     }, 'GCalDao.deleteEvent');
   }
