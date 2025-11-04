@@ -5,13 +5,13 @@ class Utility {
       if ('' !== retString) {
         retString += '&';
       }
-      retString += key + '=' + encodeURIComponent(params[key]);
+      retString += `${key}=${encodeURIComponent(params[key])}`;
     }
     return retString;
   }
 
   static paddingZero(value, length = Constants.DEFAULT_PADDING_LENGTH) {
-    return ('0' + value).slice(-length);
+    return `0${value}`.slice(-length);
   }
 
   static isNullOrUndefined(arg) {

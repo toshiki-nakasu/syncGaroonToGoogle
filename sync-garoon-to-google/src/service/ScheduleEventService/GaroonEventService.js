@@ -163,13 +163,13 @@ class GaroonEventService {
   // ------------------------------------------------------------
   isNoSyncEvent(garoonEvent) {
     return garoonEvent.notes.includes(
-      '#' + Constants.GAROON_TO_GCAL_NOT_SYNC_TAG,
+      `#${Constants.GAROON_TO_GCAL_NOT_SYNC_TAG}`,
     );
   }
 
   createUniqueId(garoonEvent) {
-    const repeatId = garoonEvent.repeatId ? '-' + garoonEvent.repeatId : '';
-    return garoonEvent.id + repeatId;
+    const repeatId = garoonEvent.repeatId ? `-${garoonEvent.repeatId}` : '';
+    return `${garoonEvent.id}${repeatId}`;
   }
 
   addUniqueId(garoonEvent) {

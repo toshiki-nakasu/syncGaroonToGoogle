@@ -148,9 +148,9 @@ class GaroonDao extends BaseDao {
         garoonEvent = this.garoonEventService.addUniqueId(
           JSON.parse(response.getContentText('UTF-8')),
         );
-        Logger.info('Create Garoon event: ' + garoonEvent.uniqueId);
+        Logger.info(`Create Garoon event: ${garoonEvent.uniqueId}`);
       } else {
-        Logger.error('Failed to create Garoon event. Status: ' + statusCode);
+        Logger.error(`Failed to create Garoon event. Status: ${statusCode}`);
       }
       return garoonEvent;
     }, 'GaroonDao.createEvent');
@@ -169,13 +169,31 @@ class GaroonDao extends BaseDao {
 
   /**
    * Garoonイベントを削除
-   * @param {GaroonEvent} event - 削除するイベント
-   * @throws {Error} 未実装のため常にエラーをスロー
+   * @param {string} eventId - 削除するイベントID
+   * @returns {boolean} 削除成功時はtrue、失敗時はfalse
    */
-  deleteEvent(event) {
-    throw new Error(
-      'GaroonDao.deleteEvent is not implemented. Garoon event deletion is not supported.',
-    );
+  deleteEvent(eventId) {
+    return this.executeWithErrorHandling(() => {
+      const option = {
+        method: 'DELETE',
+        headers: this.garoonApiService.createApiHeader(),
+      };
+      const deleteUri =
+        this.garoonApiService.createEventApiUri() + '/' + eventId;
+      const response = this.apiAction(deleteUri, option);
+      const statusCode = response.getResponseCode();
+
+      if (
+        Constants.HTTP_STATUS_SUCCESS_MIN <= statusCode &&
+        statusCode <= Constants.HTTP_STATUS_SUCCESS_MAX
+      ) {
+        Logger.info(`Event deleted successfully: ${eventId}`);
+        return true;
+      }
+
+      Logger.warn(`Failed to delete event: ${eventId} (Status: ${statusCode})`);
+      return false;
+    }, 'GaroonDao.deleteEvent');
   }
 
   /**
