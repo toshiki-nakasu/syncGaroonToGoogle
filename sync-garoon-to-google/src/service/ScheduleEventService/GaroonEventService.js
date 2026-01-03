@@ -5,11 +5,21 @@
 class GaroonEventService {
   /**
    * @param {GaroonDao} garoonDao - Garoon DAO
+   * @param {TagParser} tagParser - タグパーサー
    */
-  constructor(garoonDao) {
+  constructor(garoonDao, tagParser = null) {
     this.garoonDao = garoonDao;
+    this.tagParser = tagParser;
     // 循環参照のため、遅延評価で設定される
     this._gCalEventService = null;
+  }
+
+  /**
+   * TagParser を設定
+   * @param {TagParser} tagParser - タグパーサー
+   */
+  setTagParser(tagParser) {
+    this.tagParser = tagParser;
   }
 
   /**
@@ -62,10 +72,18 @@ class GaroonEventService {
     const events = this.garoonDao.selectEventByTerm(requestBody);
     const filteredEvents = [];
     for (let event of events) {
-      if (!this.isNoSyncEvent(event)) {
-        event = this.addUniqueId(event);
-        filteredEvents.push(event);
+      // TagParserを使用してタグを解析
+      const tagResult = this.getEventSyncInfo(event);
+
+      // #nosyncタグが付いている場合はスキップ
+      if (!tagResult.shouldSync) {
+        continue;
       }
+
+      event = this.addUniqueId(event);
+      // タグ解析結果をイベントに付与
+      event.syncInfo = tagResult;
+      filteredEvents.push(event);
     }
     return filteredEvents;
   }
@@ -161,10 +179,35 @@ class GaroonEventService {
   // ------------------------------------------------------------
   // NoOverride
   // ------------------------------------------------------------
+
+  /**
+   * イベントが同期対象外(#nosync)かどうかを判定する
+   * @param {Object} garoonEvent - Garoonイベント
+   * @returns {boolean} 同期対象外の場合true
+   * @deprecated getEventSyncInfo() を使用してください
+   */
   isNoSyncEvent(garoonEvent) {
     return garoonEvent.notes.includes(
       `#${Constants.GAROON_TO_GCAL_NOT_SYNC_TAG}`,
     );
+  }
+
+  /**
+   * イベントのタグを解析して同期情報を取得する
+   * @param {Object} garoonEvent - Garoonイベント
+   * @returns {TagParseResult} タグ解析結果
+   */
+  getEventSyncInfo(garoonEvent) {
+    if (this.tagParser) {
+      return this.tagParser.parseEvent(garoonEvent);
+    }
+    // TagParserがない場合は従来の動作（後方互換性）
+    const isNoSync = this.isNoSyncEvent(garoonEvent);
+    return {
+      shouldSync: !isNoSync,
+      targetCalendar: null,
+      detectedTags: isNoSync ? [Constants.GAROON_TO_GCAL_NOT_SYNC_TAG] : [],
+    };
   }
 
   createUniqueId(garoonEvent) {

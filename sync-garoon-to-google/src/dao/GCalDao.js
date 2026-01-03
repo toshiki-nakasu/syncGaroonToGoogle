@@ -16,6 +16,13 @@
  */
 
 /**
+ * イベントマッピング情報
+ * @typedef {Object} EventMapping
+ * @property {string} eventId - Google Event ID
+ * @property {string} calendarId - Calendar ID
+ */
+
+/**
  * Google Calendar APIへのアクセスを提供するDAOクラス
  * @extends BaseDao
  */
@@ -30,6 +37,8 @@ class GCalDao extends BaseDao {
     this.config = config;
     this._garoonEventService = null;
     this._gCalEventService = null;
+    // カレンダーIDキャッシュ (カレンダー名 -> カレンダーID)
+    this._calendarIdCache = new Map();
   }
 
   /**
@@ -97,6 +106,54 @@ class GCalDao extends BaseDao {
       Logger.warn('Created GCal calendar - please notify, color setting');
       return retCalendar;
     }, 'GCalDao.createCalendar');
+  }
+
+  /**
+   * カレンダー名からカレンダーを取得、存在しない場合は作成
+   * @param {string} calendarName - カレンダー名
+   * @returns {GoogleAppsScript.Calendar.Calendar} カレンダーオブジェクト
+   */
+  getOrCreateCalendar(calendarName) {
+    return this.executeWithErrorHandling(() => {
+      const calendars = CalendarApp.getOwnedCalendarsByName(calendarName);
+      if (calendars.length > 0) {
+        Logger.info(
+          `Get GCal calendar: existing calendar "${calendarName}" found`,
+        );
+        return calendars[0];
+      }
+
+      Logger.info(`カレンダー "${calendarName}" を新規作成します。`);
+      return this.createCalendar(calendarName);
+    }, 'GCalDao.getOrCreateCalendar');
+  }
+
+  /**
+   * カレンダー名からカレンダーIDを取得、存在しない場合は作成
+   * キャッシュを使用して効率化
+   * @param {string} calendarName - カレンダー名
+   * @returns {string} カレンダーID
+   */
+  getOrCreateCalendarId(calendarName) {
+    if (this._calendarIdCache.has(calendarName)) {
+      return this._calendarIdCache.get(calendarName);
+    }
+
+    const calendar = this.getOrCreateCalendar(calendarName);
+    const calendarId = calendar.getId();
+    this._calendarIdCache.set(calendarName, calendarId);
+    return calendarId;
+  }
+
+  /**
+   * カレンダーIDからカレンダーオブジェクトを取得
+   * @param {string} calendarId - カレンダーID
+   * @returns {GoogleAppsScript.Calendar.Calendar|null} カレンダーオブジェクト
+   */
+  getCalendarById(calendarId) {
+    return this.executeWithErrorHandling(() => {
+      return CalendarApp.getCalendarById(calendarId);
+    }, 'GCalDao.getCalendarById');
   }
 
   /**
@@ -255,5 +312,149 @@ class GCalDao extends BaseDao {
       Logger.info(`Delete GCal event: ${uniqueId || 'No ID'}`);
       Utilities.sleep(Constants.API_COOL_TIME);
     }, 'GCalDao.deleteEvent');
+  }
+
+  // ============================================================
+  // カレンダー指定イベント操作
+  // ============================================================
+
+  /**
+   * 指定カレンダーにGaroonイベントからGoogle Calendarイベントを作成
+   * @param {string} calendarId - カレンダーID
+   * @param {GaroonEvent} garoonEvent - Garoonイベント
+   * @returns {GoogleAppsScript.Calendar.CalendarEvent} 作成されたイベント
+   */
+  createEventOnCalendar(calendarId, garoonEvent) {
+    return this.executeWithErrorHandling(() => {
+      const calendar = CalendarApp.getCalendarById(calendarId);
+      if (!calendar) {
+        throw new Error(`カレンダーが見つかりません: ${calendarId}`);
+      }
+
+      let gCalEvent;
+      const title = this.garoonEventService.createTitle(garoonEvent);
+      const term = this.garoonEventService.createTerm(garoonEvent);
+      const option = this.garoonEventService.createOptions(garoonEvent);
+
+      if (garoonEvent.isAllDay) {
+        gCalEvent = calendar.createAllDayEvent(
+          title,
+          term.start,
+          term.end,
+          option,
+        );
+      } else {
+        gCalEvent = calendar.createEvent(title, term.start, term.end, option);
+      }
+
+      this.gCalEventService.setTagToEvent(
+        gCalEvent,
+        garoonEvent.uniqueId,
+        garoonEvent.updatedAt,
+      );
+
+      Logger.info(
+        `Create GCal event on calendar ${calendarId}: ${garoonEvent.uniqueId}`,
+      );
+      Utilities.sleep(Constants.API_COOL_TIME);
+
+      return gCalEvent;
+    }, 'GCalDao.createEventOnCalendar');
+  }
+
+  /**
+   * 指定カレンダーのGoogle Calendarイベントを更新
+   * @param {string} calendarId - カレンダーID
+   * @param {GoogleAppsScript.Calendar.CalendarEvent} gCalEvent - 更新対象のイベント
+   * @param {GaroonEvent} garoonEvent - Garoonイベント
+   */
+  updateEventOnCalendar(calendarId, gCalEvent, garoonEvent) {
+    return this.executeWithErrorHandling(() => {
+      const title = this.garoonEventService.createTitle(garoonEvent);
+      const term = this.garoonEventService.createTerm(garoonEvent);
+      const option = this.garoonEventService.createOptions(garoonEvent);
+
+      gCalEvent.setTitle(title);
+      gCalEvent.setDescription(option.description);
+
+      if (garoonEvent.isAllDay) {
+        gCalEvent.setAllDayDates(term.start, term.end);
+      } else {
+        gCalEvent.setTime(term.start, term.end);
+      }
+
+      this.gCalEventService.setTagToEvent(
+        gCalEvent,
+        garoonEvent.uniqueId,
+        garoonEvent.updatedAt,
+      );
+
+      Logger.info(
+        `Update GCal event on calendar ${calendarId}: ${garoonEvent.uniqueId}`,
+      );
+      Utilities.sleep(Constants.API_COOL_TIME);
+    }, 'GCalDao.updateEventOnCalendar');
+  }
+
+  /**
+   * 指定カレンダーのGoogle Calendarイベントを削除
+   * @param {string} calendarId - カレンダーID
+   * @param {GoogleAppsScript.Calendar.CalendarEvent} gCalEvent - 削除するイベント
+   */
+  deleteEventOnCalendar(calendarId, gCalEvent) {
+    return this.executeWithErrorHandling(() => {
+      const uniqueId = gCalEvent.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID);
+      gCalEvent.deleteEvent();
+      Logger.info(
+        `Delete GCal event on calendar ${calendarId}: ${uniqueId || 'No ID'}`,
+      );
+      Utilities.sleep(Constants.API_COOL_TIME);
+    }, 'GCalDao.deleteEventOnCalendar');
+  }
+
+  /**
+   * 指定カレンダーからGaroonユニークIDでイベントを検索
+   * @param {string} calendarId - カレンダーID
+   * @param {string} garoonUniqueId - GaroonユニークID
+   * @param {DatetimeTerm} term - 検索期間
+   * @returns {GoogleAppsScript.Calendar.CalendarEvent|null} イベントまたはnull
+   */
+  findEventByGaroonIdOnCalendar(calendarId, garoonUniqueId, term) {
+    return this.executeWithErrorHandling(() => {
+      const calendar = CalendarApp.getCalendarById(calendarId);
+      if (!calendar) {
+        return null;
+      }
+
+      const events = calendar.getEvents(term.start, term.end);
+      for (const event of events) {
+        const tagId = event.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID);
+        if (tagId === garoonUniqueId) {
+          return event;
+        }
+      }
+      return null;
+    }, 'GCalDao.findEventByGaroonIdOnCalendar');
+  }
+
+  /**
+   * 複数カレンダーからGaroonユニークIDでイベントを検索
+   * @param {string[]} calendarIds - 検索対象のカレンダーID配列
+   * @param {string} garoonUniqueId - GaroonユニークID
+   * @param {DatetimeTerm} term - 検索期間
+   * @returns {{event: GoogleAppsScript.Calendar.CalendarEvent, calendarId: string}|null} 検索結果
+   */
+  findEventByGaroonIdAcrossCalendars(calendarIds, garoonUniqueId, term) {
+    for (const calendarId of calendarIds) {
+      const event = this.findEventByGaroonIdOnCalendar(
+        calendarId,
+        garoonUniqueId,
+        term,
+      );
+      if (event) {
+        return { event, calendarId };
+      }
+    }
+    return null;
   }
 }

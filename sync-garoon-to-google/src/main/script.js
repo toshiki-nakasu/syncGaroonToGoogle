@@ -100,7 +100,11 @@ function performSync(container) {
 
   // Garoonの予定をGCalへ同期
   const syncEventService = container.getSyncEventService();
-  syncEventService.syncGaroonToGCal(garoonEditedEvents, gCalAllEvents);
+  syncEventService.syncGaroonToGCal(
+    garoonEditedEvents,
+    gCalAllEvents,
+    syncTargetTerm,
+  );
 }
 
 /**
