@@ -187,9 +187,11 @@ class GaroonEventService {
    * @deprecated getEventSyncInfo() を使用してください
    */
   isNoSyncEvent(garoonEvent) {
-    return garoonEvent.notes.includes(
-      `#${Constants.GAROON_TO_GCAL_NOT_SYNC_TAG}`,
-    );
+    const notes = garoonEvent ? garoonEvent.notes : null;
+    if (typeof notes !== 'string') {
+      return false;
+    }
+    return notes.includes(`#${Constants.GAROON_TO_GCAL_NOT_SYNC_TAG}`);
   }
 
   /**
