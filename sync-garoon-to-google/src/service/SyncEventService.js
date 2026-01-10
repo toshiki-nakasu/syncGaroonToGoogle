@@ -162,7 +162,11 @@ class SyncEventService {
           syncTargetTerm,
         );
 
-        if (currentCalendarId && currentCalendarId !== targetCalendarId) {
+        // イベントが見つからない場合はデフォルトカレンダーにあると仮定
+        const effectiveCurrentCalendarId =
+          currentCalendarId || this.getDefaultCalendarId();
+
+        if (effectiveCurrentCalendarId !== targetCalendarId) {
           // カレンダーが変わる場合は削除して新規作成
           Logger.info(
             `イベント "${newGaroonEvent.subject}" を別カレンダーに移動します。`,
@@ -184,12 +188,16 @@ class SyncEventService {
    * @param {GoogleAppsScript.Calendar.CalendarEvent} gCalEvent - GCalイベント
    * @param {string[]} calendarIds - 検索対象カレンダーID配列
    * @param {DatetimeTerm} term - 検索期間
-   * @returns {string|null} カレンダーID
+   * @returns {string|null} カレンダーID（見つからない場合はnull）
    */
   findEventCalendarId(gCalEvent, calendarIds, term) {
     const uniqueId = gCalEvent.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID);
     if (!uniqueId) {
-      return this.getDefaultCalendarId();
+      Logger.warn(
+        'イベントにGaroon固有IDタグが存在しません。カレンダーIDをnullとして返します。',
+        { eventId: gCalEvent.getId() },
+      );
+      return null;
     }
 
     const result = this.gCalDao.findEventByGaroonIdAcrossCalendars(
@@ -198,7 +206,15 @@ class SyncEventService {
       term,
     );
 
-    return result ? result.calendarId : this.getDefaultCalendarId();
+    if (!result) {
+      Logger.warn(
+        'イベントが指定されたカレンダーに見つかりませんでした。カレンダーIDをnullとして返します。',
+        { uniqueId, calendarIds },
+      );
+      return null;
+    }
+
+    return result.calendarId;
   }
 
   /**
