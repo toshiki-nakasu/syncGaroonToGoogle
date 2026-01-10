@@ -134,6 +134,13 @@ class Constants {
   }
 
   /**
+   * 同期対象タグ付きカレンダー名の配列のプロパティキー
+   */
+  static get PROPERTY_SYNC_TARGET_CALENDARS() {
+    return 'SyncTargetCalendars';
+  }
+
+  /**
    * プロパティストアに保存する次回同期トークンのキー
    * Google Calendar API などのインクリメンタル同期で使用
    */

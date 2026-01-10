@@ -243,4 +243,46 @@ class ConfigManager {
   deleteNextSyncToken() {
     this.delete(Constants.SYNC_TOKEN_PROPERTY_KEY);
   }
+
+  // ============================================================
+  // 同期対象カレンダー設定
+  // ============================================================
+
+  /**
+   * 同期対象のタグ付きカレンダー名の配列を取得
+   * @returns {string[]} カレンダー名の配列
+   */
+  getSyncTargetCalendars() {
+    const value = this.props.getProperty(
+      Constants.PROPERTY_SYNC_TARGET_CALENDARS,
+    );
+    if (!value) {
+      return [];
+    }
+    try {
+      const parsed = JSON.parse(value);
+      if (!Array.isArray(parsed)) {
+        Logger.warn('SyncTargetCalendars is not an array, returning empty');
+        return [];
+      }
+      return parsed;
+    } catch (e) {
+      Logger.warn('SyncTargetCalendars のパースに失敗しました:', e);
+      return [];
+    }
+  }
+
+  /**
+   * 同期対象のタグ付きカレンダー名の配列を設定
+   * @param {string[]} calendars カレンダー名の配列
+   */
+  setSyncTargetCalendars(calendars) {
+    if (!Array.isArray(calendars)) {
+      throw new Error('calendars must be an array');
+    }
+    this.set(
+      Constants.PROPERTY_SYNC_TARGET_CALENDARS,
+      JSON.stringify(calendars),
+    );
+  }
 }

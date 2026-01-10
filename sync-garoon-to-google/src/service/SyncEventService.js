@@ -12,18 +12,72 @@ class SyncEventService {
   /**
    * @param {GCalDao} gCalDao - Google Calendar DAO
    * @param {GaroonDao} garoonDao - Garoon DAO (将来的に使用)
+   * @param {ConfigManager} config - 設定管理
    */
-  constructor(gCalDao, garoonDao) {
+  constructor(gCalDao, garoonDao, config) {
     this.gCalDao = gCalDao;
     this.garoonDao = garoonDao;
+    this.config = config;
+  }
+
+  /**
+   * デフォルトカレンダーIDを取得
+   * @returns {string} デフォルトカレンダーID
+   */
+  getDefaultCalendarId() {
+    return this.gCalDao.gCal.getId();
+  }
+
+  /**
+   * 対象カレンダーIDを取得（タグに基づいて振り分け）
+   * @param {Object} garoonEvent - Garoonイベント（syncInfo付き）
+   * @returns {string} カレンダーID
+   */
+  getTargetCalendarId(garoonEvent) {
+    const syncInfo = garoonEvent.syncInfo;
+
+    // syncInfoがない、またはtargetCalendarがnullの場合はデフォルトカレンダー
+    if (!syncInfo || syncInfo.targetCalendar === null) {
+      return this.getDefaultCalendarId();
+    }
+
+    // タグで指定されたカレンダーのIDを取得（存在しなければ作成）
+    return this.gCalDao.getOrCreateCalendarId(syncInfo.targetCalendar);
+  }
+
+  /**
+   * 検索対象のカレンダーID一覧を取得
+   * @returns {string[]} カレンダーID配列
+   */
+  getAllTargetCalendarIds() {
+    const calendarIds = [this.getDefaultCalendarId()];
+
+    // 登録済みカレンダーのIDも追加
+    const syncTargetCalendars = this.config.getSyncTargetCalendars();
+    for (const calendarName of syncTargetCalendars) {
+      try {
+        const calendarId = this.gCalDao.getOrCreateCalendarId(calendarName);
+        if (!calendarIds.includes(calendarId)) {
+          calendarIds.push(calendarId);
+        }
+      } catch (error) {
+        Logger.warn(
+          `カレンダー "${calendarName}" のID取得に失敗しました: ${error.message}`,
+        );
+      }
+    }
+
+    return calendarIds;
   }
 
   /**
    * GaroonからGoogle Calendarへイベントを同期
+   * タグに基づいてカレンダーを振り分け
    * @param {EditedEvents} garoonEditedEvents - 編集されたGaroonイベント
    * @param {Array} gCalAllEvents - 全てのGoogle Calendarイベント
+   * @param {DatetimeTerm} syncTargetTerm - 同期対象期間
    */
-  syncGaroonToGCal(garoonEditedEvents, gCalAllEvents) {
+  syncGaroonToGCal(garoonEditedEvents, gCalAllEvents, syncTargetTerm) {
     Logger.info('Sync Garoon To GCal: START');
 
     // パラメータ検証
@@ -42,11 +96,45 @@ class SyncEventService {
       `Total operations: ${totalOperations} (create: ${garoonEditedEvents.create.length}, delete: ${garoonEditedEvents.delete.length}, update: ${garoonEditedEvents.update.length})`,
     );
 
-    // 作成処理
+    // 全対象カレンダーIDを取得
+    const allCalendarIds = this.getAllTargetCalendarIds();
+
+    // 作成処理（タグに基づいてカレンダーを振り分け）
     if (garoonEditedEvents.create.length > 0) {
       Logger.info(`Creating ${garoonEditedEvents.create.length} events...`);
       for (const garoonEvent of garoonEditedEvents.create) {
-        this.gCalDao.createEvent(garoonEvent);
+        const targetCalendarId = this.getTargetCalendarId(garoonEvent);
+
+        // 他のカレンダーに既存イベントがないか確認（タグ変更対応）
+        const existingResult = this.gCalDao.findEventByGaroonIdAcrossCalendars(
+          allCalendarIds,
+          garoonEvent.uniqueId,
+          syncTargetTerm,
+        );
+
+        if (existingResult) {
+          if (existingResult.calendarId !== targetCalendarId) {
+            // 別カレンダーにある場合は削除して新規作成
+            Logger.info(
+              `イベント "${garoonEvent.subject}" を別カレンダーに移動します。`,
+            );
+            this.gCalDao.deleteEventOnCalendar(
+              existingResult.calendarId,
+              existingResult.event,
+            );
+            this.gCalDao.createEventOnCalendar(targetCalendarId, garoonEvent);
+          } else {
+            // 同じカレンダーにある場合は更新
+            this.gCalDao.updateEventOnCalendar(
+              targetCalendarId,
+              existingResult.event,
+              garoonEvent,
+            );
+          }
+        } else {
+          // 新規作成
+          this.gCalDao.createEventOnCalendar(targetCalendarId, garoonEvent);
+        }
       }
     }
 
@@ -58,15 +146,57 @@ class SyncEventService {
       }
     }
 
-    // 更新処理
+    // 更新処理（タグに基づいてカレンダーを振り分け）
     if (garoonEditedEvents.update.length > 0) {
       Logger.info(`Updating ${garoonEditedEvents.update.length} events...`);
       for (const eventArray of garoonEditedEvents.update) {
-        this.gCalDao.updateEvent(eventArray);
+        const [oldGCalEvent, newGaroonEvent] = eventArray;
+        const targetCalendarId = this.getTargetCalendarId(newGaroonEvent);
+
+        // 現在のイベントがどのカレンダーにあるか確認
+        const currentCalendarId = this.findEventCalendarId(
+          oldGCalEvent,
+          allCalendarIds,
+          syncTargetTerm,
+        );
+
+        if (currentCalendarId && currentCalendarId !== targetCalendarId) {
+          // カレンダーが変わる場合は削除して新規作成
+          Logger.info(
+            `イベント "${newGaroonEvent.subject}" を別カレンダーに移動します。`,
+          );
+          this.gCalDao.deleteEvent(oldGCalEvent);
+          this.gCalDao.createEventOnCalendar(targetCalendarId, newGaroonEvent);
+        } else {
+          // 同じカレンダーの場合は通常の更新
+          this.gCalDao.updateEvent(eventArray);
+        }
       }
     }
 
     Logger.info('Sync Garoon To GCal: END');
+  }
+
+  /**
+   * イベントが存在するカレンダーIDを特定
+   * @param {GoogleAppsScript.Calendar.CalendarEvent} gCalEvent - GCalイベント
+   * @param {string[]} calendarIds - 検索対象カレンダーID配列
+   * @param {DatetimeTerm} term - 検索期間
+   * @returns {string|null} カレンダーID
+   */
+  findEventCalendarId(gCalEvent, calendarIds, term) {
+    const uniqueId = gCalEvent.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID);
+    if (!uniqueId) {
+      return this.getDefaultCalendarId();
+    }
+
+    const result = this.gCalDao.findEventByGaroonIdAcrossCalendars(
+      calendarIds,
+      uniqueId,
+      term,
+    );
+
+    return result ? result.calendarId : this.getDefaultCalendarId();
   }
 
   /**

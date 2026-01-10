@@ -17,6 +17,7 @@ class ServiceContainer {
     this.gCalEventService = null;
     this.garoonDao = null;
     this.gCalDao = null;
+    this.tagParser = null;
   }
 
   /**
@@ -57,13 +58,20 @@ class ServiceContainer {
     this.gCal = new GCal(this.config.getCalendarName(), this.config);
 
     // ============================================================
-    // Phase 2: 基本サービスの初期化
+    // Phase 2: タグパーサーの初期化
+    // ============================================================
+
+    const syncTargetCalendars = this.config.getSyncTargetCalendars();
+    this.tagParser = new TagParser(syncTargetCalendars);
+
+    // ============================================================
+    // Phase 3: 基本サービスの初期化
     // ============================================================
 
     this.garoonApiService = new GaroonApiService(this.garoonUser);
 
     // ============================================================
-    // Phase 3: DAO層の初期化（イベントサービスは後で設定）
+    // Phase 4: DAO層の初期化（イベントサービスは後で設定）
     // ============================================================
 
     this.garoonDao = new GaroonDao(this.garoonApiService);
@@ -71,13 +79,16 @@ class ServiceContainer {
     this.gCalDao = new GCalDao(this.gCal, this.config);
 
     // ============================================================
-    // Phase 4: イベントサービスの初期化（循環参照対策）
+    // Phase 5: イベントサービスの初期化（循環参照対策）
     // GaroonEventService と GCalEventService は相互参照するため、
     // 片方を先に作成し、後からプロパティセッターで接続
     // ============================================================
 
     // GaroonEventService を先に作成（gCalEventService は後で設定）
     this.garoonEventService = new GaroonEventService(this.garoonDao);
+
+    // TagParserを設定
+    this.garoonEventService.setTagParser(this.tagParser);
 
     // GCalEventService を作成（garoonEventService を注入）
     this.gCalEventService = new GCalEventService(
@@ -89,7 +100,7 @@ class ServiceContainer {
     this.garoonEventService.gCalEventService = this.gCalEventService;
 
     // ============================================================
-    // Phase 5: DAO層にイベントサービスを設定
+    // Phase 6: DAO層にイベントサービスを設定
     // ============================================================
 
     this.garoonDao.garoonEventService = this.garoonEventService;
@@ -97,10 +108,14 @@ class ServiceContainer {
     this.gCalDao.gCalEventService = this.gCalEventService;
 
     // ============================================================
-    // Phase 6: 同期サービスの初期化
+    // Phase 7: 同期サービスの初期化
     // ============================================================
 
-    this.syncEventService = new SyncEventService(this.gCalDao, this.garoonDao);
+    this.syncEventService = new SyncEventService(
+      this.gCalDao,
+      this.garoonDao,
+      this.config,
+    );
 
     Logger.info('ServiceContainer: Dependencies initialized successfully');
   }
@@ -244,5 +259,13 @@ class ServiceContainer {
    */
   getGCalDao() {
     return this.gCalDao;
+  }
+
+  /**
+   * TagParserを取得
+   * @returns {TagParser}
+   */
+  getTagParser() {
+    return this.tagParser;
   }
 }
