@@ -153,7 +153,7 @@ class ServiceContainer {
         throw new Error(
           `Calendar initialization failed for "${calendarName}": ${error.message}. ` +
             `Please check: (1) Google Calendar API permissions, (2) calendar name validity, ` +
-            `(3) API quota limits, and (4) ScriptProperties configuration.`,
+            `(3) API quota limits, and (4) ScriptProperties "SyncTargetCalendars" configuration.`,
         );
       }
     }
