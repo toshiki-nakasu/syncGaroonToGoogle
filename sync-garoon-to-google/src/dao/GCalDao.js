@@ -146,6 +146,28 @@ class GCalDao extends BaseDao {
   }
 
   /**
+   * カレンダーIDキャッシュをクリア
+   * カレンダーが外部で削除または名前変更された場合に使用
+   */
+  clearCalendarIdCache() {
+    this._calendarIdCache.clear();
+    Logger.info('Calendar ID cache cleared');
+  }
+
+  /**
+   * 特定のカレンダー名のキャッシュエントリを無効化
+   * @param {string} calendarName - 無効化するカレンダー名
+   * @returns {boolean} エントリが存在して削除された場合はtrue
+   */
+  invalidateCalendarIdCache(calendarName) {
+    const deleted = this._calendarIdCache.delete(calendarName);
+    if (deleted) {
+      Logger.info(`Calendar ID cache invalidated for: ${calendarName}`);
+    }
+    return deleted;
+  }
+
+  /**
    * カレンダーIDからカレンダーオブジェクトを取得
    * @param {string} calendarId - カレンダーID
    * @returns {GoogleAppsScript.Calendar.Calendar|null} カレンダーオブジェクト
