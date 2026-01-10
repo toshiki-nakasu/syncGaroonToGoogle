@@ -158,8 +158,10 @@ class GCalDao extends BaseDao {
    * 特定のカレンダー名のキャッシュエントリを無効化
    * @param {string} calendarName - 無効化するカレンダー名
    * @returns {boolean} エントリが存在して削除された場合はtrue
+   * @throws {Error} calendarNameが空または無効な場合
    */
   invalidateCalendarIdCache(calendarName) {
+    Validator.validateRequired(calendarName, 'calendarName', 'GCalDao');
     const deleted = this._calendarIdCache.delete(calendarName);
     if (deleted) {
       Logger.info(`Calendar ID cache invalidated for: ${calendarName}`);
