@@ -53,6 +53,6 @@ function setScriptProperties() {
     // タグなし: CalendarName で指定したカレンダーに同期
     // #nosync: 同期しない（最優先）
     // #<タグ名>: 配列に含まれるタグ名のカレンダーに同期
-    SyncTargetCalendars: JSON.stringify(['family']),
+    SyncTargetCalendars: JSON.stringify(['private']),
   });
 }
