@@ -117,7 +117,50 @@ class ServiceContainer {
       this.config,
     );
 
+    // ============================================================
+    // Phase 8: カレンダーの事前初期化
+    // すべての対象カレンダーを初期化時に作成・検証することで、
+    // 同期処理中の予期しない遅延やエラーを防ぐ
+    // ============================================================
+
+    this.initializeTargetCalendars();
+
     Logger.info('ServiceContainer: Dependencies initialized successfully');
+  }
+
+  /**
+   * 同期対象のカレンダーを事前に初期化
+   * 設定で指定されたすべてのカレンダーを取得または作成し、
+   * カレンダーIDをキャッシュに保存する
+   * 
+   * このメソッドは ServiceContainer.initialize() の Phase 8 で呼び出され、
+   * 同期処理が開始される前にすべてのカレンダーを検証・作成します。
+   * これにより、同期処理中の予期しない遅延やエラーを防ぎます。
+   */
+  initializeTargetCalendars() {
+    Logger.info('ServiceContainer: Initializing target calendars...');
+
+    const syncTargetCalendars = this.config.getSyncTargetCalendars();
+    for (const calendarName of syncTargetCalendars) {
+      try {
+        // カレンダーを取得または作成し、IDをキャッシュに保存
+        this.gCalDao.getOrCreateCalendarId(calendarName);
+        Logger.info(`Successfully initialized calendar: "${calendarName}"`);
+      } catch (error) {
+        Logger.error(
+          `Failed to initialize calendar "${calendarName}": ${error.message}`,
+        );
+        throw new Error(
+          `Calendar initialization failed for "${calendarName}": ${error.message}. ` +
+            `Please check: (1) Google Calendar API permissions, (2) calendar name validity, ` +
+            `(3) API quota limits, and (4) ScriptProperties "SyncTargetCalendars" configuration.`,
+        );
+      }
+    }
+
+    Logger.info(
+      `ServiceContainer: Successfully initialized ${syncTargetCalendars.length} target calendar(s)`,
+    );
   }
 
   /**
