@@ -39,8 +39,8 @@ class TagParser {
       return result;
     }
 
-    // タグを抽出 (#で始まる単語)
-    const tagPattern = /#(\w+)/g;
+    // タグを抽出 (#で始まる単語相当: 英数字・アンダースコア・ハイフン・ドット)
+    const tagPattern = /#([\w.-]+)/g;
     const matches = notes.matchAll(tagPattern);
 
     const detectedTags = [];
