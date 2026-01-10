@@ -39,6 +39,10 @@ class GCalDao extends BaseDao {
     this._gCalEventService = null;
     // カレンダーIDキャッシュ (カレンダー名 -> カレンダーID)
     this._calendarIdCache = new Map();
+    // イベントキャッシュ (カレンダーID -> イベント配列)
+    this._eventCache = new Map();
+    // キャッシュが有効かどうかのフラグ
+    this._cacheEnabled = false;
   }
 
   /**
@@ -431,6 +435,72 @@ class GCalDao extends BaseDao {
   }
 
   /**
+   * イベントキャッシュをウォームアップ（事前取得）
+   * @param {string[]} calendarIds - カレンダーID配列
+   * @param {DatetimeTerm} term - 検索期間
+   * @throws {Error} calendarIds が配列でない場合、または term が無効な場合
+   */
+  warmupEventCache(calendarIds, term) {
+    // パラメータ検証
+    if (!Array.isArray(calendarIds)) {
+      throw new Error('calendarIds must be an array');
+    }
+    if (!term || !term.start || !term.end) {
+      throw new Error('term must have valid start and end dates');
+    }
+
+    Logger.info(
+      `イベントキャッシュをウォームアップ中: ${calendarIds.length}個のカレンダー`,
+    );
+    this._eventCache.clear();
+    this._cacheEnabled = true;
+
+    let successCount = 0;
+    for (const calendarId of calendarIds) {
+      try {
+        this.executeWithErrorHandling(() => {
+          const calendar = CalendarApp.getCalendarById(calendarId);
+          if (!calendar) {
+            Logger.warn(
+              `カレンダーが見つかりません: ${calendarId} - キャッシュに空配列を設定`,
+            );
+            // キャッシュの一貫性を保つため、空配列を設定
+            this._eventCache.set(calendarId, []);
+            return;
+          }
+
+          const events = calendar.getEvents(term.start, term.end);
+          this._eventCache.set(calendarId, events);
+          successCount++;
+          Logger.info(
+            `カレンダー ${calendarId}: ${events.length}個のイベントをキャッシュしました`,
+          );
+        }, 'GCalDao.warmupEventCache');
+      } catch (error) {
+        // エラーが発生した場合でも、他のカレンダーの処理を続行
+        Logger.warn(
+          `カレンダー ${calendarId} のキャッシュ取得中にエラーが発生しました: ${error.message}`,
+        );
+        // 空配列を設定して一貫性を保つ
+        this._eventCache.set(calendarId, []);
+      }
+    }
+
+    Logger.info(
+      `イベントキャッシュのウォームアップが完了しました (${successCount}/${calendarIds.length}個のカレンダーから取得成功)`,
+    );
+  }
+
+  /**
+   * イベントキャッシュをクリア
+   */
+  clearEventCache() {
+    this._eventCache.clear();
+    this._cacheEnabled = false;
+    Logger.info('イベントキャッシュをクリアしました');
+  }
+
+  /**
    * 指定カレンダーからGaroonユニークIDでイベントを検索
    * @param {string} calendarId - カレンダーID
    * @param {string} garoonUniqueId - GaroonユニークID
@@ -439,12 +509,22 @@ class GCalDao extends BaseDao {
    */
   findEventByGaroonIdOnCalendar(calendarId, garoonUniqueId, term) {
     return this.executeWithErrorHandling(() => {
-      const calendar = CalendarApp.getCalendarById(calendarId);
-      if (!calendar) {
-        return null;
+      let events;
+
+      // キャッシュが有効な場合はキャッシュから取得（単一のgetで最適化）
+      const cachedEvents = this._eventCache.get(calendarId);
+      if (this._cacheEnabled && cachedEvents !== undefined) {
+        events = cachedEvents;
+      } else {
+        // キャッシュが無効な場合は通常通りAPIから取得
+        const calendar = CalendarApp.getCalendarById(calendarId);
+        if (!calendar) {
+          return null;
+        }
+        events = calendar.getEvents(term.start, term.end);
       }
 
-      const events = calendar.getEvents(term.start, term.end);
+      // イベントを検索
       for (const event of events) {
         const tagId = event.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID);
         if (tagId === garoonUniqueId) {

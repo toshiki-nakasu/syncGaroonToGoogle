@@ -103,9 +103,14 @@ class SyncEventService {
     // 全対象カレンダーIDを取得
     const allCalendarIds = this.getAllTargetCalendarIds();
 
-    // 作成処理（タグに基づいてカレンダーを振り分け）
-    if (garoonEditedEvents.create.length > 0) {
-      Logger.info(`Creating ${garoonEditedEvents.create.length} events...`);
+    // パフォーマンス最適化: イベントキャッシュをウォームアップ
+    // 複数回のgetEvents()呼び出しを避けるため、事前に全カレンダーのイベントを取得
+    this.gCalDao.warmupEventCache(allCalendarIds, syncTargetTerm);
+
+    try {
+      // 作成処理（タグに基づいてカレンダーを振り分け）
+      if (garoonEditedEvents.create.length > 0) {
+        Logger.info(`Creating ${garoonEditedEvents.create.length} events...`);
       for (const garoonEvent of garoonEditedEvents.create) {
         const targetCalendarId = this.getTargetCalendarId(garoonEvent);
 
@@ -179,6 +184,10 @@ class SyncEventService {
     }
 
     Logger.info('Sync Garoon To GCal: END');
+    } finally {
+      // キャッシュをクリア
+      this.gCalDao.clearEventCache();
+    }
   }
 
   /**
