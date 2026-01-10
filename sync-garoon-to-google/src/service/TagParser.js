@@ -46,12 +46,13 @@ class TagParser {
     const detectedTags = [];
     const matchingCalendarTags = [];
     let hasNosync = false;
+    const notSyncTag = String(Constants.GAROON_TO_GCAL_NOT_SYNC_TAG).toLowerCase();
 
     for (const match of matches) {
       const tagName = match[1].toLowerCase();
       detectedTags.push(tagName);
 
-      if (tagName === Constants.GAROON_TO_GCAL_NOT_SYNC_TAG) {
+      if (tagName === notSyncTag) {
         hasNosync = true;
       } else {
         // 登録済みカレンダーと一致するかチェック (大文字小文字を区別しない)
