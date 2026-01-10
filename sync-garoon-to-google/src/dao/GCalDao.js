@@ -39,6 +39,10 @@ class GCalDao extends BaseDao {
     this._gCalEventService = null;
     // カレンダーIDキャッシュ (カレンダー名 -> カレンダーID)
     this._calendarIdCache = new Map();
+    // イベントキャッシュ (カレンダーID -> イベント配列)
+    this._eventCache = new Map();
+    // キャッシュが有効かどうかのフラグ
+    this._cacheEnabled = false;
   }
 
   /**
@@ -413,6 +417,46 @@ class GCalDao extends BaseDao {
   }
 
   /**
+   * イベントキャッシュをウォームアップ（事前取得）
+   * @param {string[]} calendarIds - カレンダーID配列
+   * @param {DatetimeTerm} term - 検索期間
+   */
+  warmupEventCache(calendarIds, term) {
+    Logger.info(
+      `イベントキャッシュをウォームアップ中: ${calendarIds.length}個のカレンダー`,
+    );
+    this._eventCache.clear();
+    this._cacheEnabled = true;
+
+    for (const calendarId of calendarIds) {
+      this.executeWithErrorHandling(() => {
+        const calendar = CalendarApp.getCalendarById(calendarId);
+        if (!calendar) {
+          Logger.warn(`カレンダーが見つかりません: ${calendarId}`);
+          return;
+        }
+
+        const events = calendar.getEvents(term.start, term.end);
+        this._eventCache.set(calendarId, events);
+        Logger.info(
+          `カレンダー ${calendarId}: ${events.length}個のイベントをキャッシュしました`,
+        );
+      }, 'GCalDao.warmupEventCache');
+    }
+
+    Logger.info('イベントキャッシュのウォームアップが完了しました');
+  }
+
+  /**
+   * イベントキャッシュをクリア
+   */
+  clearEventCache() {
+    this._eventCache.clear();
+    this._cacheEnabled = false;
+    Logger.info('イベントキャッシュをクリアしました');
+  }
+
+  /**
    * 指定カレンダーからGaroonユニークIDでイベントを検索
    * @param {string} calendarId - カレンダーID
    * @param {string} garoonUniqueId - GaroonユニークID
@@ -421,12 +465,21 @@ class GCalDao extends BaseDao {
    */
   findEventByGaroonIdOnCalendar(calendarId, garoonUniqueId, term) {
     return this.executeWithErrorHandling(() => {
-      const calendar = CalendarApp.getCalendarById(calendarId);
-      if (!calendar) {
-        return null;
+      let events;
+
+      // キャッシュが有効な場合はキャッシュから取得
+      if (this._cacheEnabled && this._eventCache.has(calendarId)) {
+        events = this._eventCache.get(calendarId);
+      } else {
+        // キャッシュが無効な場合は通常通りAPIから取得
+        const calendar = CalendarApp.getCalendarById(calendarId);
+        if (!calendar) {
+          return null;
+        }
+        events = calendar.getEvents(term.start, term.end);
       }
 
-      const events = calendar.getEvents(term.start, term.end);
+      // イベントを検索
       for (const event of events) {
         const tagId = event.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID);
         if (tagId === garoonUniqueId) {
