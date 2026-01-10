@@ -146,6 +146,22 @@ class GCalDao extends BaseDao {
   }
 
   /**
+   * カレンダー名からカレンダーIDをキャッシュから取得
+   * キャッシュに存在しない場合はエラー
+   * @param {string} calendarName - カレンダー名
+   * @returns {string} カレンダーID
+   * @throws {Error} キャッシュに存在しない場合
+   */
+  getCalendarIdFromCache(calendarName) {
+    if (!this._calendarIdCache.has(calendarName)) {
+      throw new Error(
+        `Calendar "${calendarName}" not found in cache. It should have been initialized during ServiceContainer.initialize()`,
+      );
+    }
+    return this._calendarIdCache.get(calendarName);
+  }
+
+  /**
    * カレンダーIDからカレンダーオブジェクトを取得
    * @param {string} calendarId - カレンダーID
    * @returns {GoogleAppsScript.Calendar.Calendar|null} カレンダーオブジェクト
