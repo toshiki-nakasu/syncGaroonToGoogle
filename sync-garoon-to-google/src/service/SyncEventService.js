@@ -51,14 +51,16 @@ class SyncEventService {
    */
   getAllTargetCalendarIds() {
     const calendarIds = [this.getDefaultCalendarId()];
+    const calendarIdSet = new Set(calendarIds);
 
     // 登録済みカレンダーのIDも追加
     const syncTargetCalendars = this.config.getSyncTargetCalendars();
     for (const calendarName of syncTargetCalendars) {
       try {
         const calendarId = this.gCalDao.getOrCreateCalendarId(calendarName);
-        if (!calendarIds.includes(calendarId)) {
+        if (!calendarIdSet.has(calendarId)) {
           calendarIds.push(calendarId);
+          calendarIdSet.add(calendarId);
         }
       } catch (error) {
         Logger.warn(
