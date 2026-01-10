@@ -420,8 +420,17 @@ class GCalDao extends BaseDao {
    * イベントキャッシュをウォームアップ（事前取得）
    * @param {string[]} calendarIds - カレンダーID配列
    * @param {DatetimeTerm} term - 検索期間
+   * @throws {Error} calendarIds が配列でない場合、または term が無効な場合
    */
   warmupEventCache(calendarIds, term) {
+    // パラメータ検証
+    if (!Array.isArray(calendarIds)) {
+      throw new Error('calendarIds must be an array');
+    }
+    if (!term || !term.start || !term.end) {
+      throw new Error('term must have valid start and end dates');
+    }
+
     Logger.info(
       `イベントキャッシュをウォームアップ中: ${calendarIds.length}個のカレンダー`,
     );
@@ -432,7 +441,11 @@ class GCalDao extends BaseDao {
       this.executeWithErrorHandling(() => {
         const calendar = CalendarApp.getCalendarById(calendarId);
         if (!calendar) {
-          Logger.warn(`カレンダーが見つかりません: ${calendarId}`);
+          Logger.warn(
+            `カレンダーが見つかりません: ${calendarId} - キャッシュに空配列を設定`,
+          );
+          // キャッシュの一貫性を保つため、空配列を設定
+          this._eventCache.set(calendarId, []);
           return;
         }
 
