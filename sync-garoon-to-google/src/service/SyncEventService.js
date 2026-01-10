@@ -194,7 +194,7 @@ class SyncEventService {
     const uniqueId = gCalEvent.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID);
     if (!uniqueId) {
       Logger.warn(
-        'イベントにGaroon固有IDタグが存在しません。これは手動で作成されたイベントの場合に発生する可能性があります。デフォルトカレンダーで処理を続行します。',
+        'イベントにGaroon固有IDタグが存在しません。これは手動で作成されたイベントの場合に発生する可能性があります。',
         { eventId: gCalEvent.getId() },
       );
       return null;
@@ -208,7 +208,7 @@ class SyncEventService {
 
     if (!result) {
       Logger.warn(
-        'イベントが指定されたカレンダーに見つかりませんでした。イベントが削除された、別のカレンダーに移動された、または同期が古い可能性があります。デフォルトカレンダーで処理を続行します。',
+        'イベントが指定されたカレンダーに見つかりませんでした。イベントが削除された、別のカレンダーに移動された、または同期が古い可能性があります。',
         { uniqueId, calendarIds },
       );
       return null;
