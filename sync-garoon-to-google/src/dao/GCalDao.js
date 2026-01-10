@@ -150,21 +150,27 @@ class GCalDao extends BaseDao {
   }
 
   /**
-   * カレンダー名からカレンダーIDをキャッシュから取得
-   * キャッシュに存在しない場合はエラー
-   * @param {string} calendarName - カレンダー名
-   * @returns {string} カレンダーID
-   * @throws {Error} キャッシュに存在しない場合
+   * カレンダーIDキャッシュをクリア
+   * カレンダーが外部で削除または名前変更された場合に使用
    */
-  getCalendarIdFromCache(calendarName) {
-    if (!this._calendarIdCache.has(calendarName)) {
-      throw new Error(
-        `Calendar "${calendarName}" not found in cache. It should have been initialized during ServiceContainer.initializeTargetCalendars(). ` +
-          `Please check: (1) ScriptProperties "SyncTargetCalendars" configuration includes "${calendarName}", ` +
-          `(2) ServiceContainer.initialize() was called before sync operations.`,
-      );
+  clearCalendarIdCache() {
+    this._calendarIdCache.clear();
+    Logger.info('Calendar ID cache cleared');
+  }
+
+  /**
+   * 特定のカレンダー名のキャッシュエントリを無効化
+   * @param {string} calendarName - 無効化するカレンダー名
+   * @returns {boolean} エントリが存在して削除された場合はtrue
+   * @throws {Error} calendarNameが空または無効な場合
+   */
+  invalidateCalendarIdCache(calendarName) {
+    Validator.validateRequired(calendarName, 'calendarName', 'GCalDao');
+    const deleted = this._calendarIdCache.delete(calendarName);
+    if (deleted) {
+      Logger.info(`Calendar ID cache invalidated for: ${calendarName}`);
     }
-    return this._calendarIdCache.get(calendarName);
+    return deleted;
   }
 
   /**
