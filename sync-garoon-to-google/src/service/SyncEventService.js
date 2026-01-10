@@ -41,8 +41,9 @@ class SyncEventService {
       return this.getDefaultCalendarId();
     }
 
-    // タグで指定されたカレンダーのIDを取得（存在しなければ作成）
-    return this.gCalDao.getOrCreateCalendarId(syncInfo.targetCalendar);
+    // タグで指定されたカレンダーのIDを取得
+    // カレンダーは初期化時に作成済みのため、キャッシュから取得
+    return this.gCalDao.getCalendarIdFromCache(syncInfo.targetCalendar);
   }
 
   /**
@@ -54,10 +55,11 @@ class SyncEventService {
     const calendarIdSet = new Set(calendarIds);
 
     // 登録済みカレンダーのIDも追加
+    // カレンダーは初期化時に作成済みのため、キャッシュから取得
     const syncTargetCalendars = this.config.getSyncTargetCalendars();
     for (const calendarName of syncTargetCalendars) {
       try {
-        const calendarId = this.gCalDao.getOrCreateCalendarId(calendarName);
+        const calendarId = this.gCalDao.getCalendarIdFromCache(calendarName);
         if (!calendarIdSet.has(calendarId)) {
           calendarIds.push(calendarId);
           calendarIdSet.add(calendarId);
