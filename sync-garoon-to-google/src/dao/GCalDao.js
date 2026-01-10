@@ -155,7 +155,7 @@ class GCalDao extends BaseDao {
   getCalendarIdFromCache(calendarName) {
     if (!this._calendarIdCache.has(calendarName)) {
       throw new Error(
-        `Calendar "${calendarName}" not found in cache. It should have been initialized during ServiceContainer.initialize()`,
+        `Calendar "${calendarName}" not found in cache. It should have been initialized during ServiceContainer.initializeTargetCalendars()`,
       );
     }
     return this._calendarIdCache.get(calendarName);
