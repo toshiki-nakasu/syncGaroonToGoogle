@@ -127,11 +127,8 @@ class SyncEventService {
               existingResult.event,
             );
             this.gCalDao.createEventOnCalendar(targetCalendarId, garoonEvent);
-            // インデックスを更新
-            existingEventsIndex.set(garoonEvent.uniqueId, {
-              event: null,
-              calendarId: targetCalendarId,
-            });
+            // インデックスを更新（移動後のカレンダーIDを記録）
+            existingEventsIndex.delete(garoonEvent.uniqueId);
           } else {
             // 同じカレンダーにある場合は更新
             this.gCalDao.updateEventOnCalendar(
@@ -178,12 +175,9 @@ class SyncEventService {
           );
           this.gCalDao.deleteEvent(oldGCalEvent);
           this.gCalDao.createEventOnCalendar(targetCalendarId, newGaroonEvent);
-          // インデックスを更新
+          // インデックスを更新（移動後は後続の検索では使用されない）
           if (uniqueId) {
-            existingEventsIndex.set(uniqueId, {
-              event: null,
-              calendarId: targetCalendarId,
-            });
+            existingEventsIndex.delete(uniqueId);
           }
         } else {
           // 同じカレンダーの場合は通常の更新
@@ -229,6 +223,10 @@ class SyncEventService {
             // 既に存在する場合は上書きしない（最初に見つかったものを保持）
             if (!index.has(uniqueId)) {
               index.set(uniqueId, { event, calendarId });
+            } else {
+              Logger.warn(
+                `重複イベント検出: uniqueId=${uniqueId} は既にインデックスに存在します (カレンダー: ${calendarId})`,
+              );
             }
           }
         }
