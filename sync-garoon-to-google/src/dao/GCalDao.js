@@ -437,6 +437,7 @@ class GCalDao extends BaseDao {
     this._eventCache.clear();
     this._cacheEnabled = true;
 
+    let successCount = 0;
     for (const calendarId of calendarIds) {
       this.executeWithErrorHandling(() => {
         const calendar = CalendarApp.getCalendarById(calendarId);
@@ -451,13 +452,16 @@ class GCalDao extends BaseDao {
 
         const events = calendar.getEvents(term.start, term.end);
         this._eventCache.set(calendarId, events);
+        successCount++;
         Logger.info(
           `カレンダー ${calendarId}: ${events.length}個のイベントをキャッシュしました`,
         );
       }, 'GCalDao.warmupEventCache');
     }
 
-    Logger.info('イベントキャッシュのウォームアップが完了しました');
+    Logger.info(
+      `イベントキャッシュのウォームアップが完了しました (${successCount}/${calendarIds.length}個のカレンダーから取得成功)`,
+    );
   }
 
   /**
@@ -480,9 +484,10 @@ class GCalDao extends BaseDao {
     return this.executeWithErrorHandling(() => {
       let events;
 
-      // キャッシュが有効な場合はキャッシュから取得
-      if (this._cacheEnabled && this._eventCache.has(calendarId)) {
-        events = this._eventCache.get(calendarId);
+      // キャッシュが有効な場合はキャッシュから取得（単一のgetで最適化）
+      const cachedEvents = this._eventCache.get(calendarId);
+      if (this._cacheEnabled && cachedEvents !== undefined) {
+        events = cachedEvents;
       } else {
         // キャッシュが無効な場合は通常通りAPIから取得
         const calendar = CalendarApp.getCalendarById(calendarId);
