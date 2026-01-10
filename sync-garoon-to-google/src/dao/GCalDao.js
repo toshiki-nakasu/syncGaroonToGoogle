@@ -439,24 +439,33 @@ class GCalDao extends BaseDao {
 
     let successCount = 0;
     for (const calendarId of calendarIds) {
-      this.executeWithErrorHandling(() => {
-        const calendar = CalendarApp.getCalendarById(calendarId);
-        if (!calendar) {
-          Logger.warn(
-            `カレンダーが見つかりません: ${calendarId} - キャッシュに空配列を設定`,
-          );
-          // キャッシュの一貫性を保つため、空配列を設定
-          this._eventCache.set(calendarId, []);
-          return;
-        }
+      try {
+        this.executeWithErrorHandling(() => {
+          const calendar = CalendarApp.getCalendarById(calendarId);
+          if (!calendar) {
+            Logger.warn(
+              `カレンダーが見つかりません: ${calendarId} - キャッシュに空配列を設定`,
+            );
+            // キャッシュの一貫性を保つため、空配列を設定
+            this._eventCache.set(calendarId, []);
+            return;
+          }
 
-        const events = calendar.getEvents(term.start, term.end);
-        this._eventCache.set(calendarId, events);
-        successCount++;
-        Logger.info(
-          `カレンダー ${calendarId}: ${events.length}個のイベントをキャッシュしました`,
+          const events = calendar.getEvents(term.start, term.end);
+          this._eventCache.set(calendarId, events);
+          successCount++;
+          Logger.info(
+            `カレンダー ${calendarId}: ${events.length}個のイベントをキャッシュしました`,
+          );
+        }, 'GCalDao.warmupEventCache');
+      } catch (error) {
+        // エラーが発生した場合でも、他のカレンダーの処理を続行
+        Logger.warn(
+          `カレンダー ${calendarId} のキャッシュ取得中にエラーが発生しました: ${error.message}`,
         );
-      }, 'GCalDao.warmupEventCache');
+        // 空配列を設定して一貫性を保つ
+        this._eventCache.set(calendarId, []);
+      }
     }
 
     Logger.info(
