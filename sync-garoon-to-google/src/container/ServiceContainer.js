@@ -132,6 +132,10 @@ class ServiceContainer {
    * 同期対象のカレンダーを事前に初期化
    * 設定で指定されたすべてのカレンダーを取得または作成し、
    * カレンダーIDをキャッシュに保存する
+   * 
+   * このメソッドは ServiceContainer.initialize() の Phase 8 で呼び出され、
+   * 同期処理が開始される前にすべてのカレンダーを検証・作成します。
+   * これにより、同期処理中の予期しない遅延やエラーを防ぎます。
    */
   initializeTargetCalendars() {
     Logger.info('ServiceContainer: Initializing target calendars...');
@@ -147,7 +151,9 @@ class ServiceContainer {
           `Failed to initialize calendar "${calendarName}": ${error.message}`,
         );
         throw new Error(
-          `Calendar initialization failed for "${calendarName}": ${error.message}`,
+          `Calendar initialization failed for "${calendarName}": ${error.message}. ` +
+            `Please check: (1) Google Calendar API permissions, (2) calendar name validity, ` +
+            `(3) API quota limits, and (4) ScriptProperties configuration.`,
         );
       }
     }
