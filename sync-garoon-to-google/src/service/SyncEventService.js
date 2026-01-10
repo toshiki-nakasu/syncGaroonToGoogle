@@ -162,6 +162,7 @@ class SyncEventService {
         const targetCalendarId = this.getTargetCalendarId(newGaroonEvent);
 
         // マップから現在のカレンダーIDを取得（O(1)）
+        // マップに存在しない場合はデフォルトカレンダーIDを使用
         const uniqueId = oldGCalEvent.getTag(
           Constants.TAG_GAROON_UNIQUE_EVENT_ID,
         );
@@ -223,7 +224,7 @@ class SyncEventService {
    * @param {GoogleAppsScript.Calendar.CalendarEvent} gCalEvent - GCalイベント
    * @param {string[]} calendarIds - 検索対象カレンダーID配列
    * @param {DatetimeTerm} term - 検索期間
-   * @returns {string|null} カレンダーID
+   * @returns {string} カレンダーID（見つからない場合はデフォルトカレンダーID）
    */
   findEventCalendarId(gCalEvent, calendarIds, term) {
     const uniqueId = gCalEvent.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID);
