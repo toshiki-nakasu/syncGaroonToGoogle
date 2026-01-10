@@ -101,6 +101,12 @@ class SyncEventService {
     // 全対象カレンダーIDを取得
     const allCalendarIds = this.getAllTargetCalendarIds();
 
+    // イベントIDからカレンダーIDへのマッピングを構築（更新時の高速検索用）
+    const eventCalendarMap = this.buildEventCalendarMap(
+      allCalendarIds,
+      syncTargetTerm,
+    );
+
     // 作成処理（タグに基づいてカレンダーを振り分け）
     if (garoonEditedEvents.create.length > 0) {
       Logger.info(`Creating ${garoonEditedEvents.create.length} events...`);
@@ -155,14 +161,14 @@ class SyncEventService {
         const [oldGCalEvent, newGaroonEvent] = eventArray;
         const targetCalendarId = this.getTargetCalendarId(newGaroonEvent);
 
-        // 現在のイベントがどのカレンダーにあるか確認
-        const currentCalendarId = this.findEventCalendarId(
-          oldGCalEvent,
-          allCalendarIds,
-          syncTargetTerm,
+        // マップから現在のカレンダーIDを取得（O(1)）
+        const uniqueId = oldGCalEvent.getTag(
+          Constants.TAG_GAROON_UNIQUE_EVENT_ID,
         );
+        const currentCalendarId =
+          eventCalendarMap.get(uniqueId) || this.getDefaultCalendarId();
 
-        if (currentCalendarId && currentCalendarId !== targetCalendarId) {
+        if (currentCalendarId !== targetCalendarId) {
           // カレンダーが変わる場合は削除して新規作成
           Logger.info(
             `イベント "${newGaroonEvent.subject}" を別カレンダーに移動します。`,
@@ -180,7 +186,40 @@ class SyncEventService {
   }
 
   /**
+   * 全カレンダーのイベントからGaroon IDとカレンダーIDのマッピングを構築
+   * 更新処理時の高速検索用
+   * @param {string[]} calendarIds - 検索対象カレンダーID配列
+   * @param {DatetimeTerm} term - 検索期間
+   * @returns {Map<string, string>} Garoon Unique ID -> Calendar ID のマップ
+   */
+  buildEventCalendarMap(calendarIds, term) {
+    const map = new Map();
+
+    for (const calendarId of calendarIds) {
+      const calendar = CalendarApp.getCalendarById(calendarId);
+      if (!calendar) {
+        Logger.warn(`カレンダーが見つかりません: ${calendarId}`);
+        continue;
+      }
+
+      const events = calendar.getEvents(term.start, term.end);
+      for (const event of events) {
+        const uniqueId = event.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID);
+        if (uniqueId) {
+          map.set(uniqueId, calendarId);
+        }
+      }
+    }
+
+    Logger.info(
+      `イベントカレンダーマップを構築しました: ${map.size} イベント`,
+    );
+    return map;
+  }
+
+  /**
    * イベントが存在するカレンダーIDを特定
+   * @deprecated 代わりに buildEventCalendarMap() を使用してください
    * @param {GoogleAppsScript.Calendar.CalendarEvent} gCalEvent - GCalイベント
    * @param {string[]} calendarIds - 検索対象カレンダーID配列
    * @param {DatetimeTerm} term - 検索期間
