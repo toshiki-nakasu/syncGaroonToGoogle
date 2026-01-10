@@ -275,6 +275,7 @@ class ConfigManager {
   /**
    * 同期対象のタグ付きカレンダー名の配列を設定
    * @param {string[]} calendars カレンダー名の配列
+   * @throws {Error} calendars が配列でない場合
    */
   setSyncTargetCalendars(calendars) {
     if (!Array.isArray(calendars)) {
