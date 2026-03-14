@@ -1,0 +1,52 @@
+name: Require owner review
+
+on:
+  pull_request_review:
+    types: [submitted, dismissed]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-owner-review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Check for approved review from owner
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const repoOwner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = context.payload.pull_request
+              ? context.payload.pull_request.number
+              : context.payload.review.pull_request.number;
+
+            const reviews = await github.rest.pulls.listReviews({
+              owner: repoOwner,
+              repo,
+              pull_number,
+            });
+
+            // Find the latest review submitted by the repository owner.
+            const ownerReviews = reviews.data.filter(
+              (review) => review.user.login === repoOwner
+            );
+            const latestOwnerReview = ownerReviews.reduce(
+              (latest, review) =>
+                !latest || review.id > latest.id ? review : latest,
+              null
+            );
+
+            const approved =
+              latestOwnerReview && latestOwnerReview.state === "APPROVED";
+
+            if (!approved) {
+              core.setFailed(
+                `This pull request requires an approved review from the repository owner (@${repoOwner}) before it can be merged.`
+              );
+            } else {
+              core.info(
+                `Approved review from @${repoOwner} found. Check passed.`
+              );
+            }
