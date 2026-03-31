@@ -1,3 +1,31 @@
 {
-    "version": "2.0.0"
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "VSCode: Install Recommended Extensions",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "cat .vscode/extensions.json | jq -r '.recommendations[]' | xargs -I {} code --install-extension {}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "group": "none",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "version",
+            "type": "promptString",
+            "description": "バージョン番号を入力 (例: 1.0.0)",
+            "default": "0.1.0"
+        }
+    ]
 }
