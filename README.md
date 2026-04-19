@@ -1,6 +1,8 @@
 # syncGaroonToGoogle
 
-## 環境構築
+Garoon の予定を Google Calendar に同期する Google Apps Script project です。現行実装の同期方向は Garoon から Google Calendar への一方向です。
+
+## 初回セットアップ
 
 1. 設定ファイルを作成
 
@@ -15,18 +17,31 @@
     sh ./script/function/googleLogin.sh
     ```
 
-1. Gasにアップロード
+1. Apps Script project を準備
+    - 既存の Apps Script project にアップロードする場合は、この手順をスキップ
+    - 新規に作成する場合は、以下のいずれかを実行
+
+    ```bash
+    sh ./script/function/setupGas.sh
+    ```
+
+    ```bash
+    cd sync-garoon-to-google
+    npm run setup
+    ```
+
+1. GAS にアップロード
 
     ```bash
     sh ./script/function/publishGas.sh
     ```
 
-## Gasの自動実行を設定
+## GAS の自動実行を設定
 
-1. プロジェクトを手動実行してエラーが出ない事を確認しておくこと
+1. プロジェクトを手動実行してエラーが出ないことを確認しておく
 1. `デプロイ` > `新しいデプロイ` > `ウェブアプリ`
     - アクセスできるユーザーが「自分のみ」になっていることを確認
-1. `デプロイ`ボタンを押下
+1. `デプロイ` ボタンを押下
 1. デプロイされたバージョンを確認しておく
     - **後からバージョンを変更できない**
     - 新たにバージョンアップしてデプロイする場合、再度この手順が必要
@@ -45,12 +60,16 @@
 
 ## 使い方
 
-- Garoonにスケジュールを入れるとトリガーのタイミングで自動的にGoogleCalendarに登録されます。
-- Garoonスケジュールの「メモ」欄に`#nosync`が含まれている場合、同期をしません。
+- Garoon にスケジュールを入れると、トリガーのタイミングで自動的に Google Calendar に登録されます。
+- Garoon スケジュールの「メモ」欄に `#nosync` が含まれている場合は同期しません。
+
+## 関連文書
+
+- [docs/Garoon_GCal\_項目マッピング.md](docs/Garoon_GCal_項目マッピング.md)
+- [docs/Garoon\_在席情報リセット機能.md](docs/Garoon_在席情報リセット機能.md)
+- [docs/Garoon_API\_リファレンス.md](docs/Garoon_API_リファレンス.md)
 
 ## 注意点
 
-- typescriptはclasp使ってgsコンパイルする
-    - うまくいかない (clasp自体の更新が止まっている)
-- exportに対応していない
-- GCal -> Garoon: 繰り返し予定に未対応
+- `import` / `export` を使うモジュール構成には対応していません。
+- Google Calendar から Garoon への同期は未実装です。

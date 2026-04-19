@@ -2,8 +2,7 @@
 
 ## 概要
 
-Garoonに登録されている自分の在席情報（プレゼンス情報）を初期状態にリセットする機能です。
-Google Apps Scriptから簡単に実行でき、ステータスとメモの両方を空の状態に戻すことができます。
+Garoonに登録されている自分の在席情報（プレゼンス情報）を初期状態にリセットする機能です。Google Apps Scriptから簡単に実行でき、ステータスとメモの両方を空の状態に戻すことができます。
 
 ## 機能説明
 
@@ -19,16 +18,16 @@ Garoonの在席情報には以下のような情報が含まれます:
 ### 使用場面
 
 1. **退勤時の情報クリア**
-   - 1日の業務終了時に在席情報をリセット
-   - 翌日の出勤時に前日の情報が残らないようにする
+    - 1日の業務終了時に在席情報をリセット
+    - 翌日の出勤時に前日の情報が残らないようにする
 
 2. **外出・離席状態の解除**
-   - 外出から戻った際に状態を解除
-   - 離席状態を自動的にクリア
+    - 外出から戻った際に状態を解除
+    - 離席状態を自動的にクリア
 
 3. **誤設定の修正**
-   - 誤って設定した在席情報を素早く削除
-   - 不要な情報のクリーンアップ
+    - 誤って設定した在席情報を素早く削除
+    - 不要な情報のクリーンアップ
 
 ## 実行方法
 
@@ -40,20 +39,23 @@ Garoonの在席情報には以下のような情報が含まれます:
 
 ### 処理フロー
 
-```text
-1. ServiceContainer を初期化
-   ↓
-2. GaroonDao を取得
-   ↓
-3. リセット用のリクエストボディを作成
-   {
-     status: { code: '' },
-     notes: ''
-   }
-   ↓
-4. Garoon API (PATCH /presence/users/code/{userCode}) を呼び出し
-   ↓
-5. 完了
+```mermaid
+flowchart TD
+    A[ServiceContainer を初期化] --> B[GaroonDao を取得]
+    B --> C[リセット用のリクエストボディを作成]
+    C --> D[Garoon API を呼び出し]
+    D --> E[完了]
+```
+
+リセット用のリクエストボディ:
+
+```json
+{
+    "status": {
+        "code": ""
+    },
+    "notes": ""
+}
 ```
 
 ### 使用するAPI
@@ -68,10 +70,10 @@ PATCH /g/api/v1/presence/users/code/{userCode}
 
 ```json
 {
-  "status": {
-    "code": ""
-  },
-  "notes": ""
+    "status": {
+        "code": ""
+    },
+    "notes": ""
 }
 ```
 
@@ -88,30 +90,30 @@ PATCH /g/api/v1/presence/users/code/{userCode}
 
 1. **Garoon ドメイン**
 
-   ```javascript
-   PropertiesService.getScriptProperties().setProperty(
-     'GAROON_DOMAIN',
-     'your-subdomain.cybozu.com'
-   );
-   ```
+    ```javascript
+    PropertiesService.getScriptProperties().setProperty(
+        "GAROON_DOMAIN",
+        "your-subdomain.cybozu.com",
+    );
+    ```
 
 2. **Garoon ユーザー名**
 
-   ```javascript
-   PropertiesService.getScriptProperties().setProperty(
-     'GAROON_USER_NAME',
-     'your-username'
-   );
-   ```
+    ```javascript
+    PropertiesService.getScriptProperties().setProperty(
+        "GAROON_USER_NAME",
+        "your-username",
+    );
+    ```
 
 3. **Garoon パスワード**
 
-   ```javascript
-   PropertiesService.getScriptProperties().setProperty(
-     'GAROON_USER_PASSWORD',
-     'your-password'
-   );
-   ```
+    ```javascript
+    PropertiesService.getScriptProperties().setProperty(
+        "GAROON_USER_PASSWORD",
+        "your-password",
+    );
+    ```
 
 ### 権限
 
@@ -121,20 +123,20 @@ PATCH /g/api/v1/presence/users/code/{userCode}
 ## 制限事項
 
 1. **他のユーザーの情報は変更不可**
-   - 自分のアカウントで認証しているため、自分の情報のみが対象
+    - 自分のアカウントで認証しているため、自分の情報のみが対象
 
 2. **ステータスの個別設定は不可**
-   - この関数はリセット専用
-   - 特定のステータスに設定する場合は、`GaroonDao.updatePreference()` を直接使用
+    - この関数はリセット専用
+    - 特定のステータスに設定する場合は、`GaroonDao.updatePreference()` を直接使用
 
 3. **一括処理は非対応**
-   - 1回の実行で1ユーザーのみ
-   - 複数ユーザーの場合は、それぞれの認証情報で個別実行が必要
+    - 1回の実行で1ユーザーのみ
+    - 複数ユーザーの場合は、それぞれの認証情報で個別実行が必要
 
 ## 参考資料
 
 - [Garoon REST API - プレゼンス情報の更新](https://cybozu.dev/ja/garoon/docs/rest-api/presence/users/update-user-presence/)
 - [Garoon REST API - 認証方法](https://cybozu.dev/ja/garoon/docs/rest-api/authentication/)
 - [Google Apps Script - Time-driven triggers](https://developers.google.com/apps-script/guides/triggers/installable#time-driven_triggers)
-- `/workspace/sync-garoon-to-google/src/main/script.js` - `resetPresence()` 関数
-- `/workspace/sync-garoon-to-google/src/dao/GaroonDao.js` - `updatePreference()` メソッド
+- [sync-garoon-to-google/src/main/script.js](../sync-garoon-to-google/src/main/script.js) - `resetPresence()` 関数
+- [sync-garoon-to-google/src/dao/GaroonDao.js](../sync-garoon-to-google/src/dao/GaroonDao.js) - `updatePreference()` メソッド
