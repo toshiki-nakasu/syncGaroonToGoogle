@@ -1,0 +1,11 @@
+{
+    "hooks": {
+        "PreToolUse": [
+            {
+                "type": "command",
+                "command": "bash .github/script/hooks/command-guard.sh",
+                "timeout": 10
+            }
+        ]
+    }
+}

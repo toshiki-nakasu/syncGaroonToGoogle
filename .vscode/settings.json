@@ -1,7 +1,71 @@
 {
-    "cSpell.words": [
-        "clasprc",
-        "GCAL",
-        "nosync"
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[markdown][instructions][chatagent][skill][prompt]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[yaml]": {
+        "diffEditor.ignoreTrimWhitespace": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.tabSize": 2
+    },
+    "autopep8.args": ["--max-line-length", "120"],
+    "cSpell.ignorePaths": ["**/*drawio*", ".git/objects"],
+    "cSpell.words": ["clasprc", "GCAL", "nosync"],
+    "csv-edit.readOption_hasHeader": "true",
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "files.autoGuessEncoding": true,
+    "files.candidateGuessEncodings": ["shiftjis", "utf8"],
+    "files.exclude": {
+        "**/.git": false,
+        "**/.gitignore": false,
+        "**/.gitkeep": true
+    },
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "hediet.vscode-drawio.resizeImages": null,
+    "markdown-mermaid.darkModeTheme": "default",
+    "markdown-preview-github-styles.darkTheme": "light",
+    "prettier.documentSelectors": [
+        "**/*.agent.md",
+        "**/*.instructions.md",
+        "**/*.prompt.md",
+        "**/*.{txt,tmp}",
+        "**/SKILL.md"
+    ],
+    "yaml.customTags": [
+        "!And",
+        "!Base64",
+        "!Cidr",
+        "!Equals",
+        "!Equals sequence",
+        "!FindInMap sequence",
+        "!GetAtt",
+        "!GetAtt sequence",
+        "!GetAZs",
+        "!If",
+        "!If sequence",
+        "!ImportValue",
+        "!Join sequence",
+        "!Not",
+        "!Not sequence",
+        "!Or",
+        "!Ref",
+        "!Select",
+        "!Select sequence",
+        "!Split",
+        "!Split sequence",
+        "!Sub",
+        "!Sub sequence"
     ]
 }
