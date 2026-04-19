@@ -96,7 +96,6 @@ function performSync(container) {
     garoonAllEvents,
     gCalAllEvents,
   );
-  const gCalEditedEvents = gCalEventService.getEditedEvents(garoonAllEvents);
 
   // Garoonの予定をGCalへ同期
   const syncEventService = container.getSyncEventService();
@@ -121,6 +120,7 @@ function performSync(container) {
  * @throws {Error} 日付が不正な場合
  */
 function deleteEventsFrom(fromDate) {
+  let fromDateStr = 'unknown';
   try {
     // 日付のバリデーション
     if (!(fromDate instanceof Date) || isNaN(fromDate.getTime())) {
@@ -136,7 +136,7 @@ function deleteEventsFrom(fromDate) {
     endDate.setFullYear(endDate.getFullYear() + 1);
     endDate.setHours(23, 59, 59, 999);
 
-    const fromDateStr = startDate.toISOString().split('T')[0]; // YYYY-MM-DD形式
+    fromDateStr = startDate.toISOString().split('T')[0]; // YYYY-MM-DD形式
     Logger.info(`Delete Events From ${fromDateStr}: START`);
 
     const container = new ServiceContainer();
