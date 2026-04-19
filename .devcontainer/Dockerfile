@@ -6,10 +6,12 @@ RUN apt-get update \
     \
     ca-certificates \
     curl \
+    git \
     gnupg \
     graphviz \
     procps \
     uuid-runtime \
+    xdg-utils \
     \
     libatk1.0-0 \
     libatk-bridge2.0-0 \
@@ -28,3 +30,9 @@ RUN apt-get update \
     libxss1 \
     \
     && rm -rf /var/lib/apt/lists/*
+
+ARG YQ_VERSION=v4.52.5
+RUN ARCH=$(dpkg --print-architecture) \
+    && curl -fsSL -o /usr/local/bin/yq \
+       "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${ARCH}" \
+    && chmod +x /usr/local/bin/yq

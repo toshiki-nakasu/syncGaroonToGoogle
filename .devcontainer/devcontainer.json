@@ -39,17 +39,12 @@
         "ghcr.io/devcontainers/features/common-utils:2": {
             "username": "node"
         },
-        "ghcr.io/devcontainers/features/git:1": {},
         "ghcr.io/devcontainers/features/git-lfs:1": {},
         "ghcr.io/devcontainers/features/github-cli:1": {},
         "ghcr.io/devcontainers/features/aws-cli:1": {},
         "ghcr.io/devcontainers/features/node:1": {
             "version": "24"
         }
-        // "ghcr.io/devcontainers/features/python:1": {
-        //     "version": "3.12"
-        // },
-        // "ghcr.io/va-h/devcontainers-features/uv:1": {}
     },
 
     // ## Environment
@@ -58,13 +53,8 @@
         "TZ": "Asia/Tokyo",
         "LANG": "C.UTF-8"
     },
-    "remoteEnv": {
-        // "AWS_PROFILE": "",
-        // "AWS_SDK_LOAD_CONFIG": "1"
-    },
-    "forwardPorts": [
-        // 4566, 4571, 5601
-    ],
+    "remoteEnv": {},
+    "forwardPorts": [],
 
     // ## Container command
     // warning: To use .sh you need mount
