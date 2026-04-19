@@ -76,6 +76,8 @@ description: "sync-garoon-to-google の設計と運用パターン。Use when: G
 - 既存 project への通常配備:
     1.  `sh ./script/function/googleLogin.sh`
     2.  `sh ./script/function/publishGas.sh`
+- **必須**: 認証と配備は上記 shell script を正本とし、raw の `clasp` コマンドへ置き換えない
+- **必須**: 配備は状態変更を伴うため、ユーザーの明示承認後にだけ実行する
 - 新規 Apps Script project を作成する場合:
     1.  `sh ./script/function/setupGas.sh`
     2.  または `cd sync-garoon-to-google && npm run setup` (`clasp login` と `clasp create --type api` をまとめて実行)
