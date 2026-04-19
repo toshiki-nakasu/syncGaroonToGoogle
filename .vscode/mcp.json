@@ -1,0 +1,15 @@
+{
+    "servers": {
+        "drawio": {
+            "command": "npx",
+            "args": ["-y", "@drawio/mcp"],
+            "type": "stdio"
+        },
+        "sequential-thinking": {
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+            "type": "stdio"
+        }
+    },
+    "inputs": []
+}
