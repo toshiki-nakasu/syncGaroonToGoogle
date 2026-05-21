@@ -18,7 +18,12 @@
     },
     "autopep8.args": ["--max-line-length", "120"],
     "cSpell.ignorePaths": ["**/*drawio*", ".git/objects"],
-    "cSpell.words": ["clasprc", "GCAL", "nosync"],
+    "cSpell.words": [
+        "clasprc",
+        "GAROON",
+        "GCAL",
+        "nosync"
+    ],
     "csv-edit.readOption_hasHeader": "true",
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": "explicit"

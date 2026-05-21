@@ -282,9 +282,10 @@ class Constants {
 
   /**
    * タイムアウトエラーのキーワード
+   * GAS は "Service timed out" を返すため小文字で一致させる
    */
   static get ERROR_TIMEOUT() {
-    return 'Timeout';
+    return 'timed out';
   }
 
   /**
@@ -292,6 +293,38 @@ class Constants {
    */
   static get ERROR_ECONNRESET() {
     return 'ECONNRESET';
+  }
+
+  /**
+   * GAS 基盤サーバーエラーのキーワード
+   * 「We're sorry, a server error occurred」に一致
+   */
+  static get ERROR_SERVER_ERROR() {
+    return 'server error occurred';
+  }
+
+  /**
+   * API 空レスポンスエラーのキーワード
+   * Google Calendar API が空レスポンスを返す一時障害
+   */
+  static get ERROR_EMPTY_RESPONSE() {
+    return 'Empty response';
+  }
+
+  /**
+   * ストレージ期限超過エラーのキーワード
+   * GAS PropertiesService 等の読み書きタイムアウト
+   */
+  static get ERROR_DEADLINE_EXCEEDED() {
+    return 'DEADLINE_EXCEEDED';
+  }
+
+  /**
+   * ネットワーク到達不能エラーのキーワード
+   * UrlFetchApp がホストに到達できない一時障害
+   */
+  static get ERROR_ADDRESS_UNAVAILABLE() {
+    return 'Address unavailable';
   }
 
   // ============================================================

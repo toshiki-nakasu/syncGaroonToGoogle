@@ -162,9 +162,13 @@ class GCalDao extends BaseDao {
    * @returns {GoogleAppsScript.Calendar.CalendarEvent[]} カレンダーイベントの配列
    */
   selectEventByTerm(term) {
-    return this.executeWithErrorHandling(() => {
-      return this.gCal.getCalendar().getEvents(term.start, term.end);
-    }, 'GCalDao.selectEventByTerm');
+    return this.executeWithErrorHandling(
+      () => {
+        return this.gCal.getCalendar().getEvents(term.start, term.end);
+      },
+      'GCalDao.selectEventByTerm',
+      true,
+    );
   }
 
   /**
@@ -420,21 +424,25 @@ class GCalDao extends BaseDao {
    * @returns {GoogleAppsScript.Calendar.CalendarEvent|null} イベントまたはnull
    */
   findEventByGaroonIdOnCalendar(calendarId, garoonUniqueId, term) {
-    return this.executeWithErrorHandling(() => {
-      const calendar = CalendarApp.getCalendarById(calendarId);
-      if (!calendar) {
-        return null;
-      }
-
-      const events = calendar.getEvents(term.start, term.end);
-      for (const event of events) {
-        const tagId = event.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID);
-        if (tagId === garoonUniqueId) {
-          return event;
+    return this.executeWithErrorHandling(
+      () => {
+        const calendar = CalendarApp.getCalendarById(calendarId);
+        if (!calendar) {
+          return null;
         }
-      }
-      return null;
-    }, 'GCalDao.findEventByGaroonIdOnCalendar');
+
+        const events = calendar.getEvents(term.start, term.end);
+        for (const event of events) {
+          const tagId = event.getTag(Constants.TAG_GAROON_UNIQUE_EVENT_ID);
+          if (tagId === garoonUniqueId) {
+            return event;
+          }
+        }
+        return null;
+      },
+      'GCalDao.findEventByGaroonIdOnCalendar',
+      true,
+    );
   }
 
   /**

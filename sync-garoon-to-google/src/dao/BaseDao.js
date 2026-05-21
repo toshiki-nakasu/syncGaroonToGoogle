@@ -91,6 +91,10 @@ class BaseDao {
       Constants.ERROR_RATE_LIMIT,
       Constants.ERROR_TIMEOUT,
       Constants.ERROR_ECONNRESET,
+      Constants.ERROR_SERVER_ERROR,
+      Constants.ERROR_EMPTY_RESPONSE,
+      Constants.ERROR_DEADLINE_EXCEEDED,
+      Constants.ERROR_ADDRESS_UNAVAILABLE,
     ];
 
     return retryablePatterns.some((pattern) => errorMessage.includes(pattern));
