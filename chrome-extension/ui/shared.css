@@ -1,0 +1,39 @@
+:root {
+    color-scheme: light dark;
+    font-family: system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+}
+body { margin: 0 auto; padding: 24px; max-width: 680px; }
+body.popup { width: 340px; padding: 18px; }
+h1 { font-size: 19px; margin: 0 0 16px; }
+p { margin: 10px 0; }
+label { display: block; margin-top: 18px; font-weight: 600; }
+input:not([type=checkbox]), textarea {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    padding: 9px;
+    border: 1px solid #94a3b8;
+    border-radius: 5px;
+    font: inherit;
+}
+input[type=number] { max-width: 160px; }
+label:has(input[type=checkbox]) { font-weight: 400; }
+button {
+    font: inherit;
+    padding: 8px 14px;
+    border: 1px solid #64748b;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 8px 4px 0 0;
+}
+button.primary { background: #1d4ed8; color: white; border-color: #1d4ed8; }
+button:disabled { opacity: .5; cursor: wait; }
+.hint { font-size: 12px; opacity: .8; }
+#status { border-left: 5px solid #64748b; padding-left: 12px; }
+#status[data-kind=ready] { border-color: #15803d; }
+#status[data-kind=syncing] { border-color: #1d4ed8; }
+#status[data-kind=unavailable] { border-color: #b91c1c; }
+#feedback { white-space: pre-wrap; }
+strong { font-weight: 650; }

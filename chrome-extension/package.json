@@ -1,0 +1,10 @@
+{
+    "name": "garoon-calendar-chrome-extension",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "test": "node --test test/*.test.js",
+        "check": "node --check src/background.js && node --check src/GaroonClient.js && node --check src/GoogleCalendarClient.js && node --check src/SyncService.js && node --check src/Settings.js && node --check src/Status.js && node --check ui/popup.js && node --check ui/options.js"
+    }
+}
