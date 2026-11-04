@@ -4,7 +4,7 @@ set -e
 cd "$(dirname "$0")/.."
 
 echo "📤 Pushing to Google Apps Script..."
-clasp push
+npm exec --no -- clasp push
 
 echo "🌐 Opening in browser..."
-clasp open-script
+npm exec --no -- clasp open-script

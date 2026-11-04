@@ -1,12 +1,9 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-echo "📦 Installing global packages..."
-npm install -g @google/clasp
-
 echo "📦 Installing project dependencies..."
-npm install
+npm ci --include=dev
 
 echo "✅ Node.js setup completed!"

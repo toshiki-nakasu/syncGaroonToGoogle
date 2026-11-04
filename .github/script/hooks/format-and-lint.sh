@@ -3,6 +3,7 @@ set -euo pipefail
 
 # PostToolUse hook: format and basic validation after file edit tools
 input=$(cat)
+repo_root=$(cd "$(dirname "$0")/../../.." && pwd)
 
 tool_name=$(echo "$input" | jq -r '.tool_name // empty')
 
@@ -66,9 +67,11 @@ for file_path in "${file_paths[@]}"; do
                 lint_errors="${lint_errors}${file_path}: ${compile_output}"$'\n'
             }
             ;;
-        .js|.md|.json|.yaml|.yml)
-            if command -v npx &>/dev/null; then
-                npx prettier --write "$file_path" >/dev/null 2>&1 || true
+        .js|.mjs|.md|.json|.code-workspace|.html|.css|.yaml|.yml)
+            if [[ -x "$repo_root/node_modules/.bin/prettier" ]]; then
+                "$repo_root/node_modules/.bin/prettier" --write "$file_path" >/dev/null 2>&1 || true
+            else
+                lint_errors="${lint_errors}整形ツールが未導入です。開発環境の構築手順を実行してください。"$'\n'
             fi
             ;;
     esac
