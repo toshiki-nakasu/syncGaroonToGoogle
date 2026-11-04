@@ -11,7 +11,7 @@ tools: [read, search, sequential-thinking/*]
 
 # 対象の特定
 
-仕様書の命名規則, 配置は [write-specification](../skills/write-specification/SKILL.md) スキルに従う。 `sync-garoon-to-google/**/*.js` の設計や振る舞いを確認する場合は [javascript.instructions.md](../instructions/javascript.instructions.md) と [sync-garoon-to-google-development](../skills/sync-garoon-to-google-development/SKILL.md) を併読する。
+仕様書の命名規則, 配置は [write-specification](../skills/write-specification/SKILL.md) スキルに従う。 `gas/**/*.js` の設計や振る舞いを確認する場合は [javascript.instructions.md](../instructions/javascript.instructions.md) と [sync-garoon-to-google-development](../skills/sync-garoon-to-google-development/SKILL.md) を併読する。
 
 # チェック観点
 

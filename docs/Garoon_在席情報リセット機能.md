@@ -138,5 +138,5 @@ PATCH /g/api/v1/presence/users/code/{userCode}
 - [Garoon REST API - プレゼンス情報の更新](https://cybozu.dev/ja/garoon/docs/rest-api/presence/users/update-user-presence/)
 - [Garoon REST API - 認証方法](https://cybozu.dev/ja/garoon/docs/rest-api/authentication/)
 - [Google Apps Script - Time-driven triggers](https://developers.google.com/apps-script/guides/triggers/installable#time-driven_triggers)
-- [sync-garoon-to-google/src/main/script.js](../sync-garoon-to-google/src/main/script.js) - `resetPresence()` 関数
-- [sync-garoon-to-google/src/dao/GaroonDao.js](../sync-garoon-to-google/src/dao/GaroonDao.js) - `updatePreference()` メソッド
+- [gas/src/main/script.js](../gas/src/main/script.js) - `resetPresence()` 関数
+- [gas/src/dao/GaroonDao.js](../gas/src/dao/GaroonDao.js) - `updatePreference()` メソッド

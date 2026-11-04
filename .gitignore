@@ -3,8 +3,8 @@
 package-lock.json
 
 # Configuration
-sync-garoon-to-google/src/properties/ScriptProperties.js
-sync-garoon-to-google/.clasp.json
+gas/src/properties/ScriptProperties.js
+gas/.clasp.json
 
 # Google Apps Script
 .clasprc.json
