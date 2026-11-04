@@ -50,7 +50,16 @@ try {
     Set-Content -LiteralPath (Join-Path $installation 'extension/obsolete.js') -Value 'old file'
     Set-Content -LiteralPath (Join-Path $installation 'personal.txt') -Value 'keep me'
     $script:archiveFixture = Join-Path $temporary 'release.zip'
-    [IO.Compression.ZipFile]::CreateFromDirectory($source, $script:archiveFixture)
+    # Reproduce Windows PowerShell 5.1 ZIP entries on every test platform.
+    $zip = [IO.Compression.ZipFile]::Open($script:archiveFixture, [IO.Compression.ZipArchiveMode]::Create)
+    try {
+        foreach ($file in Get-ChildItem -LiteralPath $source -File -Recurse) {
+            $name = $file.FullName.Substring($source.Length + 1).Replace('/', '\')
+            $null = [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $file.FullName, $name)
+        }
+    } finally {
+        $zip.Dispose()
+    }
     $script:checksumFixture = "$script:archiveFixture.sha256"
     function Set-FixtureChecksum {
         $digest = (Get-FileHash -LiteralPath $script:archiveFixture -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -114,6 +123,25 @@ try {
     Assert-Throws { Invoke-ExtensionUpdate -Directory $installation } 'Invalid release path'
     Assert-True (!(Test-Path -LiteralPath (Join-Path $temporary 'outside.txt'))) 'Reject ZIP traversal'
     Assert-Throws { Assert-ReleasePath 'extension\..\outside.txt' } 'Invalid release path'
+
+    foreach ($entryName in @('..\outside.txt', 'extension\..\..\outside.txt', '\absolute.txt', 'C:\outside.txt')) {
+        $invalidArchive = Join-Path $temporary ([guid]::NewGuid().ToString('N') + '.zip')
+        $destination = "$invalidArchive.expanded"
+        $zip = [IO.Compression.ZipFile]::Open($invalidArchive, [IO.Compression.ZipArchiveMode]::Create)
+        try { $null = $zip.CreateEntry($entryName) } finally { $zip.Dispose() }
+        Assert-Throws { Expand-ReleaseArchive $invalidArchive $destination } 'Invalid release path'
+        Assert-True (!(Test-Path -LiteralPath $destination)) 'Validate all entries before extraction'
+    }
+
+    $duplicateArchive = Join-Path $temporary 'duplicate.zip'
+    $zip = [IO.Compression.ZipFile]::Open($duplicateArchive, [IO.Compression.ZipArchiveMode]::Create)
+    try {
+        $null = $zip.CreateEntry('extension/manifest.json')
+        $null = $zip.CreateEntry('extension\manifest.json')
+    } finally {
+        $zip.Dispose()
+    }
+    Assert-Throws { Expand-ReleaseArchive $duplicateArchive "$duplicateArchive.expanded" } 'Duplicate ZIP entry'
 
     $script:latestFixture.tag_name = 'v0.0.1'
     if ($original.version -ne '0.0.1') {

@@ -76,15 +76,27 @@ function Expand-ReleaseArchive {
     try {
         $names = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
         foreach ($entry in $zip.Entries) {
-            $name = $entry.FullName.TrimEnd('/')
+            # Older .NET Framework writes Windows separators into ZIP entries.
+            $name = $entry.FullName.Replace('\', '/').TrimEnd('/')
             Assert-ReleasePath $name
             if (!$names.Add($name)) { throw "Duplicate ZIP entry: $name" }
             if (($entry.ExternalAttributes -band 0xF0000000L) -eq 0xA0000000L) { throw 'ZIP links are not supported.' }
         }
+        # Use the validated names for extraction on Windows and non-Windows hosts.
+        $null = [IO.Directory]::CreateDirectory($Destination)
+        foreach ($entry in $zip.Entries) {
+            $name = $entry.FullName.Replace('\', '/')
+            $target = Join-Path $Destination $name.TrimEnd('/')
+            if ($name.EndsWith('/')) {
+                $null = [IO.Directory]::CreateDirectory($target)
+            } else {
+                $null = [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($target))
+                [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $target)
+            }
+        }
     } finally {
         $zip.Dispose()
     }
-    [IO.Compression.ZipFile]::ExtractToDirectory($Archive, $Destination)
 }
 
 function Get-ReleaseAsset {
