@@ -9,25 +9,12 @@ RUN apt-get update \
     git \
     gnupg \
     graphviz \
+    jq \
     procps \
     uuid-runtime \
     xdg-utils \
-    \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libcups2 \
-    libdrm2 \
-    libgbm1 \
-    libasound2 \
-    libatspi2.0-0 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxfixes3 \
-    libxrandr2 \
-    libpango-1.0-0 \
-    libcairo2 \
-    libnss3 \
-    libxss1 \
+    zip \
+    unzip \
     \
     && rm -rf /var/lib/apt/lists/*
 

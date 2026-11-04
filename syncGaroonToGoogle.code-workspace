@@ -1,0 +1,9 @@
+{
+    "folders": [{ "path": "." }],
+    "settings": {
+        "chat.instructionsFilesLocations": { "docs/instructions/rules": true },
+        "chat.agentFilesLocations": { "docs/instructions/agents": true },
+        "chat.agentSkillsLocations": { "docs/instructions/skills": true },
+        "chat.promptFilesLocations": { "docs/instructions/prompts": true },
+    },
+}

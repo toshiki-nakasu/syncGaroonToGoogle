@@ -20,6 +20,11 @@
     // warning: Can not use Env
     "mounts": [
         {
+            "type": "volume",
+            "source": "sync-garoon-to-google-dev-node_modules",
+            "target": "/workspace/node_modules"
+        },
+        {
             "type": "bind",
             "source": "${localWorkspaceFolder}",
             "target": "${containerWorkspaceFolder}"
@@ -61,7 +66,7 @@
     // info: key is output stage
     "overrideCommand": true,
     "postCreateCommand": {
-        "chown_node_modules": "sudo chown -R node:node /workspace/gas/node_modules && bash script/postCreate.sh"
+        "setup": "sudo chown -R node:node /workspace/node_modules /workspace/gas/node_modules && bash script/postCreate.sh"
     },
     "postStartCommand": {
         "add_git_safe_directory": "git config --global --add safe.directory /workspace"
@@ -70,8 +75,24 @@
     // ## IDE
     "customizations": {
         "vscode": {
-            "extensions": [],
-            "settings": {}
+            "extensions": [
+                "esbenp.prettier-vscode",
+                "yzhang.markdown-all-in-one"
+            ],
+            "settings": {
+                "chat.instructionsFilesLocations": {
+                    "docs/instructions/rules": true
+                },
+                "chat.agentFilesLocations": {
+                    "docs/instructions/agents": true
+                },
+                "chat.agentSkillsLocations": {
+                    "docs/instructions/skills": true
+                },
+                "chat.promptFilesLocations": {
+                    "docs/instructions/prompts": true
+                }
+            }
         }
     }
 }

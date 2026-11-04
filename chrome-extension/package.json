@@ -1,0 +1,13 @@
+{
+    "name": "garoon-calendar-chrome-extension",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "test": "node script/runTests.js",
+        "test:unit": "node script/runTests.js unit",
+        "test:ui": "node script/runTests.js ui",
+        "test:usecases": "node script/runTests.js usecases",
+        "check": "node script/checkSyntax.js"
+    }
+}

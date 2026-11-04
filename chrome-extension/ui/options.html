@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Garoon Calendar Sync 設定</title>
+        <link rel="stylesheet" href="shared.css" />
+        <script type="module" src="options.js"></script>
+    </head>
+    <body class="options">
+        <div class="settings-layout">
+            <aside class="outline">
+                <a class="brand" href="#top">Garoon Calendar Sync</a>
+                <nav aria-label="設定項目">
+                    <p class="eyebrow">設定項目</p>
+                    <a href="#garoon">同期元 Garoon</a>
+                    <a href="#google-calendar">同期先 Google Calendar</a>
+                    <a href="#sync-range">同期期間</a>
+                    <a href="#automatic-sync">自動同期</a>
+                    <a href="#save-settings">設定保存</a>
+                    <a href="#connections">接続検証</a>
+                </nav>
+            </aside>
+            <main id="top">
+                <header class="page-header">
+                    <p class="eyebrow">SETTINGS</p>
+                    <h1>カレンダー同期の設定</h1>
+                    <p class="muted">
+                        Garoonの予定を、タグに合わせてGoogle Calendarへ。
+                    </p>
+                </header>
+                <form id="settings">
+                    <section
+                        id="garoon"
+                        class="settings-section"
+                        aria-labelledby="garoon-heading"
+                    >
+                        <h2 id="garoon-heading">同期元 Garoon</h2>
+                        <p class="section-description">
+                            同じChromeプロファイルでログインしたGaroonのタブを利用します。
+                        </p>
+                        <label for="origin">GaroonのURL</label>
+                        <input
+                            id="origin"
+                            type="url"
+                            placeholder="https://example.cybozu.com"
+                            required
+                        />
+                        <p class="hint">末尾の /g/ などは含めません。</p>
+                        <label for="userCode">ログイン名</label>
+                        <input id="userCode" required autocomplete="off" />
+                        <p class="hint">
+                            ログイン中のユーザーと照合します。パスワードは不要です。
+                        </p>
+                    </section>
+                    <section
+                        id="google-calendar"
+                        class="settings-section"
+                        aria-labelledby="google-heading"
+                    >
+                        <h2 id="google-heading">同期先 Google Calendar</h2>
+                        <p class="section-description">
+                            タグとカレンダー名をそれぞれ設定します。同じカレンダーへ複数のタグをまとめられます。
+                        </p>
+                        <div class="calendar-table-wrap">
+                            <table class="calendar-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">タグ</th>
+                                        <th scope="col">カレンダー名</th>
+                                        <th scope="col">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="calendar-rows"></tbody>
+                            </table>
+                        </div>
+                        <p class="hint">
+                            タグは #
+                            を付けずに入力します。空欄は、設定済みタグに一致しない予定の同期先です。
+                        </p>
+                        <p class="hint">
+                            ＋と−で設定行を編集し、保存すると反映します。「予定を全削除」は、そのカレンダーの手動作成を含む全期間の予定を対象にします。
+                        </p>
+                        <div
+                            id="clear-progress"
+                            class="notice"
+                            role="status"
+                            aria-live="polite"
+                            hidden
+                        >
+                            <p id="clear-message"></p>
+                            <progress
+                                id="clear-meter"
+                                aria-label="予定の削除進捗"
+                                hidden
+                            ></progress>
+                        </div>
+                    </section>
+                    <section
+                        id="sync-range"
+                        class="settings-section"
+                        aria-labelledby="range-heading"
+                    >
+                        <h2 id="range-heading">同期期間</h2>
+                        <div class="field-pair">
+                            <div>
+                                <label for="daysAgo">何日前から</label>
+                                <div class="input-unit">
+                                    <input
+                                        id="daysAgo"
+                                        type="number"
+                                        min="0"
+                                        max="366"
+                                        required
+                                    /><span>日前</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="daysAfter">何日後まで</label>
+                                <div class="input-unit">
+                                    <input
+                                        id="daysAfter"
+                                        type="number"
+                                        min="0"
+                                        max="366"
+                                        required
+                                    /><span>日後</span>
+                                </div>
+                            </div>
+                        </div>
+                        <label for="timeZone">タイムゾーン</label>
+                        <input
+                            id="timeZone"
+                            required
+                            placeholder="Asia/Tokyo"
+                        />
+                    </section>
+                    <section
+                        id="automatic-sync"
+                        class="settings-section"
+                        aria-labelledby="automatic-heading"
+                    >
+                        <h2 id="automatic-heading">自動同期</h2>
+                        <label class="check-label"
+                            ><input id="autoSync" type="checkbox" />
+                            自動同期を有効にする</label
+                        >
+                        <label for="syncIntervalMinutes">同期の間隔</label>
+                        <div class="input-unit">
+                            <input
+                                id="syncIntervalMinutes"
+                                type="number"
+                                min="1"
+                                step="1"
+                                required
+                            /><span>分</span>
+                        </div>
+                    </section>
+                    <section
+                        id="save-settings"
+                        class="save-section"
+                        aria-labelledby="save-heading"
+                    >
+                        <div>
+                            <h2 id="save-heading">設定保存</h2>
+                            <p class="hint">
+                                編集した設定をまとめて反映します。
+                            </p>
+                        </div>
+                        <button type="submit" class="primary">
+                            設定を保存
+                        </button>
+                    </section>
+                </form>
+                <p
+                    id="feedback"
+                    class="feedback"
+                    role="status"
+                    aria-live="polite"
+                ></p>
+                <hr />
+                <section
+                    id="connections"
+                    class="settings-section"
+                    aria-labelledby="connections-heading"
+                >
+                    <h2 id="connections-heading">接続検証</h2>
+                    <p class="section-description">
+                        保存した設定で接続を検証します。予定への書き込みは行いません。
+                    </p>
+                    <div class="connection-card">
+                        <div>
+                            <h3>Garoon</h3>
+                            <p id="garoon-connection" class="hint">未確認</p>
+                        </div>
+                        <button id="probe" type="button">接続を検証</button>
+                    </div>
+                    <div class="connection-card">
+                        <div>
+                            <h3>Google Calendar</h3>
+                            <p id="google-connection" class="hint">未確認</p>
+                        </div>
+                        <button id="google" type="button">
+                            認証と接続を検証
+                        </button>
+                    </div>
+                </section>
+            </main>
+        </div>
+        <dialog
+            id="clear-dialog"
+            aria-labelledby="clear-dialog-title"
+            aria-describedby="clear-dialog-description"
+        >
+            <p class="eyebrow danger-text">CALENDAR CLEAR</p>
+            <h2 id="clear-dialog-title">カレンダーの予定を全削除</h2>
+            <dl class="clear-details">
+                <dt>カレンダー</dt>
+                <dd id="clear-name"></dd>
+                <dt>ID</dt>
+                <dd id="clear-id"></dd>
+                <dt>対象件数</dt>
+                <dd id="clear-count"></dd>
+            </dl>
+            <p id="clear-dialog-description">
+                全期間の予定を削除します。手動で作成した予定も対象で、繰り返し予定は全回分が削除されます。カレンダー本体は残ります。
+            </p>
+            <p class="hint">
+                自動同期は停止したままになります。同期を再開すると、Garoonの予定は再登録されます。
+            </p>
+            <div class="dialog-actions">
+                <button id="clear-cancel" type="button">キャンセル</button
+                ><button id="clear-confirm" class="danger" type="button">
+                    全削除を実行
+                </button>
+            </div>
+        </dialog>
+    </body>
+</html>

@@ -1,0 +1,23 @@
+{
+    "manifest_version": 3,
+    "name": "Garoon Calendar Sync",
+    "version": "0.1.0",
+    "description": "ログイン済みのGaroonタブから、Googleカレンダーへ予定を同期します。",
+    "minimum_chrome_version": "120",
+    "permissions": ["alarms", "storage", "scripting", "identity"],
+    "host_permissions": ["https://www.googleapis.com/*"],
+    "optional_host_permissions": ["https://*.cybozu.com/*"],
+    "background": {
+        "service_worker": "src/background.js",
+        "type": "module"
+    },
+    "action": {
+        "default_title": "Garoon Calendar Sync: 設定が必要です",
+        "default_popup": "ui/popup.html"
+    },
+    "options_page": "ui/options.html",
+    "oauth2": {
+        "client_id": "384257031199-sp6vhr6aoltiv5oenu1j0nb2rbkb9075.apps.googleusercontent.com",
+        "scopes": ["https://www.googleapis.com/auth/calendar"]
+    }
+}

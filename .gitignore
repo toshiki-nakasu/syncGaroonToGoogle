@@ -1,6 +1,5 @@
 # Dependencies
 **/node_modules/
-package-lock.json
 
 # Configuration
 gas/src/properties/ScriptProperties.js
@@ -16,3 +15,7 @@ gas/.clasp.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Release output and reference files
+/dist/
+/tmp/

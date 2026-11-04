@@ -1,0 +1,24 @@
+{
+    "name": "sync-garoon-to-google-development",
+    "private": true,
+    "engines": {
+        "node": ">=24 <25"
+    },
+    "scripts": {
+        "setup": "bash script/setup.sh",
+        "test": "npm --prefix chrome-extension test && npm run test:release",
+        "check": "npm --prefix chrome-extension run check && node --check script/checkDocumentation.mjs && node --check script/packageExtension.mjs && node --check script/tagRelease.mjs && node script/checkDocumentation.mjs",
+        "test:release": "node --test script/test/*.test.mjs",
+        "package:extension": "node script/packageExtension.mjs",
+        "release:tag": "node script/tagRelease.mjs",
+        "format": "prettier --write",
+        "format:check": "prettier --check",
+        "browser:install": "playwright install --no-shell chromium",
+        "browser:install:deps": "playwright install --with-deps --no-shell chromium",
+        "test:browser": "node --test chrome-extension/test/browser/*.test.js"
+    },
+    "devDependencies": {
+        "playwright": "1.64.1",
+        "prettier": "3.9.10"
+    }
+}

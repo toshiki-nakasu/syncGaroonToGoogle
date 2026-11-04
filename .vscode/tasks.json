@@ -2,6 +2,20 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "git: Tag & Push Extension Release",
+            "type": "process",
+            "command": "node",
+            "args": ["script/tagRelease.mjs", "${input:version}"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
             "label": "VSCode: Install Recommended Extensions",
             "type": "shell",
             "command": "bash",
@@ -24,7 +38,7 @@
         {
             "id": "version",
             "type": "promptString",
-            "description": "バージョン番号を入力 (例: 1.0.0)",
+            "description": "Chrome拡張機能のリリース番号 (例: 1.0.0 または v1.0.0)",
             "default": "0.1.0"
         }
     ]

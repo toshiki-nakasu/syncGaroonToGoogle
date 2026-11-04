@@ -1,9 +1,10 @@
 {
     "recommendations": [
         "dbaeumer.vscode-eslint",
+        "eamodio.gitlens",
         "esbenp.prettier-vscode",
         "runem.lit-plugin",
         "streetsidesoftware.code-spell-checker",
-        "eamodio.gitlens"
+        "yzhang.markdown-all-in-one"
     ]
 }

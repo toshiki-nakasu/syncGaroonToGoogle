@@ -11,6 +11,13 @@
     "useTabs": false,
     "overrides": [
         {
+            "files": ["*.js", "*.mjs"],
+            "options": {
+                "tabWidth": 2,
+                "singleQuote": true
+            }
+        },
+        {
             "files": ["*.yaml", "*.yml"],
             "options": {
                 "tabWidth": 2
