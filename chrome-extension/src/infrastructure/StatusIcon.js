@@ -1,12 +1,13 @@
 const STYLES = {
   ready: { text: 'OK', label: '同期可', color: '#15803d' },
   syncing: { text: '…', label: '同期中', color: '#1d4ed8' },
+  clearing: { text: 'CLR', label: '予定を全削除中', color: '#b45309' },
   unavailable: { text: '!', label: '同期不可', color: '#b91c1c' },
   paused: { text: 'OFF', label: '自動同期停止', color: '#64748b' },
 };
 
 /** 文字バッジとカレンダーアイコンで同期状態を表示する。 */
-export async function renderStatus(state) {
+export async function renderStatus(state, api = chrome) {
   const style = STYLES[state.kind] || STYLES.unavailable;
   const images = {};
   for (const size of [16, 32]) {
@@ -23,18 +24,9 @@ export async function renderStatus(state) {
     images[size] = context.getImageData(0, 0, size, size);
   }
   await Promise.all([
-    chrome.action.setIcon({ imageData: images }),
-    chrome.action.setBadgeText({ text: style.text }),
-    chrome.action.setBadgeBackgroundColor({ color: style.color }),
-    chrome.action.setTitle({ title: `${style.label}: ${state.message}` }),
+    api.action.setIcon({ imageData: images }),
+    api.action.setBadgeText({ text: style.text }),
+    api.action.setBadgeBackgroundColor({ color: style.color }),
+    api.action.setTitle({ title: `${style.label}: ${state.message}` }),
   ]);
-}
-
-/** 状態を永続化し、ポップアップを閉じていてもアイコンに反映する。 */
-export async function setStatus(kind, message, extra = {}) {
-  const { state: previous = {} } = await chrome.storage.local.get('state');
-  const state = { ...previous, ...extra, kind, message, checkedAt: new Date().toISOString() };
-  await chrome.storage.local.set({ state });
-  await renderStatus(state);
-  return state;
 }

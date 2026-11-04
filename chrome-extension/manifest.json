@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Garoon Calendar Sync",
     "version": "0.1.0",
-    "description": "ログイン済みのGaroonタブから、5分ごとにGoogleカレンダーへ予定を同期します。",
+    "description": "ログイン済みのGaroonタブから、Googleカレンダーへ予定を同期します。",
     "minimum_chrome_version": "120",
     "permissions": ["alarms", "storage", "scripting", "identity"],
     "host_permissions": ["https://www.googleapis.com/*"],
@@ -17,7 +17,7 @@
     },
     "options_page": "ui/options.html",
     "oauth2": {
-        "client_id": "REPLACE_WITH_YOUR_CLIENT_ID.apps.googleusercontent.com",
+        "client_id": "384257031199-sp6vhr6aoltiv5oenu1j0nb2rbkb9075.apps.googleusercontent.com",
         "scopes": ["https://www.googleapis.com/auth/calendar"]
     }
 }

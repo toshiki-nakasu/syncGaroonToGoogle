@@ -36,10 +36,14 @@ async function readSchedulePage(origin, userId, range, offset, limit) {
       signal: AbortSignal.timeout(20000),
     });
     if (!response.ok) {
-      return { error: `Garoon APIがHTTP ${response.status}を返しました。ログイン状態とアクセス権を確認してください。` };
+      return {
+        error: `Garoon APIがHTTP ${response.status}を返しました。ログイン状態とアクセス権を確認してください。`,
+      };
     }
     if (!response.headers.get('content-type')?.includes('application/json')) {
-      return { error: 'GaroonからJSONを取得できません。再ログインしてください。' };
+      return {
+        error: 'GaroonからJSONを取得できません。再ログインしてください。',
+      };
     }
     const data = await response.json();
     if (!Array.isArray(data.events) || typeof data.hasNext !== 'boolean') {
@@ -47,7 +51,10 @@ async function readSchedulePage(origin, userId, range, offset, limit) {
     }
     return { events: data.events, hasNext: data.hasNext };
   } catch {
-    return { error: 'Garoonへ接続できません。ログイン状態とネットワークを確認してください。' };
+    return {
+      error:
+        'Garoonへ接続できません。ログイン状態とネットワークを確認してください。',
+    };
   }
 }
 
@@ -61,12 +68,16 @@ export class GaroonClient {
 
   /** ログイン済みで設定したユーザーに一致するGaroonタブを選択する。 */
   async connect() {
-    const tabs = await this.browser.tabs.query({ url: `${this.settings.origin}/g/*` });
+    const tabs = await this.browser.tabs.query({
+      url: `${this.settings.origin}/g/*`,
+    });
     for (const tab of tabs) {
       if (tab.discarded || tab.status !== 'complete') continue;
       try {
         const [result] = await this.browser.scripting.executeScript({
-          target: { tabId: tab.id }, world: 'MAIN', func: readLoginUser,
+          target: { tabId: tab.id },
+          world: 'MAIN',
+          func: readLoginUser,
         });
         const user = result?.result;
         if (user?.code === this.settings.userCode && user.garoonId) {
@@ -78,18 +89,22 @@ export class GaroonClient {
         // 別の対象タブが使える場合は、そちらを試す。
       }
     }
-    throw new Error('設定したユーザーでログイン済みのGaroonタブを開いてください。休止中のタブは一度表示してください。');
+    throw new Error(
+      '設定したユーザーでログイン済みのGaroonタブを開いてください。休止中のタブは一度表示してください。',
+    );
   }
 
   /** 1ページ取得する。失敗やHTML応答は空配列として扱わない。 */
   async readPage(range, offset, limit = 200) {
     const [result] = await this.browser.scripting.executeScript({
-      target: { tabId: this.tab.id }, world: 'ISOLATED',
+      target: { tabId: this.tab.id },
+      world: 'ISOLATED',
       func: readSchedulePage,
       args: [this.settings.origin, this.userId, range, offset, limit],
     });
     const data = result?.result;
-    if (!data || data.error) throw new Error(data?.error || 'Garoonタブから応答がありません。');
+    if (!data || data.error)
+      throw new Error(data?.error || 'Garoonタブから応答がありません。');
     return data;
   }
 
@@ -103,13 +118,17 @@ export class GaroonClient {
       for (const event of data.events) {
         const key = `${event.id}-${event.repeatId || ''}`;
         if (!event.id || seen.has(key)) {
-          throw new Error('Garoon予定の重複または不正なIDを検出しました。次回の同期で再取得します。');
+          throw new Error(
+            'Garoon予定の重複または不正なIDを検出しました。次回の同期で再取得します。',
+          );
         }
         seen.add(key);
         events.push(event);
       }
       if (!data.hasNext) return events;
     }
-    throw new Error('Garoon予定の取得上限に達しました。同期期間を短くしてください。');
+    throw new Error(
+      'Garoon予定の取得上限に達しました。同期期間を短くしてください。',
+    );
   }
 }

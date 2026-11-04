@@ -4,7 +4,10 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "test": "node --test test/*.test.js",
-        "check": "node --check src/background.js && node --check src/GaroonClient.js && node --check src/GoogleCalendarClient.js && node --check src/SyncService.js && node --check src/Settings.js && node --check src/Status.js && node --check ui/popup.js && node --check ui/options.js"
+        "test": "node script/runTests.js",
+        "test:unit": "node script/runTests.js unit",
+        "test:ui": "node script/runTests.js ui",
+        "test:usecases": "node script/runTests.js usecases",
+        "check": "node script/checkSyntax.js"
     }
 }
