@@ -7,8 +7,8 @@ Garoon の予定を Google Calendar に同期する Google Apps Script project �
 1. 設定ファイルを作成
 
     ```bash
-    cp sync-garoon-to-google/src/properties/ScriptProperties.example.js sync-garoon-to-google/src/properties/ScriptProperties.js
-    code sync-garoon-to-google/src/properties/ScriptProperties.js
+    cp gas/src/properties/ScriptProperties.example.js gas/src/properties/ScriptProperties.js
+    code gas/src/properties/ScriptProperties.js
     ```
 
 1. アップロードするGoogleアカウントにログイン
@@ -26,7 +26,7 @@ Garoon の予定を Google Calendar に同期する Google Apps Script project �
     ```
 
     ```bash
-    cd sync-garoon-to-google
+    cd gas
     npm run setup
     ```
 

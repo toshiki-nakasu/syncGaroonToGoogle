@@ -32,7 +32,7 @@
         {
             "type": "volume",
             "source": "sync-garoon-to-google-node_modules",
-            "target": "/workspace/sync-garoon-to-google/node_modules"
+            "target": "/workspace/gas/node_modules"
         }
     ],
     "features": {
@@ -61,7 +61,7 @@
     // info: key is output stage
     "overrideCommand": true,
     "postCreateCommand": {
-        "chown_node_modules": "sudo chown -R node:node /workspace/sync-garoon-to-google/node_modules && bash script/postCreate.sh"
+        "chown_node_modules": "sudo chown -R node:node /workspace/gas/node_modules && bash script/postCreate.sh"
     },
     "postStartCommand": {
         "add_git_safe_directory": "git config --global --add safe.directory /workspace"

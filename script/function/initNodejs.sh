@@ -5,7 +5,7 @@ echo "📦 Installing global packages..."
 npm install -g @google/clasp
 
 echo "📦 Installing project dependencies..."
-cd sync-garoon-to-google
+cd gas
 npm install
 
 echo "✅ Node.js setup completed!"

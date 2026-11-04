@@ -1,18 +1,18 @@
 ---
 name: sync-garoon-to-google-development
-description: "sync-garoon-to-google の設計と運用パターン。Use when: Google Apps Script 実装, Garoon 連携, Google Calendar 同期, ScriptProperties 追加, clasp 運用。"
+description: "gas 配下の設計と運用パターン。Use when: Google Apps Script 実装, Garoon 連携, Google Calendar 同期, ScriptProperties 追加, clasp 運用。"
 ---
 
-# sync-garoon-to-google 開発
+# GAS版の開発
 
-`sync-garoon-to-google/` 配下の Google Apps Script project に適用する。JavaScript の記法は [javascript.instructions.md](../../instructions/javascript.instructions.md) に従い、振る舞い変更を文書へ反映する場合は [write-specification](../write-specification/SKILL.md) を併読する。
+`gas/` 配下の Google Apps Script project に適用する。JavaScript の記法は [javascript.instructions.md](../../instructions/javascript.instructions.md) に従い、振る舞い変更を文書へ反映する場合は [write-specification](../write-specification/SKILL.md) を併読する。
 
 ## 前提コンテキスト
 
 - 利用者向け運用手順: [README.md](../../../README.md)
-- 実装の正本: [sync-garoon-to-google/src/main/script.js](../../../sync-garoon-to-google/src/main/script.js), [sync-garoon-to-google/src/service/SyncEventService.js](../../../sync-garoon-to-google/src/service/SyncEventService.js)
-- project manifest: [sync-garoon-to-google/package.json](../../../sync-garoon-to-google/package.json)
-- Apps Script 設定: [sync-garoon-to-google/appsscript.json](../../../sync-garoon-to-google/appsscript.json)
+- 実装の正本: [gas/src/main/script.js](../../../gas/src/main/script.js), [gas/src/service/SyncEventService.js](../../../gas/src/service/SyncEventService.js)
+- project manifest: [gas/package.json](../../../gas/package.json)
+- Apps Script 設定: [gas/appsscript.json](../../../gas/appsscript.json)
 - 項目変換仕様: [docs/Garoon_GCal\_項目マッピング.md](../../../docs/Garoon_GCal_項目マッピング.md)
 - 在席情報リセット仕様: [docs/Garoon\_在席情報リセット機能.md](../../../docs/Garoon_在席情報リセット機能.md)
 
@@ -42,7 +42,7 @@ description: "sync-garoon-to-google の設計と運用パターン。Use when: G
 - **必須**: エントリーポイントは初期化と処理呼び出しに集中し、API 呼び出しや差分判定を直接持ち込まない
 - **必須**: 新しい依存関係は `ServiceContainer` で組み立てる。循環参照がある場合は既存の setter パターンに合わせる
 - **必須**: Garoon API や Google Calendar API へのアクセスは DAO に集約し、エラーハンドリングとリトライは `BaseDao` の流儀を再利用する
-- **必須**: ScriptProperties を追加 / 変更する場合は `Constants`, `ConfigManager`, [ScriptProperties.example.js](../../../sync-garoon-to-google/src/properties/ScriptProperties.example.js) を同時に更新する
+- **必須**: ScriptProperties を追加 / 変更する場合は `Constants`, `ConfigManager`, [ScriptProperties.example.js](../../../gas/src/properties/ScriptProperties.example.js) を同時に更新する
 - **推奨**: タグによる振り分けや同期対象判定は `TagParser`, `GaroonEventService`, `SyncEventService` に閉じ込める
 - **推奨**: `#nosync` の優先度を崩さない。同期対象カレンダーの解決は `SyncTargetCalendars` と `getOrCreateCalendarId()` に寄せる
 - **推奨**: ログは `START`, `END`, 件数サマリを維持し、例外時は `Logger.error()` を経由する
@@ -53,7 +53,7 @@ description: "sync-garoon-to-google の設計と運用パターン。Use when: G
 
 1. `Constants` にキー名と必要ならデフォルト値を追加する
 2. `ConfigManager` に getter / setter と検証を追加する
-3. [ScriptProperties.example.js](../../../sync-garoon-to-google/src/properties/ScriptProperties.example.js) に設定例を追加する
+3. [ScriptProperties.example.js](../../../gas/src/properties/ScriptProperties.example.js) に設定例を追加する
 4. 利用箇所を `ServiceContainer` または対象 service / dao に接続する
 5. ユーザーに影響する設定なら README か docs を更新する
 
@@ -80,7 +80,7 @@ description: "sync-garoon-to-google の設計と運用パターン。Use when: G
 - **必須**: 配備は状態変更を伴うため、ユーザーの明示承認後にだけ実行する
 - 新規 Apps Script project を作成する場合:
     1.  `sh ./script/function/setupGas.sh`
-    2.  または `cd sync-garoon-to-google && npm run setup` (`clasp login` と `clasp create --type api` をまとめて実行)
+    2.  または `cd gas && npm run setup` (`clasp login` と `clasp create --type api` をまとめて実行)
 - 補助的な npm scripts: `npm run push`, `npm run open`, `npm run deploy`
 - 自動テスト基盤はまだ薄いため、重要変更では手動確認手順を明示する
 - 手動確認では `sync()` または対象 helper を実行し、Apps Script のログ, Garoon の予定, Google Calendar の反映結果を確認する

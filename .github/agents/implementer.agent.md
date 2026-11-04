@@ -19,7 +19,7 @@ tools: [read, search, edit, execute]
 - 指示がない限り後方互換性は考慮しない
 - タスクを分割し、段階的に進める
 - 各タスク完了時に設計を見直す
-- `sync-garoon-to-google/**/*.js` を編集する場合は [javascript.instructions.md](../instructions/javascript.instructions.md) と [sync-garoon-to-google-development](../skills/sync-garoon-to-google-development/SKILL.md) を先に読む
+- `gas/**/*.js` を編集する場合は [javascript.instructions.md](../instructions/javascript.instructions.md) と [sync-garoon-to-google-development](../skills/sync-garoon-to-google-development/SKILL.md) を先に読む
 - 再利用可能な規約不足や判断基準の不足を見つけた場合は、AI 文書更新候補として報告する
 
 # 出力形式

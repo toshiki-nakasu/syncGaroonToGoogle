@@ -19,7 +19,7 @@ description: "編集後の規約違反を検証する。Use when: 編集後検�
     - 特に確認する項目: コードブロック, 箇条書き, 番号付き手順, 矢印の使い分け, 長いインライン列挙の展開, 関連文書参照のリンク化
 3. Python ファイル (`*.py`): [python.instructions.md](../instructions/python.instructions.md) を参照し、型ヒント, import, pytest 前提の整合を確認する
 4. JavaScript ファイル (`*.js`): [javascript.instructions.md](../instructions/javascript.instructions.md) を参照し、GAS 制約, JSDoc, 定数管理を確認する
-    - `sync-garoon-to-google/` 配下を変更した場合は [sync-garoon-to-google-development](../skills/sync-garoon-to-google-development/SKILL.md) スキルも参照する
+    - `gas/` 配下を変更した場合は [sync-garoon-to-google-development](../skills/sync-garoon-to-google-development/SKILL.md) スキルも参照する
 5. YAML ファイル (`*.yaml`): [yaml.instructions.md](../instructions/yaml.instructions.md) を参照し、インデント, 配列整形, 引用符を確認する
 6. AI 文書 (`.github/**/*.md`): [ai-docs.instructions.md](../instructions/ai-docs.instructions.md) と [copilot-instructions.md](../copilot-instructions.md) を参照し、構造と運用整合性を確認する
     - 特に確認する項目: frontmatter (agent / instruction / skill / prompt に必須。top-level shared doc と reference doc は対象外), セクション構成, 参照ルール, ユースケース単位の分離, モデル方針の整合, リンクテキストの正確性

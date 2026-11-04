@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-cd sync-garoon-to-google
+cd gas
 
 echo "📝 Creating new Google Apps Script project..."
 clasp create --type api

@@ -24,7 +24,7 @@ applyTo: "**/*.js"
 ## Google Apps Script 固有の制約
 
 - `import` / `export` を使用せず、Apps Script が読み込めるグローバル定義を維持する
-- エントリーポイント関数は `sync-garoon-to-google/src/main/script.js` にグローバル関数として定義する
+- エントリーポイント関数は `gas/src/main/script.js` にグローバル関数として定義する
 - `PropertiesService`, `CalendarApp`, `Calendar`, `UrlFetchApp`, `Utilities`, `Session` への直接アクセスは config / dao / utility に寄せ、業務ロジックへ散らさない
 - ScriptProperties のキー, タグ名, API パスのような共有定数は文字列直書きせず `Constants` に集約する
 - ScriptProperties を追加 / 変更する場合は `Constants`, `ConfigManager`, `ScriptProperties.example.js` を同時に更新する

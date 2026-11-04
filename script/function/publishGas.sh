@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-cd sync-garoon-to-google
+cd gas
 
 echo "📤 Pushing to Google Apps Script..."
 clasp push
