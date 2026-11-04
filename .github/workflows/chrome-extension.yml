@@ -1,7 +1,6 @@
 name: Chrome Extension CI and Release
 
 on:
-  pull_request:
   push:
     branches: ["**"]
     tags: ["v*"]
@@ -11,8 +10,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+  queue: max
 
 jobs:
   validate:
@@ -68,9 +68,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    concurrency:
-      group: chrome-extension-release
-      cancel-in-progress: false
     steps:
       - uses: actions/download-artifact@v8.0.2
         with:

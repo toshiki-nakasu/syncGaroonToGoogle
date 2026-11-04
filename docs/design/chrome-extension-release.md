@@ -14,7 +14,7 @@
 
 ## CIとリリース
 
-[ワークフロー](../../.github/workflows/chrome-extension.yml)はPR、ブランチpush、`v*`タグpush、手動実行を受け付けます。タグで必要な文書の更新を取りこぼさないよう、パスフィルターは使いません。
+[ワークフロー](../../.github/workflows/chrome-extension.yml)はブランチpush、`v*`タグpush、手動実行を受け付けます。PRの更新もブランチpushで検証し、PRイベントとの二重起動を避けます。タグで必要な文書の更新を取りこぼさないよう、パスフィルターは使いません。
 
 | ジョブ | 確認または反映すること |
 | --- | --- |
@@ -24,7 +24,9 @@
 
 タグ以外の実行では検査用の`v0.0.1`を使い、READMEの文書リンクはコミットSHAへ向けます。この成果物は正式リリースにはしません。公開ジョブが検証ジョブから成果物を受け取り、再ビルドせずに公開します。
 
-同じタグの実行と公開処理の競合を制御し、公開済みリリースの添付物は変更しません。正式公開までの処理は同じワークフロー内で行い、トークンが起こす次のイベントには依存しません。[GitHubのイベント仕様](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow)を参照してください。
+ワークフロー全体で同じconcurrencyグループを使い、ブランチやタグが異なっても同時実行は1件に制限します。`cancel-in-progress: false`で実行中の処理を維持し、`queue: max`で後続を最大100件まで待機させます。公開済みリリースの添付物は変更しません。[GitHubの同時実行制御](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency)を参照してください。
+
+正式公開までの処理は同じワークフロー内で行い、トークンが起こす次のイベントには依存しません。[GitHubのイベント仕様](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow)を参照してください。
 
 ## 更新の境界
 
@@ -33,7 +35,7 @@
 更新元は導入済み`release.json`のGitHubリポジトリに限定します。最新の正式リリースから固定名のZIPとチェックサムを取得します。非公開リポジトリは環境変数のトークンを利用し、配布物へ保存しません。
 
 1. 一時フォルダーへダウンロードし、ZIPのSHA-256を照合する。
-1. 展開前に絶対パス、親参照、重複項目、リンクを拒否する。
+1. ZIP内の区切り文字を`/`へ統一し、展開前に絶対パス、親参照、重複項目、リンクを拒否する。検証した名前で展開する。
 1. リポジトリとタグ、全ファイルのSHA-256、manifestの版、想定外ファイルの有無を確認する。
 1. 旧`extension`を削除して新しい内容をコピーし、文書と更新ツールを置き換える。
 1. `release.json`を最後に書き込み、一時ファイルを削除する。
