@@ -21,7 +21,7 @@ description: "gas 配下の設計と運用パターン。Use when: Google Apps S
 - 現行の主要機能は Garoon から Google Calendar への一方向同期
 - Google Calendar から Garoon への同期は未実装で、`syncGCalToGaroon()` は TODO が多い
 - README は利用者向け運用手順として参照し、実装判断は `src/main/script.js` と `SyncEventService.js` を正本とする
-- 既存 project への通常配備は `sh ./script/function/googleLogin.sh` と `sh ./script/function/publishGas.sh` を基準とし、package scripts は同等操作の代替として扱う
+- 既存 project への通常配備は `sh ./gas/script/googleLogin.sh` と `sh ./gas/script/publishGas.sh` を基準とし、package scripts は同等操作の代替として扱う
 
 ## ディレクトリ責務
 
@@ -36,6 +36,7 @@ description: "gas 配下の設計と運用パターン。Use when: Google Apps S
 | `src/dataobject/` | 日時範囲, ユーザー, カレンダー設定などの値オブジェクト |
 | `src/properties/` | ScriptProperties のセットアップ例 |
 | `src/utility/` | Logger, Validator, 汎用補助処理 |
+| `script/` | GAS版の依存関係の準備, 認証, project作成, 配備 |
 
 ## 実装ルール
 
@@ -74,12 +75,12 @@ description: "gas 配下の設計と運用パターン。Use when: Google Apps S
 ## 運用と検証
 
 - 既存 project への通常配備:
-    1.  `sh ./script/function/googleLogin.sh`
-    2.  `sh ./script/function/publishGas.sh`
+    1.  `sh ./gas/script/googleLogin.sh`
+    2.  `sh ./gas/script/publishGas.sh`
 - **必須**: 認証と配備は上記 shell script を正本とし、raw の `clasp` コマンドへ置き換えない
 - **必須**: 配備は状態変更を伴うため、ユーザーの明示承認後にだけ実行する
 - 新規 Apps Script project を作成する場合:
-    1.  `sh ./script/function/setupGas.sh`
+    1.  `sh ./gas/script/setupGas.sh`
     2.  または `cd gas && npm run setup` (`clasp login` と `clasp create --type api` をまとめて実行)
 - 補助的な npm scripts: `npm run push`, `npm run open`, `npm run deploy`
 - 自動テスト基盤はまだ薄いため、重要変更では手動確認手順を明示する
