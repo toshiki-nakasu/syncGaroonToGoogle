@@ -32,13 +32,15 @@ function Read-Release {
         throw 'Invalid release file list.'
     }
     $required = @('README.md', 'update.bat', 'update.ps1', 'extension/manifest.json', $release.image)
+    # Older releases have no separate guides. Accept their metadata for migration.
+    $guides = @('google-calendar-setup.md', 'chrome-extension-usage.md')
     $names = @($release.files.PSObject.Properties.Name)
     foreach ($name in $required) {
         if ($names -cnotcontains $name) { throw "Required file is missing: $name" }
     }
     foreach ($property in $release.files.PSObject.Properties) {
         Assert-ReleasePath $property.Name
-        if (($property.Name -cnotin $required -and !$property.Name.StartsWith('extension/')) -or
+        if (($property.Name -cnotin $required -and $property.Name -cnotin $guides -and !$property.Name.StartsWith('extension/')) -or
             $property.Value -notmatch '^[a-f0-9]{64}$') {
             throw "Invalid managed file: $($property.Name)"
         }
@@ -164,7 +166,7 @@ function Invoke-ExtensionUpdate {
             Remove-Item -LiteralPath $extension -Recurse -Force
         }
         Copy-Item -LiteralPath (Join-Path $expanded 'extension') -Destination $extension -Recurse
-        foreach ($name in @('README.md', $incoming.image, 'update.ps1', 'update.bat')) {
+        foreach ($name in @($incoming.files.PSObject.Properties.Name | Where-Object { !$_.StartsWith('extension/') })) {
             Copy-Item -LiteralPath (Join-Path $expanded $name) -Destination (Join-Path $directoryPath $name) -Force
         }
         # Write the completion marker last. An interrupted update can be retried.

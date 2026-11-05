@@ -16,6 +16,33 @@
 
 GASのスクリプトとnpmコマンドは`gas/`を作業ディレクトリとして維持し、親にある共通のclaspを使います。`.clasp.json`と認証の参照位置は変えません。通常端末とdevcontainerで同じ依存を導入し、認証とプロジェクト作成は環境構築の処理に含めません。既存環境の移行は[依存関係の移行手順](../procedures/development-setup.md#依存関係を分けていた環境から移行する)に従います。
 
+リポジトリ固有の配布処理と文書検査はBashで実装し、JSONの処理にはjqを使います。JavaScriptのテストはNode.js標準のテストランナーから直接実行し、対象ファイルの収集に独自のJavaScriptを挟みません。構文検査にはNode.jsの`--check`を使います。Prettier, Playwright, claspはそれぞれの公式CLIを利用します。
+
+## スクリプトの配置と命名
+
+共通の開発ツールは`script/`配下で用途ごとにまとめます。実行用スクリプトを直下に並べず、同じ作業に属する処理と専用ライブラリーを同じ用途のフォルダーへ置きます。
+
+| 配置 | 責務 |
+| --- | --- |
+| [environment/](../../script/environment/) | 通常端末とdevcontainerの開発環境を準備する |
+| [documentation/](../../script/documentation/) | 文書のリンクと見出しを検査する |
+| [release/](../../script/release/) | 配布ZIPの生成とリリースタグの作成を行う |
+| [release/updater/](../../script/release/updater/) | ZIPへ同梱し、導入先で実行する更新ツールを置く |
+| [release/lib/](../../script/release/lib/) | リリース処理だけが使うメタデータの検証関数を置く |
+| [lib/](../../script/lib/) | 複数用途で共有する読み込み専用の関数を置く |
+| [test/](../../script/test/) | 開発ツールの自動テストを置く |
+
+ファイル名は小文字の英単語をハイフンでつなぎます。実行用スクリプトは動詞から始め、対象と操作が分かる名前にします。
+
+- ZIPを生成する処理は`release/build-extension.sh`へ置く。
+- タグを作成して送信する処理は`release/tag-and-push.sh`へ置く。
+- 文書を検査する処理は`documentation/check-links.sh`へ置く。
+- テストは`test/test-release.sh`のように`test-対象`で揃える。
+
+`source`で読み込むライブラリーは`markdown.sh`や`metadata.sh`のように扱う情報の名前にし、`lib/`で実行用スクリプトと区別します。特定用途の関数はその用途の`lib/`へ置き、複数用途から使う関数だけ共通の`script/lib/`へ置きます。
+
+配布ZIP内の更新ツールは`update.bat`と`update.ps1`の名前を維持します。リポジトリ内では`release/updater/`にまとめ、ビルド時にZIP直下へコピーします。npmコマンド, VS Codeタスク, GitHub Actionsは、それぞれ対応する実行用スクリプトを呼び出します。
+
 ## ブラウザーの準備
 
 Playwrightと対応するChromiumを組み合わせます。拡張機能を読み込むため、headless shellだけを導入する構成にはしません。テストは`channel: 'chromium'`で起動します。[Playwrightの拡張機能テスト](https://playwright.dev/docs/chrome-extensions)に従います。

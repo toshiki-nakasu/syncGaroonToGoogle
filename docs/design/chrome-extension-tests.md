@@ -11,7 +11,7 @@
 | [test/usecases](../../chrome-extension/test/usecases/) | アプリケーションを通した操作の完了と再開 | Chrome APIと外部サービス |
 | [test/browser](../../chrome-extension/test/browser/) | 実Chromiumでのモジュール読込と画面操作 | Google認証とCalendar API |
 | [test/support](../../chrome-extension/test/support/) | テスト環境と入力データの共通部分 | 検証対象として扱わない |
-| [script/test](../../script/test/) | 配布ZIPとタグ操作、Windowsでの更新 | Gitの送信先とGitHubのHTTP応答 |
+| [script/test](../../script/test/) | 配布処理と文書検査 | Gitの送信先とGitHubのHTTP応答 |
 
 単体テストは本番コードと対応するフォルダーに置きます。APIクライアントのテストに同期処理の期待値を持ち込まず、画面のテストへ削除計画の規則を複製しません。
 
@@ -54,7 +54,7 @@ HTML中の要素の並びとCSSクラス名だけを正解にする検査は行�
 
 ## 実ブラウザーとの境界
 
-配布処理のNode.jsテストはZIPの実際の内容と各ファイルのハッシュを確認します。タグは一時Gitリポジトリへ作成し、ローカルのbareリポジトリへ送ります。開発リポジトリとGitHubへタグを送信しません。
+配布処理のBashテストはZIPの実際の内容と各ファイルのハッシュを確認します。タグは一時Gitリポジトリへ作成し、ローカルのbareリポジトリへ送ります。開発リポジトリとGitHubへタグを送信しません。
 
 PowerShellの更新テストは生成済みZIPを使い、HTTP境界だけを差し替えます。ファイルの置き換え、不要ファイルの削除、同じ版の修復、破損ZIPの拒否を実ファイルで確認します。会社端末の実行ポリシーと実際のGitHub認証は別途確認します。
 

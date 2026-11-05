@@ -2,7 +2,7 @@ param([Parameter(Mandatory = $true)][string]$Package)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-. (Join-Path $PSScriptRoot '../release/update.ps1')
+. (Join-Path $PSScriptRoot '../release/updater/update.ps1')
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 function Assert-True {
@@ -31,6 +31,11 @@ try {
     $installation = Join-Path $temporary 'installation with spaces'
     Copy-Item -LiteralPath $source -Destination $installation -Recurse
     $old = Read-Release $installation
+    # Simulate an installation made before the guides were bundled separately.
+    foreach ($name in @('google-calendar-setup.md', 'chrome-extension-usage.md')) {
+        $old.files.PSObject.Properties.Remove($name)
+        Remove-Item -LiteralPath (Join-Path $installation $name)
+    }
     $old.tag = 'v0.0.0'
     $old.version = '0.0.0'
     # Use an older valid version while retaining the actual source hashes.
@@ -99,6 +104,11 @@ try {
     Remove-Item -LiteralPath (Join-Path $installation 'README.md')
     Invoke-ExtensionUpdate -Directory $installation
     Assert-True (Test-ReleaseFiles $installation $original) 'Repair incomplete same-version install'
+
+    Remove-Item -LiteralPath (Join-Path $installation 'google-calendar-setup.md')
+    Set-Content -LiteralPath (Join-Path $installation 'chrome-extension-usage.md') -Value 'outdated guide'
+    Invoke-ExtensionUpdate -Directory $installation
+    Assert-True (Test-ReleaseFiles $installation $original) 'Repair missing and modified guides'
 
     Set-Content -LiteralPath (Join-Path $installation 'README.md') -Value 'local content'
     $script:failNetwork = $true

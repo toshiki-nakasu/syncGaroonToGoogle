@@ -4,8 +4,8 @@
         {
             "label": "git: Tag & Push Extension Release",
             "type": "process",
-            "command": "node",
-            "args": ["script/tagRelease.mjs", "${input:version}"],
+            "command": "bash",
+            "args": ["script/release/tag-and-push.sh", "${input:version}"],
             "options": {
                 "cwd": "${workspaceFolder}"
             },

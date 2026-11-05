@@ -1,6 +1,6 @@
 # 開発と検証
 
-開発者がコードと文書を変更した後に行う検証手順です。[DEV-01とDEV-02](use-cases.md)を対象にします。
+開発者がコードと文書を変更した後に行う検証手順です。
 
 ## 前提
 
@@ -30,12 +30,18 @@
     npm --prefix chrome-extension run check
     ```
 
-    `src`, `ui`, `test`, `script`を対象にする。追加したモジュールも自動的に検査する。
+    `src`, `ui`, `test`を対象にする。追加したモジュールも自動的に検査する。
+
+1. Bashスクリプトの構文を検査する。
+
+    ```bash
+    find script .github/script gas/script -type f -name '*.sh' -print0 | xargs -0 -r -n 1 bash -n
+    ```
 
 1. Markdownのリンクと見出しへの参照を検査する。
 
     ```bash
-    node script/checkDocumentation.mjs
+    bash script/documentation/check-links.sh
     ```
 
     - 旧パスと移動前の見出しへの参照が残っていないことを確認する。
@@ -66,7 +72,7 @@
 Windowsの更新処理は、配布ZIPを作成したうえでWindows PowerShell 5.1から確認します。作業対象はテスト用の一時フォルダーで、GitHubへの接続は差し替えます。
 
 ```powershell
-powershell.exe -NoProfile -File script/test/Update.test.ps1 -Package dist/garoon-calendar-sync.zip
+powershell.exe -NoProfile -File script/test/test-updater.ps1 -Package dist/garoon-calendar-sync.zip
 ```
 
 GitHub Actionsも同じ検査を実行します。配布物の作成方法は[リリース手順](chrome-extension-release.md#配布物を手元で確認する)を参照してください。
@@ -78,6 +84,8 @@ GitHub Actionsも同じ検査を実行します。配布物の作成方法は[�
 ```bash
 npm run test:browser
 ```
+
+ソースから読み込む場合は、Chromeを実行するPC側の`chrome-extension`フォルダーを選びます。[Google認証の準備](google-calendar-setup.md)で設定するmanifestも`chrome-extension/manifest.json`に読み替えてください。devcontainer内の`/workspace`をChromeへ指定しません。
 
 成功後、実サービスとの接続確認が必要な変更では、次の手順を行います。
 

@@ -2,7 +2,7 @@
 
 利用者と保守担当者が、目的に合う仕様と操作を選ぶための入口です。コードは実行環境ごとに独立したフォルダーで管理します。
 
-最初に[ユースケース一覧](procedures/use-cases.md)で実行者と目的を確認してください。
+利用を始める場合は、[Chrome拡張機能のREADME](../chrome-extension/README.md)または[GAS版のREADME](../gas/README.md)から進んでください。
 
 ## Chrome拡張機能
 
@@ -32,6 +32,7 @@
 | --- | --- |
 | 開発ツールを導入する | [開発環境の構築](procedures/development-setup.md) |
 | 導入するツールと設定の管理場所を知る | [開発環境の設計](design/development-environment.md) |
+| 開発スクリプトの配置と命名を知る | [スクリプトの構成](design/development-environment.md#スクリプトの配置と命名) |
 | APIとの接続を調べる | [Garoon APIとの接続](design/garoon-api.md) |
 | テストの責務と確認範囲を選ぶ | [Chrome拡張機能のテスト設計](design/chrome-extension-tests.md) |
 | ローカルで検証する | [開発と検証](procedures/development-procedures.md) |

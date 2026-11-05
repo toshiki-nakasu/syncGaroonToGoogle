@@ -4,10 +4,10 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "test": "node script/runTests.js",
-        "test:unit": "node script/runTests.js unit",
-        "test:ui": "node script/runTests.js ui",
-        "test:usecases": "node script/runTests.js usecases",
-        "check": "node script/checkSyntax.js"
+        "test": "node --test 'test/unit/**/*.test.js' 'test/ui/**/*.test.js' 'test/usecases/**/*.test.js'",
+        "test:unit": "node --test 'test/unit/**/*.test.js'",
+        "test:ui": "node --test 'test/ui/**/*.test.js'",
+        "test:usecases": "node --test 'test/usecases/**/*.test.js'",
+        "check": "find src ui test -type f -name '*.js' -print0 | xargs -0 -r -n 1 node --check"
     }
 }

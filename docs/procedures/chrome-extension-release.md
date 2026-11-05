@@ -1,6 +1,6 @@
 # Chrome拡張機能をリリースする
 
-保守担当者が、検証済みのコミットへバージョンタグを付けて配布する手順です。[DEV-04](use-cases.md)を対象にします。ストア審査は使わず、GitHub Releasesへ配布用ZIPを公開します。
+保守担当者が、検証済みのコミットへバージョンタグを付けて配布する手順です。ストア審査は使わず、GitHub Releasesへ配布用ZIPを公開します。
 
 ## 前提
 
@@ -14,7 +14,7 @@
 
 ## 配布物を手元で確認する
 
-コマンドはリポジトリのルートで実行します。パッケージの生成とテストにはLinuxの`zip`と`unzip`を使います。
+コマンドはリポジトリのルートで実行します。配布ツールとテストはBashで実行し、Linuxの`zip`と`unzip`、JSONを処理する`jq`を使います。
 
 1. [ローカル検証](development-procedures.md#ローカル検証)と[ブラウザーテスト](development-procedures.md#実ブラウザーでの確認)を実行する。
 1. 配布予定のタグとリポジトリを指定する。
@@ -25,10 +25,12 @@
 
 1. `dist/garoon-calendar-sync.zip`と`dist/garoon-calendar-sync.zip.sha256`を確認する。
 
-    - ZIPに実行ファイル、利用手順、マッピング図、更新ツール、`release.json`が入っていることを確認する。
-    - 配布manifestの版が`0.1.1`になっていることを確認する。
-    - `README.md`は利用手順から生成される。他文書へのリンクは指定タグを参照するため、タグ公開後に有効になる。
+    - ZIPに実行ファイルと利用者向け文書、マッピング図と更新ツール、`release.json`が入っていることを確認する。
+    - `README.md`から同梱の`google-calendar-setup.md`と`chrome-extension-usage.md`へ進めることを確認する。
+    - 配布manifestの版が、入力したタグ名から`v`を除いた値になっていることを確認する。
+    - `README.md`は`chrome-extension/README.md`から生成される。同梱ファイルへのリンクはローカル参照とし、同梱しない文書へのリンクだけ指定タグを参照する。
     - ソースのmanifestとpackage.jsonは変更されない。
+    - 生成し直すと同じ出力先のZIPとチェックサムを置き換える。
 
 ## タグを作成してpushする
 
