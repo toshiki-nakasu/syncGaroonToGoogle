@@ -1,11 +1,11 @@
 # Google Calendar接続の準備
 
-Google Cloudを設定できる担当者が、Chrome拡張機能のGoogle認証を準備する手順です。対象の作業は[EXT-01](use-cases.md)です。
+Chrome拡張機能で利用するGoogle認証を準備する手順です。Google Cloudを設定できる利用者または担当者が実施してください。
 
 ## 前提
 
 - 拡張機能で利用するGoogleアカウントを用意する。
-- Chromeを実行するPCに、開発用ファイルまたは展開済みの配布ZIPを用意する。
+- Chromeを実行するPCに配布ZIPを展開し、[Chromeへの読み込み](chrome-extension-usage.md#リリース版を導入する)を完了する。
 - Google CloudでプロジェクトとOAuthクライアントを作成できる権限を確認する。
 
 ここでは「組織なし」のプロジェクトで、利用するアカウントをテストユーザーに追加します。「組織なし」を選べない場合は、そのアカウントでの作成条件を確認してから進めてください。[Googleのプロジェクト作成手順](https://docs.cloud.google.com/resource-manager/docs/creating-managing-projects)に選択条件があります。
@@ -62,9 +62,9 @@ Google Cloudを設定できる担当者が、Chrome拡張機能のGoogle認証�
     | 連絡先メール   | 設定を管理する担当者のメールアドレス |
 
 1. 「対象」(Audience)で公開ステータスを「テスト」にし、テストユーザーに利用するGoogleアカウントを追加する。
-1. 「データアクセス」で、[manifest.json](../../chrome-extension/manifest.json)の`oauth2.scopes`と同じアクセス範囲を設定する。
+1. 「データアクセス」で、予定操作とカレンダーの検索および作成に使うアクセス範囲を設定する。
 
-    - 予定操作とカレンダーの検索および作成に`https://www.googleapis.com/auth/calendar`を使う。
+    - `https://www.googleapis.com/auth/calendar`を追加する。
     - 設定したアカウントがテストユーザーに含まれていることを確認する。
 
 対象とテストユーザーの設定は[GoogleのOAuth同意画面の手順](https://developers.google.com/workspace/guides/configure-oauth-consent)を参照してください。
@@ -73,11 +73,9 @@ Google Cloudを設定できる担当者が、Chrome拡張機能のGoogle認証�
 
 1. 利用するPCのChromeで`chrome://extensions`を開く。
 1. 「デベロッパーモード」を有効にする。
-1. 「パッケージ化されていない拡張機能を読み込む」で`chrome-extension`フォルダーを選ぶ。
+1. 読み込み済みの`Garoon Calendar Sync`を探す。
 
-    - 配布ZIPを利用する場合は、展開した中の`extension`フォルダーを選ぶ。
-    - 選ぶのは[manifest.json](../../chrome-extension/manifest.json)が入っているフォルダー。
-    - Dev Containerを使っている場合も、Chromeを実行するPC側のパスを選ぶ。コンテナー内の`/workspace`を指定する手順ではない。
+    - まだ表示されない場合は、[リリース版の導入](chrome-extension-usage.md#リリース版を導入する)に戻り、展開先の`extension`フォルダーを読み込む。
 
 1. カードに表示された32文字の拡張機能IDを控える。
 
@@ -104,10 +102,11 @@ Google Cloudを設定できる担当者が、Chrome拡張機能のGoogle認証�
 
 ## クライアントIDを設定する
 
-1. [manifest.json](../../chrome-extension/manifest.json)の`oauth2.client_id`をコピーした値へ置き換える。
+1. 導入先の`extension/manifest.json`をテキストエディタで開き、`oauth2.client_id`をコピーした値へ置き換える。
 
     - 他の項目と`scopes`は変更しない。
     - 既に有効なクライアントIDが入っている場合は、その登録先の拡張機能IDが今回と一致するか確認する。
+    - 更新時にこのファイルは配布版で置き換わる。自分でクライアントIDを設定した場合は、更新後にも同じ値を設定してから再読み込みする。
 
 1. ファイルを保存する。
 1. `chrome://extensions`で拡張機能を再読み込みする。
@@ -117,5 +116,3 @@ Google Cloudを設定できる担当者が、Chrome拡張機能のGoogle認証�
 ## 接続がブロックされる場合
 
 Google Workspaceのアプリ利用制限は、プロジェクトの組織設定とは別に適用されます。会社のアカウントがブロックされた場合は次へ進まず、表示された理由を確認してください。
-
-管理者への確認が必要な場合は、OAuthクライアントIDと要求するアクセス範囲を伝えます。制限の適用範囲は[GoogleのOAuthアプリ状態の説明](https://developers.google.com/identity/protocols/oauth2/production-readiness/overview)を参照してください。

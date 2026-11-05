@@ -4,7 +4,7 @@
     "description": "Sync Garoon schedule to Google Calendar",
     "main": "index.js",
     "engines": {
-        "node": ">=20.0.0"
+        "node": ">=24 <25"
     },
     "scripts": {
         "setup": "clasp login && clasp create --type api",
@@ -14,10 +14,11 @@
         "deploy": "npm run push && npm run open",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
-    "keywords": ["garoon", "google-calendar", "gas"],
+    "keywords": [
+        "garoon",
+        "google-calendar",
+        "gas"
+    ],
     "author": "",
-    "license": "ISC",
-    "devDependencies": {
-        "@google/clasp": "^3.3.0"
-    }
+    "license": "ISC"
 }

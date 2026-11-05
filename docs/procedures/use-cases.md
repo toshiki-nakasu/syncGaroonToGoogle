@@ -19,5 +19,7 @@
 | DEV-02 | 開発者と利用者 | 実ブラウザーで変更を確認する | [実ブラウザーでの確認](development-procedures.md#実ブラウザーでの確認) |
 | DEV-03 | 開発者 | 開発ツールと検証用Chromiumを導入する | [開発環境の構築](development-setup.md) |
 | DEV-04 | 保守担当者 | バージョンタグから配布ZIPを公開する | [タグを作成してpushする](chrome-extension-release.md#タグを作成してpushする) |
+| DEV-05 | 保守担当者 | Gitタグを作成せずローカルで配布ZIPを生成する | [配布物を手元で確認する](chrome-extension-release.md#配布物を手元で確認する) |
+| DEV-06 | 保守担当者 | GitHub Actionsで配布ZIPを生成して取得する | [GitHub ActionsでZIPを生成する](chrome-extension-release.md#github-actionsでzipを生成する) |
 
 Google CalendarからGaroonへの逆方向同期は未実装です。APIの作成用メソッドが存在しても、一般利用の操作として完成した機能とは扱いません。

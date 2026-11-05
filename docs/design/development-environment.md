@@ -7,14 +7,41 @@
 | 管理場所 | 担当すること |
 | --- | --- |
 | [devcontainer](../../.devcontainer/devcontainer.json) | Node.js 24とコンテナーの実行設定 |
-| [Dockerfile](../../.devcontainer/Dockerfile) | Gitとシェルの基本ツール。hookが使うjqも導入する |
-| [共通package.json](../../package.json) | PrettierとPlaywrightのバージョンと公開コマンド |
-| [共通setup.sh](../../script/setup.sh) | lockファイルに基づく依存導入とChromiumの準備 |
-| [GAS用package.json](../../gas/package.json) | GASの配備にだけ必要なclasp |
+| [Dockerfile](../../.devcontainer/Dockerfile) | Gitとシェルの基本ツール。配布処理と文書検査、hookが使うjqも導入する |
+| [共通package.json](../../package.json) | Prettier, Playwright, claspのバージョンと公開コマンド |
+| [開発環境のセットアップ](../../script/environment/setup-development.sh) | lockファイルに基づく依存導入とChromiumの準備 |
+| [GAS用package.json](../../gas/package.json) | GASの作業ディレクトリから実行する配備コマンド |
 
-共通ツールとGASの依存関係は、それぞれの`package-lock.json`を追跡します。構築時は`npm ci`を使い、未固定のグローバルnpmパッケージを導入しません。拡張機能本体には実行時のnpm依存がありません。
+開発依存はルートの`package.json`と`package-lock.json`で一括管理し、`npm ci`でルートの`node_modules`へ導入します。拡張機能本体とGAS本体にはnpmの実行時依存がなく、claspも配備用の開発ツールなので、依存関係を分ける必要はありません。
 
-devcontainer作成時には共通ツールとGAS用ツールを準備します。通常端末の構築では、GAS用ツールは必要な場合だけ追加します。認証やプロジェクト作成は、環境構築の処理に含めません。
+GASのスクリプトとnpmコマンドは`gas/`を作業ディレクトリとして維持し、親にある共通のclaspを使います。`.clasp.json`と認証の参照位置は変えません。通常端末とdevcontainerで同じ依存を導入し、認証とプロジェクト作成は環境構築の処理に含めません。既存環境の移行は[依存関係の移行手順](../procedures/development-setup.md#依存関係を分けていた環境から移行する)に従います。
+
+リポジトリ固有の配布処理と文書検査はBashで実装し、JSONの処理にはjqを使います。JavaScriptのテストはNode.js標準のテストランナーから直接実行し、対象ファイルの収集に独自のJavaScriptを挟みません。構文検査にはNode.jsの`--check`を使います。Prettier, Playwright, claspはそれぞれの公式CLIを利用します。
+
+## スクリプトの配置と命名
+
+共通の開発ツールは`script/`配下で用途ごとにまとめます。実行用スクリプトを直下に並べず、同じ作業に属する処理と専用ライブラリーを同じ用途のフォルダーへ置きます。
+
+| 配置 | 責務 |
+| --- | --- |
+| [environment/](../../script/environment/) | 通常端末とdevcontainerの開発環境を準備する |
+| [documentation/](../../script/documentation/) | 文書のリンクと見出しを検査する |
+| [release/](../../script/release/) | 配布ZIPの生成とリリースタグの作成を行う |
+| [release/updater/](../../script/release/updater/) | ZIPへ同梱し、導入先で実行する更新ツールを置く |
+| [release/lib/](../../script/release/lib/) | リリース処理だけが使うメタデータの検証関数を置く |
+| [lib/](../../script/lib/) | 複数用途で共有する読み込み専用の関数を置く |
+| [test/](../../script/test/) | 開発ツールの自動テストを置く |
+
+ファイル名は小文字の英単語をハイフンでつなぎます。実行用スクリプトは動詞から始め、対象と操作が分かる名前にします。
+
+- ZIPを生成する処理は`release/build-extension.sh`へ置く。
+- タグを作成して送信する処理は`release/tag-and-push.sh`へ置く。
+- 文書を検査する処理は`documentation/check-links.sh`へ置く。
+- テストは`test/test-release.sh`のように`test-対象`で揃える。
+
+`source`で読み込むライブラリーは`markdown.sh`や`metadata.sh`のように扱う情報の名前にし、`lib/`で実行用スクリプトと区別します。特定用途の関数はその用途の`lib/`へ置き、複数用途から使う関数だけ共通の`script/lib/`へ置きます。
+
+配布ZIP内の更新ツールは`update.bat`と`update.ps1`の名前を維持します。リポジトリ内では`release/updater/`にまとめ、ビルド時にZIP直下へコピーします。npmコマンド, VS Codeタスク, GitHub Actionsは、それぞれ対応する実行用スクリプトを呼び出します。
 
 ## ブラウザーの準備
 
@@ -26,20 +53,17 @@ LinuxのOSライブラリはPlaywrightの`install --with-deps`で導入します
 
 ## AI文書の読込先
 
-文書は`docs/instructions/`に集約します。`.github/`にはhookの設定と実行スクリプトを残し、Markdownは置きません。
+AI文書は`.github/`配下に種類ごとに置きます。規約と実装指示は`.github/instructions/`へまとめ、配下に`rules/`などの階層を増やしません。利用者向けの仕様と手順は`docs/`へ置きます。
 
-VS Codeには、次の場所から読込先を設定します。
+VS Codeで[syncGaroonToGoogle.code-workspace](../../syncGaroonToGoogle.code-workspace)を開くと、通常端末とdevcontainerのどちらでも次の読込先を適用します。
 
-- devcontainerでは`customizations.vscode.settings`を適用する。
-- 通常端末では[syncGaroonToGoogle.code-workspace](../../syncGaroonToGoogle.code-workspace)を開く。
+| 文書                   | 設定                              |
+| ---------------------- | --------------------------------- |
+| `.github/instructions` | `chat.instructionsFilesLocations` |
+| `.github/agents`       | `chat.agentFilesLocations`        |
+| `.github/skills`       | `chat.agentSkillsLocations`       |
+| `.github/prompts`      | `chat.promptFilesLocations`       |
 
-| 文書                        | 設定                              |
-| --------------------------- | --------------------------------- |
-| `docs/instructions/rules`   | `chat.instructionsFilesLocations` |
-| `docs/instructions/agents`  | `chat.agentFilesLocations`        |
-| `docs/instructions/skills`  | `chat.agentSkillsLocations`       |
-| `docs/instructions/prompts` | `chat.promptFilesLocations`       |
-
-これらはエディタの設定です。CLIや別の対話環境への自動適用は保証しません。ルートの[AGENTS.md](../../AGENTS.md)は参照先を案内します。自動検出に対応しない環境では、作業開始時に[リポジトリの作業方針](../instructions/repository-policy.md)を明示的に読ませます。
+これらはエディタの設定です。CLIや別の対話環境への自動適用は保証しません。ルートの[AGENTS.md](../../AGENTS.md)は参照先を案内します。自動検出に対応しない環境では、作業開始時に[リポジトリの作業方針](../../.github/instructions/repository-policy.md)を明示的に読ませます。
 
 promptファイルの読込先設定はLocal harness向けです。利用する環境で対象が表示されない場合も、元の文書を直接参照できます。[VS Codeの設定仕様](https://code.visualstudio.com/docs/agents/reference/ai-settings)を確認してください。

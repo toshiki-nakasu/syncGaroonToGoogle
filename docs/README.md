@@ -2,7 +2,7 @@
 
 利用者と保守担当者が、目的に合う仕様と操作を選ぶための入口です。コードは実行環境ごとに独立したフォルダーで管理します。
 
-最初に[ユースケース一覧](procedures/use-cases.md)で実行者と目的を確認してください。
+利用を始める場合は、[Chrome拡張機能のREADME](../chrome-extension/README.md)または[GAS版のREADME](../gas/README.md)から進んでください。
 
 ## Chrome拡張機能
 
@@ -12,6 +12,8 @@
 | 設定して利用する | [接続設定と同期の操作](procedures/chrome-extension-usage.md) |
 | ZIPから導入する | [リリース版の導入](procedures/chrome-extension-usage.md#リリース版を導入する) |
 | タグを付けて配布する | [リリース手順](procedures/chrome-extension-release.md) |
+| ローカルで配布ZIPを作る | [配布物の生成](procedures/chrome-extension-release.md#配布物を手元で確認する) |
+| Actionsで配布ZIPを作る | [Artifactsの取得手順](procedures/chrome-extension-release.md#github-actionsでzipを生成する) |
 | 配布と更新の責務を知る | [リリースの設計](design/chrome-extension-release.md) |
 | 動作と制約を知る | [同期機能の要件](requirements/chrome-extension-requirements.md) |
 | クラスの責務を知る | [設計と依存関係](design/chrome-extension-design.md) |
@@ -32,9 +34,10 @@
 | --- | --- |
 | 開発ツールを導入する | [開発環境の構築](procedures/development-setup.md) |
 | 導入するツールと設定の管理場所を知る | [開発環境の設計](design/development-environment.md) |
+| 開発スクリプトの配置と命名を知る | [スクリプトの構成](design/development-environment.md#スクリプトの配置と命名) |
 | APIとの接続を調べる | [Garoon APIとの接続](design/garoon-api.md) |
 | テストの責務と確認範囲を選ぶ | [Chrome拡張機能のテスト設計](design/chrome-extension-tests.md) |
 | ローカルで検証する | [開発と検証](procedures/development-procedures.md) |
-| AIによる変更の確認先を探す | [実装指示の索引](instructions/maintenance.md) |
+| AIによる変更の確認先を探す | [実装指示の索引](../.github/instructions/maintenance.md) |
 
 要件と設計を分け、操作手順も独立した文書で管理します。個別作業の記録は恒久文書の前提にしません。

@@ -5,6 +5,12 @@ on:
     branches: ["**"]
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      package_tag:
+        description: ZIPの生成用タグ名 (v1.2.3形式。Gitタグの作成とリリース公開は行わない)
+        required: true
+        default: v0.0.1
+        type: string
 
 permissions:
   contents: read
@@ -35,12 +41,12 @@ jobs:
         run: npm run browser:install:deps
       - name: Run browser tests
         run: npm run test:browser
-      - name: Package extension using the tag version
+      - name: Build extension ZIP
         env:
-          RELEASE_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'v0.0.1' }}
+          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.package_tag || (startsWith(github.ref, 'refs/tags/') && github.ref_name || 'v0.0.1') }}
           REPOSITORY: ${{ github.repository }}
-          DOCUMENTATION_REF: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || github.sha }}
-        run: node script/packageExtension.mjs "$RELEASE_TAG" "$REPOSITORY" dist "$DOCUMENTATION_REF"
+          DOCUMENTATION_REF: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && github.ref_name || github.sha }}
+        run: bash script/release/build-extension.sh "$RELEASE_TAG" "$REPOSITORY" dist "$DOCUMENTATION_REF"
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: extension-release
@@ -60,7 +66,7 @@ jobs:
           path: dist
       - name: Test updater with Windows PowerShell 5.1
         shell: powershell
-        run: "& ./script/test/Update.test.ps1 -Package ./dist/garoon-calendar-sync.zip"
+        run: "& ./script/test/test-updater.ps1 -Package ./dist/garoon-calendar-sync.zip"
 
   release:
     needs: [validate, updater]
