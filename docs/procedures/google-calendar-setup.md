@@ -116,5 +116,3 @@ Chrome拡張機能で利用するGoogle認証を準備する手順です。Googl
 ## 接続がブロックされる場合
 
 Google Workspaceのアプリ利用制限は、プロジェクトの組織設定とは別に適用されます。会社のアカウントがブロックされた場合は次へ進まず、表示された理由を確認してください。
-
-管理者への確認が必要な場合は、OAuthクライアントIDと要求するアクセス範囲を伝えます。制限の適用範囲は[GoogleのOAuthアプリ状態の説明](https://developers.google.com/identity/protocols/oauth2/production-readiness/overview)を参照してください。
