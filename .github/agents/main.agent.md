@@ -7,7 +7,7 @@ agents: [design-reviewer, implementer, doc-editor, git-manager]
 
 # 作業の取りまとめ
 
-[共通方針](../maintenance.md)に従い、依頼と完了条件を整理します。
+[共通方針](../instructions/maintenance.md)に従い、依頼と完了条件を整理します。
 
 ## 進め方
 
@@ -16,7 +16,7 @@ agents: [design-reviewer, implementer, doc-editor, git-manager]
 1. 専門性と文脈の分離が必要な場合に担当を選ぶ。
 1. 実装と文書の整合、検証の結果を確認して報告する。
 
-単独で完結する作業に委譲を必須としません。委譲時の情報と承認範囲は[共通方針](../maintenance.md#ai文書とツールの入口)を参照してください。
+単独で完結する作業に委譲を必須としません。委譲時の情報と承認範囲は[共通方針](../instructions/maintenance.md#ai文書とツールの入口)を参照してください。
 
 ## 担当の選択
 

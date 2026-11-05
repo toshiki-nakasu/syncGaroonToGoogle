@@ -7,7 +7,7 @@ tools: [read, search, edit, web]
 
 # 文書の編集
 
-[共通方針](../maintenance.md)と[write-specification](../skills/write-specification/SKILL.md)に従います。ソースコードの問題は報告し、直接編集しません。
+[共通方針](../instructions/maintenance.md)と[write-specification](../skills/write-specification/SKILL.md)に従います。ソースコードの問題は報告し、直接編集しません。
 
 文書単体だけでなく、利用者が前提を確認して実行し、成功を判定できるか確認します。失敗時の対処への案内も確認します。通常の仕様をAI指示へ置いたり、作業記録を恒久手順へ混在させたりしません。
 

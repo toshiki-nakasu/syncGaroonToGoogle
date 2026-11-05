@@ -1,15 +1,15 @@
 # 実装指示の索引と共通方針
 
-AIが変更時に見落としやすい判断を確認するための入口です。通常の仕様と操作は[ドキュメント一覧](../README.md)へ置き、この領域へ再掲しません。
+AIが変更時に見落としやすい判断を確認するための入口です。通常の仕様と操作は[ドキュメント一覧](../../docs/README.md)へ置き、この領域へ再掲しません。
 
 ## 変更領域の選択
 
 | 変更する領域 | 先に読む指示 | 人向けの確認先 |
 | --- | --- | --- |
-| Chrome拡張機能 | [拡張機能の変更](extension-development.md) | [拡張機能の設計](../design/chrome-extension-design.md) |
-| GAS版 | [GAS版の変更](gas-development.md) | [GAS版の設計](../design/gas-design.md) |
-| Markdown | [文書規約](rules/markdown.instructions.md) | [ドキュメント一覧](../README.md) |
-| 検証 | 対象実装の指示 | [開発と検証](../procedures/development-procedures.md) |
+| Chrome拡張機能 | [拡張機能の変更](extension-development.md) | [拡張機能の設計](../../docs/design/chrome-extension-design.md) |
+| GAS版 | [GAS版の変更](gas-development.md) | [GAS版の設計](../../docs/design/gas-design.md) |
+| Markdown | [文書規約](markdown.instructions.md) | [ドキュメント一覧](../../docs/README.md) |
+| 検証 | 対象実装の指示 | [開発と検証](../../docs/procedures/development-procedures.md) |
 
 ## 変更時の共通方針
 
@@ -48,24 +48,24 @@ AIが変更時に見落としやすい判断を確認するための入口です
 
 ## AI文書とツールの入口
 
-AI向け文書は`docs/instructions/`を正本にします。`.github/`へ文書の複製や参照用Markdownを戻さないでください。ルートの[AGENTS.md](../../AGENTS.md)は参照先だけを案内します。
+AI向け文書は`.github/`配下で種類ごとに管理します。作業規則と実装指示は`instructions/`へ置き、`docs/`には利用者と保守担当者向けの仕様と手順を置きます。ルートの[AGENTS.md](../../AGENTS.md)は参照先だけを案内します。
 
-VS Codeの読込先は[開発環境の設計](../design/development-environment.md#ai文書の読込先)で確認します。CLIはエディタの読込先設定を引き継がないため、移動後も自動検出されると推測しません。
+VS Codeの読込先は[開発環境の設計](../../docs/design/development-environment.md#ai文書の読込先)で確認します。CLIはエディタの読込先設定を引き継がないため、移動後も自動検出されると推測しません。
 
-| 種類                | 入口に残す情報                             |
-| ------------------- | ------------------------------------------ |
-| [rules](rules/)     | 適用対象と共通の記法規約、実装指示への参照 |
-| [skills](skills/)   | 実行する作業の選び方と参照順               |
-| [agents](agents/)   | 役割と出力、変更できる範囲                 |
-| [prompts](prompts/) | レビュー対象と結果の返し方                 |
+| 種類                   | 入口に残す情報                         |
+| ---------------------- | -------------------------------------- |
+| [instructions](./)     | 適用対象と共通の規約、実装変更時の判断 |
+| [skills](../skills/)   | 実行する作業の選び方と参照順           |
+| [agents](../agents/)   | 役割と出力、変更できる範囲             |
+| [prompts](../prompts/) | レビュー対象と結果の返し方             |
 
 全体の入口は[リポジトリの作業方針](repository-policy.md)です。通常のコード変更で使う規約は次を参照します。
 
-- [JavaScript規約](rules/javascript.instructions.md)
-- [Markdown規約](rules/markdown.instructions.md)
-- [YAML規約](rules/yaml.instructions.md)
-- [Python規約](rules/python.instructions.md)
-- [AI向け文書の保守](rules/ai-docs.instructions.md)
+- [JavaScript規約](javascript.instructions.md)
+- [Markdown規約](markdown.instructions.md)
+- [YAML規約](yaml.instructions.md)
+- [Python規約](python.instructions.md)
+- [AI向け文書の保守](ai-docs.instructions.md)
 
 単独で完結する作業に委譲を必須としません。委譲する場合は次を伝えます。
 
@@ -78,4 +78,4 @@ VS Codeの読込先は[開発環境の設計](../design/development-environment.
 
 編集用hookは、実行環境と対応ツールの組合せによって動作します。hookが設定されているだけで、すべての編集が整形と検査を通過したとは判断しません。
 
-完了前には[ローカル検証](../procedures/development-procedures.md#ローカル検証)を実行します。文書は[内容レビュー](rules/markdown.instructions.md#変更時の内容レビュー)に従って通読します。作業結果は通常手順へ書き込まず、PRまたは作業記録へ残します。
+完了前には[ローカル検証](../../docs/procedures/development-procedures.md#ローカル検証)を実行します。文書は[内容レビュー](markdown.instructions.md#変更時の内容レビュー)に従って通読します。作業結果は通常手順へ書き込まず、PRまたは作業記録へ残します。

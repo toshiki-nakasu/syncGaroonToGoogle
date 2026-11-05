@@ -1,11 +1,11 @@
 ---
 description: "AI向け文書の役割と参照を確認する。Use when: instructions, skills, agents, promptsの変更。"
-applyTo: "docs/instructions/**/*.md,AGENTS.md"
+applyTo: ".github/**/*.md,AGENTS.md"
 ---
 
 # AI向け文書の保守
 
-配置と重複の判断は[Markdown規約](markdown.instructions.md)、共通の変更条件は[実装指示の索引](../maintenance.md)を正本にします。
+配置と重複の判断は[Markdown規約](markdown.instructions.md)、共通の変更条件は[実装指示の索引](maintenance.md)を正本にします。
 
 ## 入口の形式
 

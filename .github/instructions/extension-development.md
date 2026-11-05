@@ -1,6 +1,6 @@
 # Chrome拡張機能を変更するときの注意
 
-拡張機能を変更するAIが、ローカルの単純なモックでは見逃す条件を確認するための指示です。[共通方針](maintenance.md)を適用し、通常の設計は[クラス構成](../design/chrome-extension-design.md)を参照してください。
+拡張機能を変更するAIが、ローカルの単純なモックでは見逃す条件を確認するための指示です。[共通方針](maintenance.md)を適用し、通常の設計は[クラス構成](../../docs/design/chrome-extension-design.md)を参照してください。
 
 ## 保存領域を通る比較を変更する場合
 
@@ -24,4 +24,4 @@ Workerの`fetch`をクライアントのメソッドとして呼ぶと、`this`�
 
 GoogleのイベントIDとGaroonの識別子は別です。保存済みの管理情報から照合する処理を、生成したGoogleイベントIDの一致だけへ置き換えないでください。
 
-管理情報を持たない予定を件名と日時で推測して削除しません。変更時は[照合の要件](../requirements/chrome-extension-requirements.md#予定の照合)と、同じカレンダーを複数行で共有するテストを確認します。
+管理情報を持たない予定を件名と日時で推測して削除しません。変更時は[照合の要件](../../docs/requirements/chrome-extension-requirements.md#予定の照合)と、同じカレンダーを複数行で共有するテストを確認します。

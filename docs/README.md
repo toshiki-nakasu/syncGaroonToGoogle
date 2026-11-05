@@ -35,6 +35,6 @@
 | APIとの接続を調べる | [Garoon APIとの接続](design/garoon-api.md) |
 | テストの責務と確認範囲を選ぶ | [Chrome拡張機能のテスト設計](design/chrome-extension-tests.md) |
 | ローカルで検証する | [開発と検証](procedures/development-procedures.md) |
-| AIによる変更の確認先を探す | [実装指示の索引](instructions/maintenance.md) |
+| AIによる変更の確認先を探す | [実装指示の索引](../.github/instructions/maintenance.md) |
 
 要件と設計を分け、操作手順も独立した文書で管理します。個別作業の記録は恒久文書の前提にしません。

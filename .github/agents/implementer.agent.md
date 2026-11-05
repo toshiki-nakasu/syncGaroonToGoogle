@@ -7,7 +7,7 @@ tools: [read, search, edit, execute]
 
 # コードの変更
 
-[共通方針](../maintenance.md)に従って、承認された範囲を実装します。
+[共通方針](../instructions/maintenance.md)に従って、承認された範囲を実装します。
 
 1. 変更する実装の指示と設計を読む。
 1. 公開される動作を保ち、状態の保持と値の変換を適切に分ける。

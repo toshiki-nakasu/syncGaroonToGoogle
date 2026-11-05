@@ -26,20 +26,17 @@ LinuxのOSライブラリはPlaywrightの`install --with-deps`で導入します
 
 ## AI文書の読込先
 
-文書は`docs/instructions/`に集約します。`.github/`にはhookの設定と実行スクリプトを残し、Markdownは置きません。
+AI文書は`.github/`配下に種類ごとに置きます。規約と実装指示は`.github/instructions/`へまとめ、配下に`rules/`などの階層を増やしません。利用者向けの仕様と手順は`docs/`へ置きます。
 
-VS Codeには、次の場所から読込先を設定します。
+VS Codeで[syncGaroonToGoogle.code-workspace](../../syncGaroonToGoogle.code-workspace)を開くと、通常端末とdevcontainerのどちらでも次の読込先を適用します。
 
-- devcontainerでは`customizations.vscode.settings`を適用する。
-- 通常端末では[syncGaroonToGoogle.code-workspace](../../syncGaroonToGoogle.code-workspace)を開く。
+| 文書                   | 設定                              |
+| ---------------------- | --------------------------------- |
+| `.github/instructions` | `chat.instructionsFilesLocations` |
+| `.github/agents`       | `chat.agentFilesLocations`        |
+| `.github/skills`       | `chat.agentSkillsLocations`       |
+| `.github/prompts`      | `chat.promptFilesLocations`       |
 
-| 文書                        | 設定                              |
-| --------------------------- | --------------------------------- |
-| `docs/instructions/rules`   | `chat.instructionsFilesLocations` |
-| `docs/instructions/agents`  | `chat.agentFilesLocations`        |
-| `docs/instructions/skills`  | `chat.agentSkillsLocations`       |
-| `docs/instructions/prompts` | `chat.promptFilesLocations`       |
-
-これらはエディタの設定です。CLIや別の対話環境への自動適用は保証しません。ルートの[AGENTS.md](../../AGENTS.md)は参照先を案内します。自動検出に対応しない環境では、作業開始時に[リポジトリの作業方針](../instructions/repository-policy.md)を明示的に読ませます。
+これらはエディタの設定です。CLIや別の対話環境への自動適用は保証しません。ルートの[AGENTS.md](../../AGENTS.md)は参照先を案内します。自動検出に対応しない環境では、作業開始時に[リポジトリの作業方針](../../.github/instructions/repository-policy.md)を明示的に読ませます。
 
 promptファイルの読込先設定はLocal harness向けです。利用する環境で対象が表示されない場合も、元の文書を直接参照できます。[VS Codeの設定仕様](https://code.visualstudio.com/docs/agents/reference/ai-settings)を確認してください。
