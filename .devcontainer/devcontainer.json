@@ -33,11 +33,6 @@
             "type": "volume",
             "source": "docker_volume",
             "target": "/var/lib/docker"
-        },
-        {
-            "type": "volume",
-            "source": "sync-garoon-to-google-node_modules",
-            "target": "/workspace/gas/node_modules"
         }
     ],
     "features": {
@@ -46,7 +41,6 @@
         },
         "ghcr.io/devcontainers/features/git-lfs:1": {},
         "ghcr.io/devcontainers/features/github-cli:1": {},
-        "ghcr.io/devcontainers/features/aws-cli:1": {},
         "ghcr.io/devcontainers/features/node:1": {
             "version": "24"
         }
@@ -66,11 +60,9 @@
     // info: key is output stage
     "overrideCommand": true,
     "postCreateCommand": {
-        "setup": "sudo chown -R node:node /workspace/node_modules /workspace/gas/node_modules && bash script/postCreate.sh"
+        "setup": "sudo chown -R node:node /workspace/node_modules && bash script/environment/setup-devcontainer.sh"
     },
-    "postStartCommand": {
-        "add_git_safe_directory": "git config --global --add safe.directory /workspace"
-    },
+    "postStartCommand": {},
 
     // ## IDE
     "customizations": {

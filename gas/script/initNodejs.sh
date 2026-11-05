@@ -1,9 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 
-echo "📦 Installing project dependencies..."
+echo "📦 Installing shared development dependencies..."
 npm ci --include=dev
 
 echo "✅ Node.js setup completed!"

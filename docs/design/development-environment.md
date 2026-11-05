@@ -7,14 +7,14 @@
 | 管理場所 | 担当すること |
 | --- | --- |
 | [devcontainer](../../.devcontainer/devcontainer.json) | Node.js 24とコンテナーの実行設定 |
-| [Dockerfile](../../.devcontainer/Dockerfile) | Gitとシェルの基本ツール。hookが使うjqも導入する |
-| [共通package.json](../../package.json) | PrettierとPlaywrightのバージョンと公開コマンド |
-| [共通setup.sh](../../script/setup.sh) | lockファイルに基づく依存導入とChromiumの準備 |
-| [GAS用package.json](../../gas/package.json) | GASの配備にだけ必要なclasp |
+| [Dockerfile](../../.devcontainer/Dockerfile) | Gitとシェルの基本ツール。配布処理と文書検査、hookが使うjqも導入する |
+| [共通package.json](../../package.json) | Prettier, Playwright, claspのバージョンと公開コマンド |
+| [開発環境のセットアップ](../../script/environment/setup-development.sh) | lockファイルに基づく依存導入とChromiumの準備 |
+| [GAS用package.json](../../gas/package.json) | GASの作業ディレクトリから実行する配備コマンド |
 
-共通ツールとGASの依存関係は、それぞれの`package-lock.json`を追跡します。構築時は`npm ci`を使い、未固定のグローバルnpmパッケージを導入しません。拡張機能本体には実行時のnpm依存がありません。
+開発依存はルートの`package.json`と`package-lock.json`で一括管理し、`npm ci`でルートの`node_modules`へ導入します。拡張機能本体とGAS本体にはnpmの実行時依存がなく、claspも配備用の開発ツールなので、依存関係を分ける必要はありません。
 
-devcontainer作成時には共通ツールとGAS用ツールを準備します。通常端末の構築では、GAS用ツールは必要な場合だけ追加します。認証やプロジェクト作成は、環境構築の処理に含めません。
+GASのスクリプトとnpmコマンドは`gas/`を作業ディレクトリとして維持し、親にある共通のclaspを使います。`.clasp.json`と認証の参照位置は変えません。通常端末とdevcontainerで同じ依存を導入し、認証とプロジェクト作成は環境構築の処理に含めません。既存環境の移行は[依存関係の移行手順](../procedures/development-setup.md#依存関係を分けていた環境から移行する)に従います。
 
 ## ブラウザーの準備
 

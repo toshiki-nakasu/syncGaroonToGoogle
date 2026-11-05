@@ -5,7 +5,7 @@
         "node": ">=24 <25"
     },
     "scripts": {
-        "setup": "bash script/setup.sh",
+        "setup": "bash script/environment/setup-development.sh",
         "test": "npm --prefix chrome-extension test && npm run test:release",
         "check": "npm --prefix chrome-extension run check && node --check script/checkDocumentation.mjs && node --check script/packageExtension.mjs && node --check script/tagRelease.mjs && node script/checkDocumentation.mjs",
         "test:release": "node --test script/test/*.test.mjs",
@@ -18,6 +18,7 @@
         "test:browser": "node --test chrome-extension/test/browser/*.test.js"
     },
     "devDependencies": {
+        "@google/clasp": "3.4.1",
         "playwright": "1.64.1",
         "prettier": "3.9.10"
     }
