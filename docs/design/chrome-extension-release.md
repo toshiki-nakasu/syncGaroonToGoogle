@@ -4,11 +4,11 @@
 
 ## バージョンと配布物
 
-リリース番号の正本は`v1.2.3`形式のGitタグです。ビルド時に配布物のmanifestへ`1.2.3`を設定し、開発用manifestの版と認証設定は書き換えません。Chromeに合わせて各数値は0〜65535、全桁0は拒否します。
+正式リリース番号の正本は`v1.2.3`形式のGitタグです。ZIPの生成だけを行う場合は、同じ形式のタグ名を入力として使い、Gitタグの存在は要求しません。ビルド時に配布物のmanifestへ`1.2.3`を設定し、開発用manifestの版と認証設定は書き換えません。Chromeに合わせて各数値は0〜65535、全桁0は拒否します。
 
 配布物は[build-extension.sh](../../script/release/build-extension.sh)で組み立てます。`chrome-extension/src`と`ui`、manifest、更新ツール、利用手順、画像を明示してコピーします。テスト、GAS、`tmp`の参考ファイルは含めません。
 
-npmコマンドとGitHub Actionsは同じBashスクリプトを呼び出します。この処理は作業ツリーのファイルを使い、Gitタグの作成とpushは行いません。タグを送信するVS Codeタスクは[tag-and-push.sh](../../script/release/tag-and-push.sh)を呼び出し、ZIP生成から独立させます。
+ローカルのZIP生成タスクとGitHub Actionsは同じBashスクリプトを呼び出します。この処理は作業ツリーのファイルを使い、Gitタグの作成とpushは行いません。タグを送信するVS Codeタスクは[tag-and-push.sh](../../script/release/tag-and-push.sh)を呼び出し、ZIP生成から独立させます。
 
 `chrome-extension/README.md`を利用者向けの配布用`README.md`へ変換します。`docs/procedures/`の`google-calendar-setup.md`と`chrome-extension-usage.md`もZIP直下へ同梱します。READMEから導入とGoogle認証、日常操作と更新の手順へ進める構成です。各文書の正本をコピーし、配布専用の本文は作りません。
 
@@ -26,7 +26,9 @@ npmコマンドとGitHub Actionsは同じBashスクリプトを呼び出しま�
 | `updater` | 生成したZIPをWindows PowerShell 5.1で展開し、更新処理を検証する |
 | `release` | タグpushの場合だけ、両検証に成功したZIPをDraftへ添付して正式公開する |
 
-タグ以外の実行では検査用の`v0.0.1`を使い、同梱しない文書へのリンクはコミットSHAへ向けます。この成果物は正式リリースにはしません。公開ジョブが検証ジョブから成果物を受け取り、再ビルドせずに公開します。
+手動実行では`package_tag`に指定したタグ名でZIPを生成します。ブランチpushでは検査用の版を使います。どちらも同梱しない文書へのリンクは生成元のコミットSHAへ向け、成果物はArtifactsから取得します。手動実行でタグを選択しても、Gitタグの作成と正式リリースの公開は行いません。
+
+タグpushではGitタグから版を決め、公開ジョブが検証ジョブから成果物を受け取り、再ビルドせずに公開します。
 
 ワークフロー全体で同じconcurrencyグループを使い、ブランチやタグが異なっても同時実行は1件に制限します。`cancel-in-progress: false`で実行中の処理を維持し、`queue: max`で後続を最大100件まで待機させます。公開済みリリースの添付物は変更しません。[GitHubの同時実行制御](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency)を参照してください。
 

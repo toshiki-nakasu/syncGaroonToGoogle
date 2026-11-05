@@ -16,6 +16,24 @@
             }
         },
         {
+            "label": "release: Build Extension ZIP (Local)",
+            "type": "process",
+            "command": "bash",
+            "args": [
+                "script/release/build-extension.sh",
+                "${input:packageTag}",
+                "${input:repository}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
             "label": "VSCode: Install Recommended Extensions",
             "type": "shell",
             "command": "bash",
@@ -40,6 +58,18 @@
             "type": "promptString",
             "description": "Chrome拡張機能のリリース番号 (例: 1.0.0 または v1.0.0)",
             "default": "0.1.0"
+        },
+        {
+            "id": "packageTag",
+            "type": "promptString",
+            "description": "ZIPの生成用タグ名 (例: v1.2.3。Gitタグの存在は不要で、タグ作成とpushは行わない)",
+            "default": "v0.1.0"
+        },
+        {
+            "id": "repository",
+            "type": "promptString",
+            "description": "配布物の更新元リポジトリ (owner/repository形式)",
+            "default": "toshiki-nakasu/syncGaroonToGoogle"
         }
     ]
 }

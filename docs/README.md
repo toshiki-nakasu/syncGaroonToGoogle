@@ -12,6 +12,8 @@
 | 設定して利用する | [接続設定と同期の操作](procedures/chrome-extension-usage.md) |
 | ZIPから導入する | [リリース版の導入](procedures/chrome-extension-usage.md#リリース版を導入する) |
 | タグを付けて配布する | [リリース手順](procedures/chrome-extension-release.md) |
+| ローカルで配布ZIPを作る | [配布物の生成](procedures/chrome-extension-release.md#配布物を手元で確認する) |
+| Actionsで配布ZIPを作る | [Artifactsの取得手順](procedures/chrome-extension-release.md#github-actionsでzipを生成する) |
 | 配布と更新の責務を知る | [リリースの設計](design/chrome-extension-release.md) |
 | 動作と制約を知る | [同期機能の要件](requirements/chrome-extension-requirements.md) |
 | クラスの責務を知る | [設計と依存関係](design/chrome-extension-design.md) |
