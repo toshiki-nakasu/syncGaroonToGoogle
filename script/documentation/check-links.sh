@@ -4,9 +4,18 @@ set -euo pipefail
 script_root=$(cd "$(dirname "$0")" && pwd)
 source "$script_root/../lib/markdown.sh"
 root=$(realpath "${1:-$script_root/../..}")
+if [[ ! -d $root ]]; then
+    echo "検査対象のディレクトリが存在しません: $root" >&2
+    exit 1
+fi
 errors=0
 count=0
 declare -A headings=()
+
+# 探索の失敗を終了コードへ反映し、対象ルート自身は除外しない。
+documents=$(mktemp "${TMPDIR:-/tmp}/garoon-documents-XXXXXX")
+trap 'rm -f -- "$documents"' EXIT
+find "$root" -mindepth 1 \( -type d \( -name .git -o -name node_modules -o -name .codex -o -name work -o -name dist -o -name tmp -o -path "$root/.agents/skills" \) -prune \) -o \( -type f -name '*.md' -print0 \) > "$documents"
 
 while IFS= read -r -d '' source; do
     count=$((count + 1))
@@ -49,7 +58,7 @@ while IFS= read -r -d '' source; do
             fi
         fi
     done <<< "$links"
-done < <(find "$root" \( -type d \( -name .git -o -name node_modules -o -name .codex -o -name work -o -name dist -o -name tmp -o -path "$root/.agents/skills" \) -prune \) -o \( -type f -name '*.md' -print0 \))
+done < "$documents"
 
 (( errors == 0 )) || exit 1
 echo "${count}文書の相対リンクと見出しを確認しました。"

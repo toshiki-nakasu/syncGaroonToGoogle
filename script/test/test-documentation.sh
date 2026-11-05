@@ -45,4 +45,18 @@ fi
 for message in '参照先が存在しません' '見出しが存在しません' '不正な参照'; do
     grep -q "$message" "$temporary/result.log"
 done
+
+# 除外対象と同名のルートも検査し、存在しないルートは拒否する。
+mkdir "$temporary/work"
+echo '[欠落](missing.md)' > "$temporary/work/README.md"
+if bash "$root/script/documentation/check-links.sh" "$temporary/work" > "$temporary/result.log" 2>&1; then
+    echo '失敗: 検査対象のルートを除外しました。' >&2
+    exit 1
+fi
+grep -q '参照先が存在しません' "$temporary/result.log"
+if bash "$root/script/documentation/check-links.sh" "$temporary/missing" > "$temporary/result.log" 2>&1; then
+    echo '失敗: 存在しないルートの検査が成功しました。' >&2
+    exit 1
+fi
+grep -q 'ディレクトリが存在しません' "$temporary/result.log"
 echo '成功: 文書リンク、見出しの重複、コードフェンスと除外対象の検査'
